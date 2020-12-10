@@ -13,7 +13,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    margin: auto
+    margin: auto;
 }
 
     .loading::after {
@@ -29,16 +29,16 @@
         left: 0;
         right: 0;
         margin: auto;
-        animation: rotation 1.5s linear 0s infinite
+        animation: rotation 1.5s linear 0s infinite;
     }
 
 @keyframes rotation {
     0% {
-        transform: rotate(45deg)
+        transform: rotate(45deg);
     }
 
     100% {
-        transform: rotate(405deg)
+        transform: rotate(405deg);
     }
 }
 
@@ -51,12 +51,12 @@
     padding: .6rem 1.25rem .7rem 1.25rem;
     position: fixed;
     right: 0;
-    z-index: 1000
+    z-index: 1000;
 }
 
     #blazor-error-ui .dismiss {
         cursor: pointer;
         position: absolute;
         right: .75rem;
-        top: .5rem
+        top: .5rem;
     }

@@ -1,0 +1,40 @@
+﻿@page "/"
+@inject RequestSongService RequestSongService
+
+<h3>RequestSongList</h3>
+
+<table>
+    <tr>
+        <th>No.</th>
+        <th>曲名</th>
+        <th>タイアップ</th>
+        <th>ファイル名</th>
+        <th>登録者</th>
+        <th>コメント</th>
+    </tr>
+    @foreach (RequestSong requestSong in requestSongs)
+    {
+        <tr @key="requestSong.Id">
+            <td>@requestSong.Id</td>
+            <td>@requestSong.SongName</td>
+            <td>@requestSong.TieUpName</td>
+            <td>@requestSong.Path</td>
+            <td>@requestSong.User</td>
+            <td>@requestSong.Comment</td>
+        </tr>
+    }
+</table>
+
+@code
+{
+    IEnumerable<RequestSong> requestSongs = new RequestSong[0];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(() =>
+        {
+            requestSongs = RequestSongService.GetRequestSongs();
+        });
+    }
+
+}

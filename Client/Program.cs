@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using YukariBlazorDemo.Client.Models.Services;
 
 namespace YukariBlazorDemo.Client
 {
@@ -18,6 +19,7 @@ namespace YukariBlazorDemo.Client
 			builder.RootComponents.Add<App>("#app");
 
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+			builder.Services.AddScoped<RequestSongService>();
 
 			await builder.Build().RunAsync();
 		}

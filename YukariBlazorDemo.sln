@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YukariBlazorDemo.Server", "Server\YukariBlazorDemo.Server.csproj", "{D9BA15C1-1899-4713-A61F-8B36176FC324}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YukariBlazorDemo.Server", "Server\YukariBlazorDemo.Server.csproj", "{D9BA15C1-1899-4713-A61F-8B36176FC324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YukariBlazorDemo.Client", "Client\YukariBlazorDemo.Client.csproj", "{F7042B42-B14D-4CCA-905D-289CA78D1B72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YukariBlazorDemo.Client", "Client\YukariBlazorDemo.Client.csproj", "{F7042B42-B14D-4CCA-905D-289CA78D1B72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YukariBlazorDemo.Shared", "Shared\YukariBlazorDemo.Shared.csproj", "{544222BF-3DAE-4D68-B093-0E73761FCDDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YukariBlazorDemo.Shared", "Shared\YukariBlazorDemo.Shared.csproj", "{544222BF-3DAE-4D68-B093-0E73761FCDDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
