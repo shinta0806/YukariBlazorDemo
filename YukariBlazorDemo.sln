@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YukariBlazorDemo.Server", "Server\YukariBlazorDemo.Server.csproj", "{D9BA15C1-1899-4713-A61F-8B36176FC324}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YukariBlazorDemo.Server", "Server\YukariBlazorDemo.Server.csproj", "{3EE2B5E7-12CF-4DD3-9A90-911D40CAC6C9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YukariBlazorDemo.Client", "Client\YukariBlazorDemo.Client.csproj", "{F7042B42-B14D-4CCA-905D-289CA78D1B72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YukariBlazorDemo.Client", "Client\YukariBlazorDemo.Client.csproj", "{5641D993-9607-435D-979B-31A1E8599D83}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YukariBlazorDemo.Shared", "Shared\YukariBlazorDemo.Shared.csproj", "{544222BF-3DAE-4D68-B093-0E73761FCDDB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YukariBlazorDemo.Shared", "Shared\YukariBlazorDemo.Shared.csproj", "{8108C95C-EA79-481E-8B05-A7CDA4291857}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,23 +15,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D9BA15C1-1899-4713-A61F-8B36176FC324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9BA15C1-1899-4713-A61F-8B36176FC324}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9BA15C1-1899-4713-A61F-8B36176FC324}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9BA15C1-1899-4713-A61F-8B36176FC324}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7042B42-B14D-4CCA-905D-289CA78D1B72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7042B42-B14D-4CCA-905D-289CA78D1B72}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7042B42-B14D-4CCA-905D-289CA78D1B72}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7042B42-B14D-4CCA-905D-289CA78D1B72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{544222BF-3DAE-4D68-B093-0E73761FCDDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{544222BF-3DAE-4D68-B093-0E73761FCDDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{544222BF-3DAE-4D68-B093-0E73761FCDDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{544222BF-3DAE-4D68-B093-0E73761FCDDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EE2B5E7-12CF-4DD3-9A90-911D40CAC6C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EE2B5E7-12CF-4DD3-9A90-911D40CAC6C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EE2B5E7-12CF-4DD3-9A90-911D40CAC6C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EE2B5E7-12CF-4DD3-9A90-911D40CAC6C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5641D993-9607-435D-979B-31A1E8599D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5641D993-9607-435D-979B-31A1E8599D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5641D993-9607-435D-979B-31A1E8599D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5641D993-9607-435D-979B-31A1E8599D83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8108C95C-EA79-481E-8B05-A7CDA4291857}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8108C95C-EA79-481E-8B05-A7CDA4291857}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8108C95C-EA79-481E-8B05-A7CDA4291857}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8108C95C-EA79-481E-8B05-A7CDA4291857}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {B77C117A-7439-4BFF-8DF2-B583FB36D573}
+		SolutionGuid = {9465C448-97DE-428D-8415-509FF273EE32}
 	EndGlobalSection
 EndGlobal
