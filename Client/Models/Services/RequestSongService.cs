@@ -20,15 +20,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 {
 	public class RequestSongService
 	{
-#if false
-		private List<RequestSong> RequestSongs { get; } = new()
-		{
-			new RequestSong { Id = 1, Sort = 1, Path = @"D:\Song\hoge.mp4", SongName = "Hoge", TieUpName = "HogeAnime", User = "Taro" },
-			new RequestSong { Id = 2, Sort = 2, Path = @"D:\Song\fuga.mp4", SongName = "Fuga", TieUpName = "FugaAnime", User = "Hanako" },
-			new RequestSong { Id = 3, Sort = 3, Path = @"D:\Song\foo.mp4", SongName = "Foo", TieUpName = "FooAnime", User = "Miyuki" },
-		};
-#endif
-
 		public HttpClient HttpClient { get; }
 
 		public RequestSongService(HttpClient httpClient)
@@ -38,9 +29,19 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		public async Task<IEnumerable<RequestSong>> GetRequestSongsAsync()
 		{
-			//return await Task.FromResult(RequestSongs);
-
-			return await HttpClient.GetFromJsonAsync<RequestSong[]>("api/requestsongs");
+			RequestSong[]? songs = null;
+			try
+			{
+				songs = await HttpClient.GetFromJsonAsync<RequestSong[]>("api/requestsongs");
+			}
+			catch (Exception)
+			{
+			}
+			if (songs == null)
+			{
+				return new RequestSong[0];
+			}
+			return songs;
 		}
 	}
 }

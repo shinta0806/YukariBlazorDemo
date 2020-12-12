@@ -22,14 +22,14 @@ namespace YukariBlazorDemo.Shared
 
 		public Int32 Sort { get; set; }
 
-		public String Path { get; set; }
+		public String Path { get; set; } = String.Empty;
 
-		public String SongName { get; set; }
+		public String? SongName { get; set; }
 
-		public String TieUpName { get; set; }
+		public String? TieUpName { get; set; }
 
-		public String User { get; set; }
+		public String? User { get; set; }
 
-		public String Comment { get; set; }
+		public String? Comment { get; set; }
 	}
 }
