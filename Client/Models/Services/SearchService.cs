@@ -27,12 +27,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 			HttpClient = httpClient;
 		}
 
-		public async Task<IEnumerable<AvailableSong>> GetSearchResultsAsync(SearchWord searchWord)
+		public async Task<IEnumerable<AvailableSong>> GetSearchResultsAsync(String query)
 		{
 			AvailableSong[]? results = null;
 			try
 			{
-				results = await HttpClient.GetFromJsonAsync<AvailableSong[]>("api/search/ポ");
+				results = await HttpClient.GetFromJsonAsync<AvailableSong[]>("api/search/" + query);
 			}
 			catch (Exception)
 			{

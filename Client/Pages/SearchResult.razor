@@ -1,4 +1,4 @@
-﻿@page "/searchresult"
+﻿@page "/searchresult/{Query?}"
 @inject SearchService SearchService
 
 <h3>SearchResult</h3>
@@ -21,13 +21,16 @@
 
 
 @code {
+	[Parameter]
+	public String? Query { get; set; }
+
 	IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
 
 	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
-			availableSongs = await SearchService.GetSearchResultsAsync(new SearchWord());
+			availableSongs = await SearchService.GetSearchResultsAsync(Query);
 		}
 		catch (Exception excep)
 		{

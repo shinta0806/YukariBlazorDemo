@@ -1,9 +1,22 @@
-﻿body {
+﻿/*
+    変数宣言
+*/
+
+:root {
+    --primary-bg-color: #ff9800;
+    --light-bg-color: #ffc947;
+    --invalid-bg-color: #ebebeb;
+    --border-color: #acacac;
+    --shadow-color: rgba(0, 0, 0, 0.2);
 }
+
+/*
+    砂時計
+*/
 
 .loading {
     font-family: 'Franklin Gothic Medium','Arial Narrow',Arial,sans-serif;
-    color: #88a;
+    color: #8888aa;
     font-size: 18px;
     text-align: center;
     width: 150px;
@@ -19,7 +32,7 @@
     .loading::after {
         content: '';
         border: solid 10px;
-        border-color: #88a #eee #eee;
+        border-color: #8888aa #eeeeee #eeeeee;
         border-radius: 60px;
         position: absolute;
         width: 60px;
@@ -42,10 +55,14 @@
     }
 }
 
+/*
+    Blazor エラー
+*/
+
 #blazor-error-ui {
     background: #ffffe0;
     bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0,0,0,.2);
+    box-shadow: 0 -1px 2px var(--shadow-color);
     display: none;
     left: 0;
     padding: .6rem 1.25rem .7rem 1.25rem;
@@ -60,3 +77,58 @@
         right: .75rem;
         top: .5rem;
     }
+
+/*
+    タブ
+*/
+
+.tabs {
+    margin: 50px 20px 0 20px;
+    padding-bottom: 20px;
+    box-shadow: 0 0 10px var(--shadow-color);
+}
+
+.tab-item {
+    width: calc(100%/3);
+    max-width: 200px;
+    height: 40px;
+    margin-top: -40px;
+    margin-right: -2px;
+    border: 2px solid var(--border-color);
+    background-color: var(--invalid-bg-color);
+    font-size: 120%;
+    text-align: center;
+    display: block;
+    float: left;
+    vertical-align: middle;
+    transition: all 0.2s ease;
+}
+
+    .tab-item:hover {
+        opacity: 0.75;
+    }
+
+input[name="tab-item"] {
+    display: none;
+}
+
+.tabs input:checked + .tab-item {
+    height: 44px;
+    margin-top: -44px;
+    border-bottom: none;
+    background-color: white;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    padding: 40px 40px 0;
+    clear: both;
+    overflow: hidden;
+}
+
+#any-word:checked ~ #any-word-content,
+#detail:checked ~ #detail-content {
+    display: block;
+}
+

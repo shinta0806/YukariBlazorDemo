@@ -34,7 +34,26 @@ namespace YukariBlazorDemo.Server.Controllers
 			IEnumerable<AvailableSong>? results = null;
 			try
 			{
-				results = AvailableSongs.Where(x => x.Path.Contains(query, StringComparison.OrdinalIgnoreCase));
+				SearchWord searchWord = new(query);
+				if (!searchWord.IsValid(out String? errorMessage))
+				{
+					throw new Exception(errorMessage);
+				}
+				if (searchWord.Type == SearchWordType.AnyWord)
+				{
+					if (!String.IsNullOrEmpty(searchWord.AnyWord))
+					{
+						results = AvailableSongs.Where(x => x.Path.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase)
+								|| (x.SongName?.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase) ?? false)
+								|| (x.TieUpName?.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase) ?? false));
+					}
+				}
+				else
+				{
+					results = AvailableSongs.Where(x => (String.IsNullOrEmpty(searchWord.FileName) || !String.IsNullOrEmpty(searchWord.FileName) && x.Path.Contains(searchWord.FileName))
+							&& (String.IsNullOrEmpty(searchWord.SongName) || !String.IsNullOrEmpty(searchWord.SongName) && !String.IsNullOrEmpty(x.SongName) && x.SongName.Contains(searchWord.SongName))
+							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && !String.IsNullOrEmpty(x.TieUpName) && x.TieUpName.Contains(searchWord.TieUpName)));
+				}
 			}
 			catch (Exception)
 			{

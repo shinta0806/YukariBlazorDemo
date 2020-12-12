@@ -1,4 +1,5 @@
 ﻿@page "/searchform"
+@inject NavigationManager NavigationManager
 
 <h3>キーワード検索</h3>
 
@@ -7,12 +8,40 @@
 
 		<DataAnnotationsValidator />
 
-		<div class="name">
-			<span class="caption">キーワード</span>
-			<span class="input-field">
-				<input type="text" @bind="Word.AnyWord" />
-			</span>
+		<div class="tabs">
+			<InputRadioGroup Name="tab-item" @bind-Value="Word.Type">
+				<InputRadio id="any-word" Value="SearchWordType.AnyWord" />
+				<label class="tab-item" for="any-word">なんでも検索</label>
+				<InputRadio id="detail" Value="SearchWordType.Detail" />
+				<label class="tab-item" for="detail">詳細検索</label>
+			</InputRadioGroup>
+
+			<div class="tab-content" id="any-word-content">
+				<div class="name">
+					<span class="caption">キーワード</span>
+					<span class="input-field">
+						<input type="text" @bind="Word.AnyWord" />
+					</span>
+				</div>
+			</div>
+
+			<div class="tab-content" id="detail-content">
+				<div class="name">
+					<span class="caption">曲名</span>
+					<span class="input-field">
+						<input type="text" @bind="Word.SongName" />
+					</span>
+				</div>
+
+				<div class="name">
+					<span class="caption">タイアップ名</span>
+					<span class="input-field">
+						<input type="text" @bind="Word.TieUpName" />
+					</span>
+				</div>
+			</div>
 		</div>
+
 		<div class="error-message">
 			<ValidationSummary></ValidationSummary>
 		</div>
@@ -26,15 +55,9 @@
 	[Parameter]
 	public SearchWord Word { get; set; } = new SearchWord();
 
-	async Task OnOK()
+	void OnOK()
 	{
-#if false
-	// MACアドレスの正規化
-	NewDevice.MACAddress = NewDevice.MACAddress.Replace("-", ":").ToUpper();
-
-	await DeviceService.AddDeviceAsync(NewDevice);
-	NewDevice = new Device();
-#endif
+		NavigationManager.NavigateTo($"/searchresult/{Word}");
 	}
 
 }
