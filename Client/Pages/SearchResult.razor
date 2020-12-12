@@ -1,0 +1,39 @@
+﻿@page "/searchresult"
+@inject SearchService SearchService
+
+<h3>SearchResult</h3>
+
+<table>
+	<tr>
+		<th>曲名</th>
+		<th>タイアップ</th>
+		<th>ファイル名</th>
+	</tr>
+	@foreach (AvailableSong availableSong in availableSongs)
+	{
+		<tr>
+			<td>@availableSong.SongName</td>
+			<td>@availableSong.TieUpName</td>
+			<td>@availableSong.Path</td>
+		</tr>
+	}
+</table>
+
+
+@code {
+	IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			availableSongs = await SearchService.GetSearchResultsAsync(new SearchWord());
+		}
+		catch (Exception excep)
+		{
+			Debug.WriteLine(excep.Message);
+			Debug.WriteLine(excep.StackTrace);
+		}
+	}
+
+}

@@ -20,6 +20,7 @@ namespace YukariBlazorDemo.Client
 
 			builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 			builder.Services.AddScoped<RequestSongService>();
+			builder.Services.AddScoped<SearchService>();
 
 			await builder.Build().RunAsync();
 		}

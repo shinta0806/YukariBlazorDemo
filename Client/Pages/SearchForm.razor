@@ -1,0 +1,40 @@
+﻿@page "/searchform"
+
+<h3>キーワード検索</h3>
+
+<div class="searchform">
+	<EditForm Model="Word" OnValidSubmit="OnOK">
+
+		<DataAnnotationsValidator />
+
+		<div class="name">
+			<span class="caption">キーワード</span>
+			<span class="input-field">
+				<input type="text" @bind="Word.AnyWord" />
+			</span>
+		</div>
+		<div class="error-message">
+			<ValidationSummary></ValidationSummary>
+		</div>
+		<div class="actions">
+			<button class="button">OK</button>
+		</div>
+	</EditForm>
+</div>
+
+@code {
+	[Parameter]
+	public SearchWord Word { get; set; } = new SearchWord();
+
+	async Task OnOK()
+	{
+#if false
+	// MACアドレスの正規化
+	NewDevice.MACAddress = NewDevice.MACAddress.Replace("-", ":").ToUpper();
+
+	await DeviceService.AddDeviceAsync(NewDevice);
+	NewDevice = new Device();
+#endif
+	}
+
+}
