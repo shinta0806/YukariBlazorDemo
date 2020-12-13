@@ -27,7 +27,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			HttpClient = httpClient;
 		}
 
-		public async Task<IEnumerable<AvailableSong>> GetSearchResultsAsync(String query)
+		public async Task<IEnumerable<AvailableSong>> GetSearchResultsAsync(String? query)
 		{
 			AvailableSong[]? results = null;
 			try
