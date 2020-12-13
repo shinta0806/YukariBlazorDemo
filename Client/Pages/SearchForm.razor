@@ -4,12 +4,12 @@
 <h3>キーワード検索</h3>
 
 <div class="searchform">
-	<EditForm Model="Word" OnValidSubmit="OnOK">
+	<EditForm Model="word" OnValidSubmit="OnOK">
 
 		<DataAnnotationsValidator />
 
 		<div class="tabs">
-			<InputRadioGroup Name="tab-item" @bind-Value="Word.Type">
+			<InputRadioGroup Name="tab-item" @bind-Value="word.Type">
 				<InputRadio id="any-word" Value="SearchWordType.AnyWord" />
 				<label class="tab-item" for="any-word">なんでも検索</label>
 				<InputRadio id="detail" Value="SearchWordType.Detail" />
@@ -20,7 +20,7 @@
 				<div class="name">
 					<span class="caption">キーワード</span>
 					<span class="input-field">
-						<input type="text" @bind="Word.AnyWord" />
+						<input type="text" @bind="word.AnyWord" />
 					</span>
 				</div>
 			</div>
@@ -29,14 +29,14 @@
 				<div class="name">
 					<span class="caption">曲名</span>
 					<span class="input-field">
-						<input type="text" @bind="Word.SongName" />
+						<input type="text" @bind="word.SongName" />
 					</span>
 				</div>
 
 				<div class="name">
 					<span class="caption">タイアップ名</span>
 					<span class="input-field">
-						<input type="text" @bind="Word.TieUpName" />
+						<input type="text" @bind="word.TieUpName" />
 					</span>
 				</div>
 			</div>
@@ -52,12 +52,11 @@
 </div>
 
 @code {
-	[Parameter]
-	public SearchWord Word { get; set; } = new SearchWord();
+	private SearchWord word = new SearchWord();
 
-	void OnOK()
+	private void OnOK()
 	{
-		NavigationManager.NavigateTo($"/searchresult/{Word}");
+		NavigationManager.NavigateTo($"/searchresult/{word}");
 	}
 
 }

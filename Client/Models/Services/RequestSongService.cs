@@ -43,5 +43,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			return songs;
 		}
+
+		public async Task<HttpResponseMessage> RequestAsync(RequestSong requestSong)
+		{
+			return await HttpClient.PostAsJsonAsync("api/requestsongs", requestSong);
+		}
 	}
 }

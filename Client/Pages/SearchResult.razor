@@ -1,4 +1,5 @@
 ﻿@page "/searchresult/{Query?}"
+@inject NavigationManager NavigationManager
 @inject SearchService SearchService
 
 <h3>SearchResult</h3>
@@ -11,10 +12,11 @@
 	</tr>
 	@foreach (AvailableSong availableSong in availableSongs)
 	{
-		<tr>
+		<tr @key="@availableSong.Id">
 			<td>@availableSong.SongName</td>
 			<td>@availableSong.TieUpName</td>
 			<td>@availableSong.Path</td>
+			<td><button @onclick="() => OnClickRequest(availableSong)">予約</button></td>
 		</tr>
 	}
 </table>
@@ -30,13 +32,18 @@
 	{
 		try
 		{
-			availableSongs = await SearchService.GetSearchResultsAsync(Query);
+			availableSongs = await SearchService.SearchByWordAsync(Query);
 		}
 		catch (Exception excep)
 		{
 			Debug.WriteLine(excep.Message);
 			Debug.WriteLine(excep.StackTrace);
 		}
+	}
+
+	private void OnClickRequest(AvailableSong availableSong)
+	{
+		NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
 	}
 
 }

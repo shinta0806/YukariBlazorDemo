@@ -1,0 +1,92 @@
+﻿@page "/requestform/{AvailableSongId?}"
+@inject NavigationManager NavigationManager
+@inject RequestSongService RequestSongService
+@inject SearchService SearchService
+
+<h3>予約</h3>
+
+<div class="requestform">
+	<EditForm Model="requestSong" OnValidSubmit="OnOK">
+
+		<DataAnnotationsValidator />
+
+		<table>
+			<tr><th>曲名</th><td>@requestSong.SongName</td></tr>
+			<tr><th>タイアップ</th><td>@requestSong.TieUpName</td></tr>
+			<tr><th>ファイル名</th><td>@requestSong.Path</td></tr>
+		</table>
+
+		<div class="name">
+			<span class="caption">リクエスト者</span>
+			<span class="input-field">
+				<input type="text" @bind="requestSong.User" />
+			</span>
+		</div>
+
+		<div class="name">
+			<span class="caption">コメント</span>
+			<span class="input-field">
+				<input type="text" @bind="requestSong.Comment" />
+			</span>
+		</div>
+
+		<div class="error-message">
+			<ValidationSummary></ValidationSummary>
+		</div>
+		<div class="actions">
+			<button class="button">OK</button>
+		</div>
+
+	</EditForm>
+
+	<div>@requestResult</div>
+
+</div>
+
+@code {
+	[Parameter]
+	public String? AvailableSongId { get; set; }
+
+	private AvailableSong? availableSong;
+
+	private RequestSong requestSong = new();
+
+	private String? requestResult;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			availableSong = await SearchService.SearchByIdAsync(AvailableSongId);
+			if (availableSong == null)
+			{
+				return;
+			}
+			requestSong.Import(availableSong);
+		}
+		catch (Exception excep)
+		{
+			Debug.WriteLine(excep.Message);
+			Debug.WriteLine(excep.StackTrace);
+		}
+	}
+
+	private async void OnOK()
+	{
+		try
+		{
+			HttpResponseMessage message = await RequestSongService.RequestAsync(requestSong);
+			if (!message.IsSuccessStatusCode)
+			{
+				// ToDo: 1 回目は表示に反映されない
+				requestResult = "予約できませんでした。やり直してください。";
+				return;
+			}
+			NavigationManager.NavigateTo("/");
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+}

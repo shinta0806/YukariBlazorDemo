@@ -65,6 +65,7 @@ namespace YukariBlazorDemo.Server
 		{
 			try
 			{
+				// —\–ñ‰Â”\‚È‹È‚Ìˆê——
 				using AvailableSongContext availableSongContext = new();
 				availableSongContext.Database.EnsureCreated();
 				if (availableSongContext.AvailableSong == null)
@@ -89,6 +90,10 @@ namespace YukariBlazorDemo.Server
 					availableSongContext.AvailableSong.AddRange(availableSongs);
 					availableSongContext.SaveChanges();
 				}
+
+				// —\–ñˆê——
+				using RequestSongContext requestSongContext = new();
+				requestSongContext.Database.EnsureCreated();
 			}
 			catch (Exception)
 			{

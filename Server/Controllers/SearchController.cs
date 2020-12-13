@@ -18,8 +18,31 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		}
 
-		[HttpGet, Route("{query}")]
-		public IEnumerable<AvailableSong> GetSearchResults(String? query)
+		[HttpGet, Route("id/{id}")]
+		public AvailableSong? SearchById(String? id)
+		{
+			AvailableSong? result = null;
+			try
+			{
+				if (!Int32.TryParse(id, out Int32 idNum))
+				{
+					throw new Exception();
+				}
+				using AvailableSongContext availableSongContext = new();
+				if (availableSongContext.AvailableSong == null)
+				{
+					throw new Exception();
+				}
+				result = availableSongContext.AvailableSong.FirstOrDefault(x => x.Id == idNum);
+			}
+			catch (Exception)
+			{
+			}
+			return result;
+		}
+
+		[HttpGet, Route("word/{query}")]
+		public IEnumerable<AvailableSong> SearchByWord(String? query)
 		{
 			IEnumerable<AvailableSong>? results = null;
 			try

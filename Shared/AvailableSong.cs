@@ -1,6 +1,6 @@
 ﻿// ============================================================================
 // 
-// リクエスト可能な曲（ストレージに保存されている曲）の情報
+// 予約可能な曲（ストレージに保存されている曲）の情報
 // 
 // ============================================================================
 
@@ -22,12 +22,12 @@ namespace YukariBlazorDemo.Shared
 	public class AvailableSong
 	{
 		[Key]
+		[Column("KeyId")]
 		public Int32 Id { get; set; }
 
 		[Required]
 		public String Path { get; set; } = String.Empty;
 
-		[Column("columnTest")]
 		public String? SongName { get; set; }
 
 		public String? TieUpName { get; set; }

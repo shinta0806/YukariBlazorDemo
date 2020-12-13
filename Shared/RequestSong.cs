@@ -1,6 +1,6 @@
 ﻿// ============================================================================
 // 
-// リクエストされた曲の情報
+// 予約された曲の情報
 // 
 // ============================================================================
 
@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,8 +29,21 @@ namespace YukariBlazorDemo.Shared
 
 		public String? TieUpName { get; set; }
 
-		public String? User { get; set; }
+		[Required(ErrorMessage = "リクエスト者を入力してください。")]
+		public String User { get; set; } = String.Empty;
 
 		public String? Comment { get; set; }
+
+		public void Import(AvailableSong availableSong)
+		{
+			Path = availableSong.Path;
+			SongName = availableSong.SongName;
+			TieUpName = availableSong.TieUpName;
+		}
+
+		public Boolean IsValid()
+		{
+			return !String.IsNullOrEmpty(Path) && !String.IsNullOrEmpty(User);
+		}
 	}
 }

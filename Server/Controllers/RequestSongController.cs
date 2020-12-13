@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
@@ -16,24 +17,55 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		}
 
-		private List<RequestSong> RequestSongs { get; } = new()
-		{
-			new RequestSong { Id = 1, Sort = 1, Path = @"D:\Song\hoge.mp4", SongName = "HogeS", TieUpName = "HogeAnime", User = "Taro" },
-			new RequestSong { Id = 2, Sort = 2, Path = @"D:\Song\fuga.mp4", SongName = "FugaS", TieUpName = "FugaAnime", User = "Hanako" },
-			new RequestSong { Id = 3, Sort = 3, Path = @"D:\Song\foo.mp4", SongName = "FooS", TieUpName = "FooAnime", User = "Miyuki" },
-		};
-
 		[HttpGet]
-		public IEnumerable<RequestSong> GetDevices()
+		public IEnumerable<RequestSong> GetRequestSongs()
 		{
-			return RequestSongs;
+			IEnumerable<RequestSong>? results = null;
+			try
+			{
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSong == null)
+				{
+					throw new Exception();
+				}
+				results = requestSongContext.RequestSong.ToArray();
+			}
+			catch (Exception)
+			{
+			}
+			if (results == null)
+			{
+				return new RequestSong[0];
+			}
+			return results;
 		}
 
-#if false
-		public IActionResult Index()
+		[HttpPost]
+		public IActionResult AddRequestSong([FromBody] RequestSong requestSong)
 		{
-			return View();
+			try
+			{
+				if (!requestSong.IsValid())
+				{
+					throw new Exception();
+				}
+
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSong == null)
+				{
+					throw new Exception();
+				}
+				requestSongContext.RequestSong.Add(requestSong);
+				requestSongContext.SaveChanges();
+				return Ok();
+			}
+			catch (Exception)
+			{
+				return BadRequest();
+			}
 		}
-#endif
+
+
+
 	}
 }
