@@ -79,9 +79,76 @@
     }
 
 /*
-    タブ
+    全体
 */
 
+body {
+    margin: 0px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    background: #222222;
+    margin: 0px 0px 10px 0px;
+    font-size: 1.2rem;
+    height: 3rem;
+}
+
+.header-item {
+}
+
+header a {
+    margin-left: 20px;
+    padding: 7px;
+    border-radius: 7px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+    header a:hover {
+        background: #555555;
+    }
+
+    header a.active {
+        background: #eeeeee;
+        color: black;
+    }
+
+/*
+    予約一覧
+*/
+
+.req-list-table {
+    margin: 0px 10px 0px 10px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    box-shadow: 0 0 10px var(--shadow-color);
+}
+
+.req-list-tr {
+    background: #edf8e0;
+}
+
+    .req-list-tr:nth-child(even) {
+        background: white;
+    }
+
+.req-list-th {
+    padding: 1rem;
+    background: #9bd060;
+    border: 1px solid #60a030;
+}
+
+.req-list-td {
+    padding: 1rem;
+    border: 1px solid #60a030;
+}
+
+/*
+    タブ
+*/
 .tabs {
     margin: 50px 20px 0 20px;
     padding-bottom: 20px;
@@ -131,4 +198,3 @@ input[name="tab-item"] {
 #detail:checked ~ #detail-content {
     display: block;
 }
-

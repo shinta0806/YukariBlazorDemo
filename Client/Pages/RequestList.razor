@@ -1,26 +1,24 @@
 ﻿@page "/"
 @inject RequestSongService RequestSongService
 
-<h3>RequestSongList</h3>
-
-<table>
-	<tr>
-		<th>No.</th>
-		<th>曲名</th>
-		<th>タイアップ</th>
-		<th>ファイル名</th>
-		<th>登録者</th>
-		<th>コメント</th>
+<table class="req-list-table">
+	<tr class="req-list-tr">
+		<th class="req-list-th">No.</th>
+		<th class="req-list-th">曲名</th>
+		<th class="req-list-th">タイアップ</th>
+		<th class="req-list-th">ファイル名</th>
+		<th class="req-list-th">登録者</th>
+		<th class="req-list-th">コメント</th>
 	</tr>
 	@foreach (RequestSong requestSong in requestSongs)
 	{
-		<tr @key="requestSong.Id">
-			<td>@requestSong.Id</td>
-			<td>@requestSong.SongName</td>
-			<td>@requestSong.TieUpName</td>
-			<td>@requestSong.Path</td>
-			<td>@requestSong.User</td>
-			<td>@requestSong.Comment</td>
+		<tr @key="requestSong.Id" class="req-list-tr">
+			<td class="req-list-td">@requestSong.Id</td>
+			<td class="req-list-td">@requestSong.SongName</td>
+			<td class="req-list-td">@requestSong.TieUpName</td>
+			<td class="req-list-td">@requestSong.Path</td>
+			<td class="req-list-td">@requestSong.User</td>
+			<td class="req-list-td">@requestSong.Comment</td>
 		</tr>
 	}
 </table>
