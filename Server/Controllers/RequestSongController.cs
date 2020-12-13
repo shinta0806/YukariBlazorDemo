@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using YukariBlazorDemo.Server.Database;
@@ -55,12 +56,34 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
+
+				Int32 sort;
+				if (requestSongContext.RequestSong.Count() == 0)
+				{
+					sort = 1;
+				}
+				else
+				{
+					// 最後の予約との重複チェック
+					RequestSong lastRequestSong = requestSongContext.RequestSong.OrderBy(x => x.Sort).Last();
+					if (requestSong.Path == lastRequestSong.Path && requestSong.User == lastRequestSong.User)
+					{
+						// 重複している場合は既に登録されているので OK とする
+						return Ok();
+					}
+
+					sort = requestSongContext.RequestSong.Max(x => x.Sort) + 1;
+				}
+
+				// 追加する曲は最後
+				requestSong.Sort = sort;
 				requestSongContext.RequestSong.Add(requestSong);
 				requestSongContext.SaveChanges();
 				return Ok();
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine(excep.Message);
 				return BadRequest();
 			}
 		}
