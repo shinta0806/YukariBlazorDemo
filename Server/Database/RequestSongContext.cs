@@ -10,13 +10,13 @@ namespace YukariBlazorDemo.Server.Database
 {
 	public class RequestSongContext : DbContext
 	{
-		public DbSet<RequestSong>? RequestSong { get; set; }
+		public DbSet<RequestSong>? RequestSongs { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			SqliteConnectionStringBuilder stringBuilder = new()
 			{
-				DataSource = "RequestSong.sqlite3"
+				DataSource = "RequestSongs.sqlite3"
 			};
 			optionsBuilder.UseSqlite(new SqliteConnection(stringBuilder.ToString()));
 		}

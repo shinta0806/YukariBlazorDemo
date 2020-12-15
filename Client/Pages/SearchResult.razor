@@ -9,6 +9,8 @@
 		<th>曲名</th>
 		<th>タイアップ</th>
 		<th>ファイル名</th>
+		<th>予約</th>
+		<th>test</th>
 	</tr>
 	@foreach (AvailableSong availableSong in availableSongs)
 	{
@@ -17,16 +19,28 @@
 			<td>@availableSong.TieUpName</td>
 			<td>@availableSong.Path</td>
 			<td><button @onclick="() => OnClickRequest(availableSong)">予約</button></td>
+			<td>ほげ: @hoge</td>
 		</tr>
 	}
 </table>
+
+@if (hoge == null)
+{
+	<p>hoge loadling...</p>
+}
+else
+{
+	<p>hoge loaded: @hoge</p>
+}
 
 
 @code {
 	[Parameter]
 	public String? Query { get; set; }
 
-	IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
+	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
+
+	private String? hoge;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -38,6 +52,22 @@
 		{
 			Debug.WriteLine(excep.Message);
 			Debug.WriteLine(excep.StackTrace);
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await Task.Delay(5000);
+			hoge = "HOGE 代入 first";
+			StateHasChanged();
+		}
+		else
+		{
+			await Task.Delay(5000);
+			hoge = "HOGE 代入 second";
+			StateHasChanged();
 		}
 	}
 

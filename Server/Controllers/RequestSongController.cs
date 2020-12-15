@@ -25,11 +25,11 @@ namespace YukariBlazorDemo.Server.Controllers
 			try
 			{
 				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSong == null)
+				if (requestSongContext.RequestSongs == null)
 				{
 					throw new Exception();
 				}
-				results = requestSongContext.RequestSong.ToArray();
+				results = requestSongContext.RequestSongs.ToArray();
 			}
 			catch (Exception)
 			{
@@ -52,32 +52,32 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSong == null)
+				if (requestSongContext.RequestSongs == null)
 				{
 					throw new Exception();
 				}
 
 				Int32 sort;
-				if (requestSongContext.RequestSong.Count() == 0)
+				if (requestSongContext.RequestSongs.Count() == 0)
 				{
 					sort = 1;
 				}
 				else
 				{
 					// 最後の予約との重複チェック
-					RequestSong lastRequestSong = requestSongContext.RequestSong.OrderBy(x => x.Sort).Last();
+					RequestSong lastRequestSong = requestSongContext.RequestSongs.OrderBy(x => x.Sort).Last();
 					if (requestSong.Path == lastRequestSong.Path && requestSong.User == lastRequestSong.User)
 					{
 						// 重複している場合は既に登録されているので OK とする
 						return Ok();
 					}
 
-					sort = requestSongContext.RequestSong.Max(x => x.Sort) + 1;
+					sort = requestSongContext.RequestSongs.Max(x => x.Sort) + 1;
 				}
 
 				// 追加する曲は最後
 				requestSong.Sort = sort;
-				requestSongContext.RequestSong.Add(requestSong);
+				requestSongContext.RequestSongs.Add(requestSong);
 				requestSongContext.SaveChanges();
 				return Ok();
 			}

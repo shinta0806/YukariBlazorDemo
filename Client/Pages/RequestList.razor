@@ -9,6 +9,7 @@
 		<th class="req-list-th">ファイル名</th>
 		<th class="req-list-th">登録者</th>
 		<th class="req-list-th">コメント</th>
+		<th class="req-list-th">サムネイル</th>
 	</tr>
 	@foreach (RequestSong requestSong in requestSongs)
 	{
@@ -19,6 +20,7 @@
 			<td class="req-list-td">@requestSong.Path</td>
 			<td class="req-list-td">@requestSong.User</td>
 			<td class="req-list-td">@requestSong.Comment</td>
+			<td class="req-list-td"><img src="/api/thumbnail/@requestSong.Id" /></td>
 		</tr>
 	}
 </table>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YukariBlazorDemo.Server.Database;
+using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
@@ -21,24 +22,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route("id/{id}")]
 		public AvailableSong? SearchById(String? id)
 		{
-			AvailableSong? result = null;
-			try
-			{
-				if (!Int32.TryParse(id, out Int32 idNum))
-				{
-					throw new Exception();
-				}
-				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSong == null)
-				{
-					throw new Exception();
-				}
-				result = availableSongContext.AvailableSong.FirstOrDefault(x => x.Id == idNum);
-			}
-			catch (Exception)
-			{
-			}
-			return result;
+			return ServerCommon.AvailableSongById(id);
 		}
 
 		[HttpGet, Route("word/{query}")]
@@ -53,7 +37,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception(errorMessage);
 				}
 				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSong == null)
+				if (availableSongContext.AvailableSongs == null)
 				{
 					throw new Exception();
 				}
@@ -81,7 +65,7 @@ namespace YukariBlazorDemo.Server.Controllers
 						//results = availableSongContext.AvailableSong.Where(x => x.Path.Contains(searchWord.AnyWord, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
 						// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
-						results = availableSongContext.AvailableSong.Where(x => EF.Functions.Like(x.Path, $"%{searchWord.AnyWord}%")
+						results = availableSongContext.AvailableSongs.Where(x => EF.Functions.Like(x.Path, $"%{searchWord.AnyWord}%")
 								|| !String.IsNullOrEmpty(x.SongName) && EF.Functions.Like(x.SongName, $"%{searchWord.AnyWord}%")
 								|| !String.IsNullOrEmpty(x.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.AnyWord}%")).ToList();
 
@@ -94,7 +78,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				else
 				{
-					results = availableSongContext.AvailableSong.Where(x =>
+					results = availableSongContext.AvailableSongs.Where(x =>
 							(String.IsNullOrEmpty(searchWord.FileName) || !String.IsNullOrEmpty(searchWord.FileName) && EF.Functions.Like(x.Path, $"%{searchWord.FileName}%"))
 							&& (String.IsNullOrEmpty(searchWord.SongName) || !String.IsNullOrEmpty(searchWord.SongName) && EF.Functions.Like(x.SongName, $"%{searchWord.SongName}%"))
 							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.TieUpName}%"))).ToList();
