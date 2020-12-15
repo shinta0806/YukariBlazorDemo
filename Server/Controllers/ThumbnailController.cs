@@ -17,27 +17,27 @@ namespace YukariBlazorDemo.Server.Controllers
 	[Route("api/thumbnail")]
 	public class ThumbnailController : Controller
 	{
+		public static Thumbnail? DefaultThumbnail { get; set; }
 
-		[HttpGet, Route("{id}")]
-		public IActionResult GetThumbnail(String? id)
+		[HttpGet, Route("{path}")]
+		public IActionResult GetThumbnail(String? path)
 		{
 			try
 			{
-				AvailableSong? availableSong = ServerCommon.AvailableSongById(id);
-				if (availableSong == null)
-				{
-					throw new Exception();
-				}
 				using ThumbnailContext thumbnailContext = new();
 				if (thumbnailContext.Thumbnails == null)
 				{
 					throw new Exception();
 				}
-				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Id == availableSong.Id);
+				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == path);
 				return File(thumbnail.Bitmap, thumbnail.Mime);
 			}
 			catch (Exception)
 			{
+				if (DefaultThumbnail != null)
+				{
+					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime);
+				}
 				return BadRequest();
 			}
 		}

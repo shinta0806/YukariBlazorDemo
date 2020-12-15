@@ -1,26 +1,24 @@
 ﻿@page "/"
 @inject RequestSongService RequestSongService
+@using System.Text
+@using System.Web
 
 <table class="req-list-table">
 	<tr class="req-list-tr">
 		<th class="req-list-th">No.</th>
+		<th class="req-list-th">サムネイル</th>
 		<th class="req-list-th">曲名</th>
-		<th class="req-list-th">タイアップ</th>
-		<th class="req-list-th">ファイル名</th>
 		<th class="req-list-th">登録者</th>
 		<th class="req-list-th">コメント</th>
-		<th class="req-list-th">サムネイル</th>
 	</tr>
 	@foreach (RequestSong requestSong in requestSongs)
 	{
 		<tr @key="requestSong.Id" class="req-list-tr">
 			<td class="req-list-td">@requestSong.Id</td>
-			<td class="req-list-td">@requestSong.SongName</td>
-			<td class="req-list-td">@requestSong.TieUpName</td>
-			<td class="req-list-td">@requestSong.Path</td>
+			<td class="req-list-td"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></td>
+			<td class="req-list-td"><div>@requestSong.SongName</div><div>@requestSong.TieUpName</div><div>@requestSong.Path</div></td>
 			<td class="req-list-td">@requestSong.User</td>
 			<td class="req-list-td">@requestSong.Comment</td>
-			<td class="req-list-td"><img src="/api/thumbnail/@requestSong.Id" /></td>
 		</tr>
 	}
 </table>

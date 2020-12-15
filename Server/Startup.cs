@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using YukariBlazorDemo.Server.Controllers;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Shared;
 
@@ -64,6 +65,7 @@ namespace YukariBlazorDemo.Server
 
 			Debug.WriteLine("calling CreateDatabaseIfNeeded()");
 			CreateDatabaseIfNeeded();
+			ThumbnailController.DefaultThumbnail = CreateThumbnail(String.Empty, "NoImage.png");
 		}
 
 		private void CreateDatabaseIfNeeded()
@@ -90,7 +92,8 @@ namespace YukariBlazorDemo.Server
 						new AvailableSong { Path = FILE_NAME_CHIHUAHUA, SongName = "チワワ", TieUpName = "犬がいっぱい" },
 						new AvailableSong { Path = FILE_NAME_SHIBA, SongName = "柴犬", TieUpName = "犬がいっぱい" },
 						new AvailableSong { Path = FILE_NAME_POMERANIAN, SongName = "ポメラニアン", TieUpName = "犬がいっぱい" },
-						new AvailableSong { Path =FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花" },
+						new AvailableSong { Path = FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花" },
+						new AvailableSong { Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花" },
 					};
 					availableSongContext.AvailableSongs.AddRange(availableSongs);
 					availableSongContext.SaveChanges();
@@ -172,5 +175,6 @@ namespace YukariBlazorDemo.Server
 		private const String FILE_NAME_SHIBA = @"D:\Song\柴犬.mp4";
 		private const String FILE_NAME_POMERANIAN = @"D:\Song\ポメラニアン.mp4";
 		private const String FILE_NAME_ANTHURIUM = @"E:\AddSong\Beni.mp4";
+		private const String FILE_NAME_IRIS = @"E:\AddSong\Ayame.mp4";
 	}
 }
