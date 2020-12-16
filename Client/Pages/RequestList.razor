@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject RequestSongService RequestSongService
+@using System.IO;
 @using System.Text
 @using System.Web
 
@@ -14,9 +15,13 @@
 	@foreach (RequestSong requestSong in requestSongs)
 	{
 		<tr @key="requestSong.Id" class="req-list-tr">
-			<td class="req-list-td">@requestSong.Id</td>
-			<td class="req-list-td"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></td>
-			<td class="req-list-td"><div>@requestSong.SongName</div><div>@requestSong.TieUpName</div><div>@requestSong.Path</div></td>
+			<td class="req-list-td"><div class="req-list-no">@requestSong.Id</div></td>
+			<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></div></td>
+			<td class="req-list-td">
+				<div class="req-list-song">@requestSong.SongName</div>
+				<div class="req-list-tie">@requestSong.TieUpName</div>
+				<div class="req-list-path">@Path.GetFileName(requestSong.Path.Replace('\\', '/'))</div>
+			</td>
 			<td class="req-list-td">@requestSong.User</td>
 			<td class="req-list-td">@requestSong.Comment</td>
 		</tr>

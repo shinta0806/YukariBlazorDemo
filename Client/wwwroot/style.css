@@ -116,6 +116,10 @@ header a {
         color: black;
     }
 
+img {
+    vertical-align: top;
+}
+
 /*
     予約一覧
 */
@@ -136,14 +140,34 @@ header a {
     }
 
 .req-list-th {
-    padding: 1rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
     background: #9bd060;
     border: 1px solid #60a030;
 }
 
 .req-list-td {
-    padding: 1rem;
+    padding: 0.5rem;
     border: 1px solid #60a030;
+}
+
+.req-list-no {
+    text-align: right;
+}
+
+.req-list-thumb {
+    text-align: center;
+}
+
+.req-list-song {
+    font-weight: bold;
+}
+
+.req-list-tie {
+}
+
+.req-list-path {
+    font-size: 0.8rem;
+    color: #999999;
 }
 
 /*

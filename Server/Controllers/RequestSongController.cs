@@ -29,7 +29,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
-				results = requestSongContext.RequestSongs.ToArray();
+				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).ToArray();
 			}
 			catch (Exception)
 			{
