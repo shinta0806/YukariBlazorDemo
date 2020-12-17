@@ -12,9 +12,27 @@
 		<th class="req-list-th">登録者</th>
 		<th class="req-list-th">コメント</th>
 	</tr>
+
 	@foreach (RequestSong requestSong in requestSongs)
 	{
-		<tr @key="requestSong.Id" class="req-list-tr">
+		String? trClassName;
+		switch (requestSong.PlayStatus)
+		{
+			case PlayStatus.Unplayed:
+				trClassName = "req-list-tr-unplayed";
+				break;
+			case PlayStatus.Playing:
+				trClassName = "req-list-tr-playing";
+				break;
+			case PlayStatus.Pause:
+				trClassName = "req-list-tr-pause";
+				break;
+			default:
+				trClassName = "req-list-tr-played";
+				break;
+		}
+
+		<tr @key="requestSong.Id" class="@trClassName">
 			<td class="req-list-td"><div class="req-list-no">@requestSong.Id</div></td>
 			<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></div></td>
 			<td class="req-list-td">

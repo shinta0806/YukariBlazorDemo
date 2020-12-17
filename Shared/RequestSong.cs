@@ -34,6 +34,8 @@ namespace YukariBlazorDemo.Shared
 
 		public String? Comment { get; set; }
 
+		public PlayStatus PlayStatus { get; set; }
+
 		public void Import(AvailableSong availableSong)
 		{
 			Path = availableSong.Path;

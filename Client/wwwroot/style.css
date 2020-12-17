@@ -131,13 +131,21 @@ img {
     box-shadow: 0 0 10px var(--shadow-color);
 }
 
-.req-list-tr {
+.req-list-tr-unplayed {
     background: #edf8e0;
 }
 
-    .req-list-tr:nth-child(even) {
+    .req-list-tr-unplayed:nth-child(even) {
         background: white;
     }
+
+.req-list-tr-playing, .req-list-tr-pause {
+    background: #ff9999;
+}
+
+.req-list-tr-played {
+    background: #666666;
+}
 
 .req-list-th {
     padding: 1rem 0.5rem 1rem 0.5rem;

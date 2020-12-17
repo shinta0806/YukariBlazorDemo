@@ -1,0 +1,100 @@
+﻿@page "/player"
+@inject NavigationManager NavigationManager
+@inject PlayerService PlayerService
+
+<div>@playStatus</div>
+<div>@songName</div>
+
+<div class="player">
+	<form>
+		<button class="button" type="button" @onclick="OnClickPlayOrPause">再生／一時停止</button>
+		<button class="button" type="button" @onclick="OnClickNext">次の曲へ</button>
+	</form>
+</div>
+
+<div>@playResult</div>
+
+@code {
+	private RequestSong? playingSong;
+
+	private String? playResult;
+
+	private String? playStatus;
+
+	private String? songName;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await UpdateStatusAsync();
+		}
+		catch (Exception excep)
+		{
+			Debug.WriteLine(excep.Message);
+			Debug.WriteLine(excep.StackTrace);
+		}
+	}
+
+	private async Task UpdateStatusAsync()
+	{
+		playingSong = await PlayerService.GetPlayingSongAsync();
+		if (playingSong == null)
+		{
+			playStatus = "停止中";
+		}
+		else
+		{
+			if (playingSong.PlayStatus == PlayStatus.Playing)
+			{
+				playStatus = "再生中";
+			}
+			else
+			{
+				playStatus = "一時停止中";
+			}
+			songName = playingSong.SongName;
+		}
+	}
+
+	private async void OnClickPlayOrPause()
+	{
+		try
+		{
+			HttpResponseMessage message = await PlayerService.PlayOrPauseAsync();
+			if (!message.IsSuccessStatusCode)
+			{
+				playResult = "再生できませんでした。";
+				return;
+			}
+			await UpdateStatusAsync();
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+
+		}
+	}
+
+	private async void OnClickNext()
+	{
+		try
+		{
+			HttpResponseMessage message = await PlayerService.NextAsync();
+			if (!message.IsSuccessStatusCode)
+			{
+				playResult = "再生できませんでした。";
+				return;
+			}
+			await UpdateStatusAsync();
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+
+		}
+
+	}
+
+
+}
