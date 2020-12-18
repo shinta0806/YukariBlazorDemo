@@ -50,5 +50,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 			return await HttpClient.PostAsJsonAsync("api/player/next", 0);
 		}
 
+		public async Task<HttpResponseMessage> PrevAsync()
+		{
+			return await HttpClient.PostAsJsonAsync("api/player/prev", 0);
+		}
+
 	}
 }

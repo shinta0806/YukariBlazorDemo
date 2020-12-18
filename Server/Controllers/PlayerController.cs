@@ -109,6 +109,48 @@ namespace YukariBlazorDemo.Server.Controllers
 			return BadRequest();
 		}
 
+		[HttpPost, Route("prev")]
+		public IActionResult Prev([FromBody] Int32 dummy)
+		{
+			try
+			{
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSongs == null)
+				{
+					throw new Exception();
+				}
+
+				RequestSong? currentSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).FirstOrDefault();
+				if (currentSong != null)
+				{
+					// 再生中・一時停止中の曲を未再生にする
+					currentSong.PlayStatus = PlayStatus.Unplayed;
+					requestSongContext.SaveChanges();
+				}
+
+				RequestSong? playedSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Played).OrderByDescending(x => x.Sort).FirstOrDefault();
+				if (playedSong != null)
+				{
+					// 再生済みの曲を未再生にする
+					playedSong.PlayStatus = PlayStatus.Unplayed;
+					requestSongContext.SaveChanges();
+				}
+				else
+				{
+					if (currentSong == null)
+					{
+						// 再生済みの曲も再生中の曲も無い場合は戻れない
+						throw new Exception();
+					}
+				}
+
+				return PlayOrPause(dummy);
+			}
+			catch (Exception)
+			{
+			}
+			return BadRequest();
+		}
 
 
 	}
