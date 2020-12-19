@@ -4,8 +4,13 @@
 @using System.Text
 @using System.Web
 
+@{
+	Debug.Assert(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES.Length == (Int32)SearchDetailCondition.__End__, "bad SEARCH_DETAIL_CONDITION_NAMES length.");
+	Debug.Assert(YbdConstants.SEARCH_DETAIL_PARAM_NAMES.Length == (Int32)SearchDetailCondition.__End__, "bad SEARCH_DETAIL_PARAM_NAMES length.");
+}
+
 <div class="content">
-	
+
 	<table class="req-list-table">
 		<tr class="req-list-tr">
 			<th class="req-list-th">No.</th>

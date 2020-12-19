@@ -31,7 +31,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			IEnumerable<AvailableSong>? results = null;
 			try
 			{
-				SearchWord searchWord = new(query);
+				SearchWord searchWord = new SearchWord(query);
 				if (!searchWord.IsValid(out String? errorMessage))
 				{
 					throw new Exception(errorMessage);

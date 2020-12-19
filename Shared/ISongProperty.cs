@@ -8,8 +8,6 @@ namespace YukariBlazorDemo.Shared
 {
 	public interface ISongProperty
 	{
-		String Path { get; set; }
-
 		String SongName { get; set; }
 
 		String TieUpName { get; set; }
@@ -19,5 +17,8 @@ namespace YukariBlazorDemo.Shared
 		String Maker { get; set; }
 
 		String Worker { get; set; }
+
+		String Path { get; set; }
+
 	}
 }

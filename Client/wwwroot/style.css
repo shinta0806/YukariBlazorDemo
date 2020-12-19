@@ -307,3 +307,16 @@ img {
     font-size: 0.8rem;
     color: #999999;
 }
+
+/*
+    検索結果
+*/
+
+.condition-name {
+    color: #999999;
+}
+
+.condition-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}

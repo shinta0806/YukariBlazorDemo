@@ -26,8 +26,6 @@ namespace YukariBlazorDemo.Shared
 
 		public Int32 Sort { get; set; }
 
-		public String Path { get; set; } = String.Empty;
-
 		public String SongName { get; set; } = String.Empty;
 
 		public String TieUpName { get; set; } = String.Empty;
@@ -37,6 +35,8 @@ namespace YukariBlazorDemo.Shared
 		public String Maker { get; set; } = String.Empty;
 
 		public String Worker { get; set; } = String.Empty;
+
+		public String Path { get; set; } = String.Empty;
 
 		[Required(ErrorMessage = "リクエスト者を入力してください。")]
 		public String User { get; set; } = String.Empty;

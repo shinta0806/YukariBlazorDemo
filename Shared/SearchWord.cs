@@ -13,11 +13,13 @@ namespace YukariBlazorDemo.Shared
 	{
 		public SearchWord()
 		{
-
+			InitDetailValues();
 		}
 
 		public SearchWord(String? query)
 		{
+			InitDetailValues();
+
 			if (String.IsNullOrEmpty(query))
 			{
 				return;
@@ -33,29 +35,17 @@ namespace YukariBlazorDemo.Shared
 				}
 				String paramName = elements[0];
 				String paramValue = HttpUtility.UrlDecode(elements[1], Encoding.UTF8);
-				switch (paramName)
+				if (paramName == YbdConstants.PARAM_NAME_ANY_WORD)
 				{
-					case PARAM_NAME_ANY_WORD:
-						AnyWord = paramValue;
-						break;
-					case PARAM_NAME_FILE_NAME:
-						Path = paramValue;
-						break;
-					case PARAM_NAME_SONG_NAME:
-						SongName = paramValue;
-						break;
-					case PARAM_NAME_TIE_UP_NAME:
-						TieUpName = paramValue;
-						break;
-					case PARAM_NAME_ARTIST_NAME:
-						ArtistName = paramValue;
-						break;
-					case PARAM_NAME_MAKER:
-						Maker = paramValue;
-						break;
-					case PARAM_NAME_WORKER:
-						Worker = paramValue;
-						break;
+					AnyWord = paramValue;
+				}
+				else
+				{
+					Int32 paramIndex = YbdConstants.SEARCH_DETAIL_PARAM_NAMES.ToList().IndexOf(paramName);
+					if (paramIndex >= 0)
+					{
+						DetailValues[paramIndex] = paramValue;
+					}
 				}
 			}
 			Type = String.IsNullOrEmpty(AnyWord) ? SearchWordType.Detail : SearchWordType.AnyWord;
@@ -65,19 +55,48 @@ namespace YukariBlazorDemo.Shared
 		public SearchWordType Type { get; set; } = SearchWordType.AnyWord;
 
 		[SearchWord()]
-		public String? AnyWord { get; set; }
+		public String AnyWord { get; set; } = String.Empty;
 
-		public String Path { get; set; } = String.Empty;
+		public String SongName
+		{
+			get => DetailValues[(Int32)SearchDetailCondition.SongName];
+			set => DetailValues[(Int32)SearchDetailCondition.SongName] = value;
+		}
 
-		public String SongName { get; set; } = String.Empty;
+		public String TieUpName
+		{
+			get => DetailValues[(Int32)SearchDetailCondition.TieUpName];
+			set => DetailValues[(Int32)SearchDetailCondition.TieUpName] = value;
+		}
 
-		public String TieUpName { get; set; } = String.Empty;
+		public String ArtistName
+		{
+			get => DetailValues[(Int32)SearchDetailCondition.ArtistName];
+			set => DetailValues[(Int32)SearchDetailCondition.ArtistName] = value;
+		}
 
-		public String ArtistName { get; set; } = String.Empty;
+		public String Maker
+		{
+			get => DetailValues[(Int32)SearchDetailCondition.Maker];
+			set => DetailValues[(Int32)SearchDetailCondition.Maker] = value;
+		}
 
-		public String Maker { get; set; } = String.Empty;
+		public String Worker
+		{
+			get => DetailValues[(Int32)SearchDetailCondition.Worker];
+			set => DetailValues[(Int32)SearchDetailCondition.Worker] = value;
+		}
 
-		public String Worker { get; set; } = String.Empty;
+		public String Path
+		{
+			get => DetailValues[(Int32)SearchDetailCondition.Path];
+			set => DetailValues[(Int32)SearchDetailCondition.Path] = value;
+		}
+
+		public String[] DetailValues { get; set; } = new String[(Int32)SearchDetailCondition.__End__];
+
+
+
 
 		public Boolean IsValid([NotNullWhen(false)] out String? errorMessage)
 		{
@@ -114,16 +133,14 @@ namespace YukariBlazorDemo.Shared
 		{
 			if (Type == SearchWordType.AnyWord)
 			{
-				return PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(AnyWord, Encoding.UTF8);
+				return YbdConstants.PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(AnyWord, Encoding.UTF8);
 			}
 
 			String str = String.Empty;
-			AddString(ref str, PARAM_NAME_FILE_NAME, Path);
-			AddString(ref str, PARAM_NAME_SONG_NAME, SongName);
-			AddString(ref str, PARAM_NAME_TIE_UP_NAME, TieUpName);
-			AddString(ref str, PARAM_NAME_ARTIST_NAME, ArtistName);
-			AddString(ref str, PARAM_NAME_MAKER, Maker);
-			AddString(ref str, PARAM_NAME_WORKER, Worker);
+			for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
+			{
+				AddString(ref str, YbdConstants.SEARCH_DETAIL_PARAM_NAMES[i], DetailValues[i]);
+			}
 			return str;
 		}
 
@@ -141,13 +158,15 @@ namespace YukariBlazorDemo.Shared
 			str += paramName + "=" + HttpUtility.UrlEncode(paramValue, Encoding.UTF8);
 		}
 
-		private const String PARAM_NAME_ANY_WORD = "anyword";
-		private const String PARAM_NAME_FILE_NAME = "filename";
-		private const String PARAM_NAME_SONG_NAME = "songname";
-		private const String PARAM_NAME_TIE_UP_NAME = "tieupname";
-		private const String PARAM_NAME_ARTIST_NAME = "artistname";
-		private const String PARAM_NAME_MAKER = "maker";
-		private const String PARAM_NAME_WORKER = "worker";
+		private void InitDetailValues()
+		{
+			for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
+			{
+				DetailValues[i] = String.Empty;
+			}
+		}
+
+
 
 
 		class SearchWordAttribute : ValidationAttribute

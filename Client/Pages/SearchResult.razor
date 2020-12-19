@@ -1,53 +1,140 @@
 ﻿@page "/searchresult/{Query?}"
+@using System.Web
+@using System.Text
 @inject NavigationManager NavigationManager
 @inject SearchService SearchService
 
-@{ 
+@{
 	<h1>検索結果（@availableSongs.Count() 件）</h1>
 }
 
-<table>
-	<tr>
-		<th>曲名</th>
-		<th>タイアップ</th>
-		<th>ファイル名</th>
-		<th>予約</th>
-		<th>test</th>
-	</tr>
-	@foreach (AvailableSong availableSong in availableSongs)
-	{
-		<tr @key="@availableSong.Id" @onclick="() => OnClickRequest(availableSong)">
-			<td>@availableSong.SongName</td>
-			<td>@availableSong.TieUpName</td>
-			<td>@availableSong.Path</td>
-			<td><button @onclick="() => OnClickRequest(availableSong)">予約</button></td>
-			<td>ほげ: @hoge</td>
-		</tr>
+<div class="content">
+
+	@{
+		// 検索条件表示
+		String condition = String.Empty;
+		if (searchWord.Type == SearchWordType.AnyWord)
+		{
+			AddCondition(ref condition, "キーワード", searchWord.AnyWord);
+		}
+		else
+		{
+			for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
+			{
+				AddCondition(ref condition, YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[i], searchWord.DetailValues[i]);
+			}
+		}
+		@((MarkupString)condition)
+
+		// 検索方法のアクティブタブ
+		String typeActiveTab = "すべて";
+		String typeActiveKeyword = String.Empty;
+		if (searchWord.Type == SearchWordType.AnyWord)
+		{
+			typeActiveKeyword = searchWord.AnyWord;
+		}
+		else
+		{
+			Int32 numConditions = searchWord.DetailValues.Where(x => x != String.Empty).Count();
+			if (numConditions == 1)
+			{
+				if (!String.IsNullOrEmpty(searchWord.SongName))
+				{
+					typeActiveTab = "曲名";
+					typeActiveKeyword = searchWord.SongName;
+				}
+				else if (!String.IsNullOrEmpty(searchWord.TieUpName))
+				{
+					typeActiveTab = "タイアップ名";
+					typeActiveKeyword = searchWord.TieUpName;
+				}
+				else if (!String.IsNullOrEmpty(searchWord.ArtistName))
+				{
+					typeActiveTab = "歌手名";
+					typeActiveKeyword = searchWord.ArtistName;
+				}
+			}
+			else
+			{
+				typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
+			}
+		}
+
+		// 検索方法タブ
+		TabItem[] typeTabItems =
+		{
+			new TabItem("すべて", "/searchresult/" + YbdConstants.PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+			new TabItem("曲名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+			new TabItem("タイアップ名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+		};
+		@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
+
+		<a href="/searchresult">searchresult</a> <a href="/searchresult/hoge/hoge">searchresult hoge hoge</a>
+		<div @onclick="() => OnClickTest()">div link</div>
+
 	}
-</table>
 
-@if (hoge == null)
-{
-	<p>hoge loadling...</p>
-}
-else
-{
-	<p>hoge loaded: @hoge</p>
-}
+	<table>
+		<tr>
+			<th>曲名</th>
+			<th>タイアップ</th>
+			<th>ファイル名</th>
+			<th>予約</th>
+			<th>test</th>
+		</tr>
+		@foreach (AvailableSong availableSong in availableSongs)
+		{
+			<tr @key="@availableSong.Id" @onclick="() => OnClickRequest(availableSong)">
+				<td>@availableSong.SongName</td>
+				<td>@availableSong.TieUpName</td>
+				<td>@availableSong.Path</td>
+				<td><button @onclick="() => OnClickRequest(availableSong)">予約</button></td>
+			</tr>
+		}
+	</table>
 
+</div>
+
+@{
+	renderedQuery = Query;
+}
 
 @code {
 	[Parameter]
 	public String? Query { get; set; }
 
+	private String? renderedQuery;
+
+	private SearchWord searchWord = new();
+
 	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
 
-	private String? hoge;
+#if false
+protected override void OnParametersSet()
+{
+	if(!String.IsNullOrEmpty(renderedQuery) && renderedQuery != Query)
+	{
+		NavigationManager.NavigateTo($"/searchresult/{Query}", true);
+	}
+}
+#endif
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (!String.IsNullOrEmpty(renderedQuery) && renderedQuery != Query)
+		{
+			searchWord = new SearchWord(Query);
+			availableSongs = await SearchService.SearchByWordAsync(Query);
+			StateHasChanged();
+		}
+	}
+
 
 	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
+			searchWord = new SearchWord(Query);
 			availableSongs = await SearchService.SearchByWordAsync(Query);
 		}
 		catch (Exception excep)
@@ -57,25 +144,30 @@ else
 		}
 	}
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			await Task.Delay(5000);
-			hoge = "HOGE 代入 first";
-			StateHasChanged();
-		}
-		else
-		{
-			await Task.Delay(5000);
-			hoge = "HOGE 代入 second";
-			StateHasChanged();
-		}
-	}
-
 	private void OnClickRequest(AvailableSong availableSong)
 	{
 		NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
 	}
+
+	private void AddCondition(ref String str, String condName, String condValue)
+	{
+		if (String.IsNullOrEmpty(condValue))
+		{
+			return;
+		}
+
+		if (!String.IsNullOrEmpty(str))
+		{
+			str += "<span class='condition-name'>, </span>";
+		}
+		str += "<span class='condition-name'>" + condName + "：</span><span class='condition-value'>" + HttpUtility.HtmlEncode(condValue) + "</span>";
+	}
+
+	private void OnClickTest()
+	{
+		NavigationManager.NavigateTo($"/searchresult/anyword=z");
+		StateHasChanged();
+	}
+
 
 }

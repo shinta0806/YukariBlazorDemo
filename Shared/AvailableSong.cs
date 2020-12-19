@@ -25,9 +25,6 @@ namespace YukariBlazorDemo.Shared
 		[Column("AvailableSongId")]
 		public Int32 Id { get; set; }
 
-		[Required]
-		public String Path { get; set; } = String.Empty;
-
 		public String SongName { get; set; } = String.Empty;
 
 		public String TieUpName { get; set; } = String.Empty;
@@ -37,6 +34,9 @@ namespace YukariBlazorDemo.Shared
 		public String Maker { get; set; } = String.Empty;
 
 		public String Worker { get; set; } = String.Empty;
+
+		[Required]
+		public String Path { get; set; } = String.Empty;
 
 	}
 }
