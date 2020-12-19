@@ -9,7 +9,7 @@ using System.Web;
 
 namespace YukariBlazorDemo.Shared
 {
-	public class SearchWord
+	public class SearchWord : ISongProperty
 	{
 		public SearchWord()
 		{
@@ -39,13 +39,22 @@ namespace YukariBlazorDemo.Shared
 						AnyWord = paramValue;
 						break;
 					case PARAM_NAME_FILE_NAME:
-						FileName = paramValue;
+						Path = paramValue;
 						break;
 					case PARAM_NAME_SONG_NAME:
 						SongName = paramValue;
 						break;
 					case PARAM_NAME_TIE_UP_NAME:
 						TieUpName = paramValue;
+						break;
+					case PARAM_NAME_ARTIST_NAME:
+						ArtistName = paramValue;
+						break;
+					case PARAM_NAME_MAKER:
+						Maker = paramValue;
+						break;
+					case PARAM_NAME_WORKER:
+						Worker = paramValue;
 						break;
 				}
 			}
@@ -55,20 +64,20 @@ namespace YukariBlazorDemo.Shared
 
 		public SearchWordType Type { get; set; } = SearchWordType.AnyWord;
 
-		//public Boolean ByAnyWord { get; set; }
-
-		//[Required(ErrorMessage = "キーワードを入力してください。")]
 		[SearchWord()]
 		public String? AnyWord { get; set; }
 
-		//public Boolean ByDetail { get; set; }
+		public String Path { get; set; } = String.Empty;
 
-		public String? FileName { get; set; }
+		public String SongName { get; set; } = String.Empty;
 
-		//[Required(ErrorMessage = "曲名を入力してください。")]
-		public String? SongName { get; set; }
+		public String TieUpName { get; set; } = String.Empty;
 
-		public String? TieUpName { get; set; }
+		public String ArtistName { get; set; } = String.Empty;
+
+		public String Maker { get; set; } = String.Empty;
+
+		public String Worker { get; set; } = String.Empty;
 
 		public Boolean IsValid([NotNullWhen(false)] out String? errorMessage)
 		{
@@ -85,7 +94,8 @@ namespace YukariBlazorDemo.Shared
 					}
 					break;
 				case SearchWordType.Detail:
-					if (String.IsNullOrEmpty(FileName) && String.IsNullOrEmpty(SongName) && String.IsNullOrEmpty(TieUpName))
+					if (String.IsNullOrEmpty(Path) && String.IsNullOrEmpty(SongName) && String.IsNullOrEmpty(TieUpName) && String.IsNullOrEmpty(ArtistName)
+							&& String.IsNullOrEmpty(Maker) && String.IsNullOrEmpty(Worker))
 					{
 						valid = false;
 						errorMessage = "詳細検索の条件を入力してください。";
@@ -100,23 +110,6 @@ namespace YukariBlazorDemo.Shared
 			return valid;
 		}
 
-#if false
-		[Compare(nameof(True), ErrorMessage = "キーワードまたは、詳細検索条件を入力してください。")]
-		public Boolean IsValid
-		{
-			get
-			{
-				return !String.IsNullOrEmpty(AnyWord)
-						|| !String.IsNullOrEmpty(FileName) || !String.IsNullOrEmpty(SongName) || !String.IsNullOrEmpty(TieUpName);
-			}
-		}
-
-		public Boolean True
-		{
-			get => true;
-		}
-#endif
-
 		public override String? ToString()
 		{
 			if (Type == SearchWordType.AnyWord)
@@ -125,9 +118,12 @@ namespace YukariBlazorDemo.Shared
 			}
 
 			String str = String.Empty;
-			AddString(ref str, PARAM_NAME_FILE_NAME, FileName);
+			AddString(ref str, PARAM_NAME_FILE_NAME, Path);
 			AddString(ref str, PARAM_NAME_SONG_NAME, SongName);
 			AddString(ref str, PARAM_NAME_TIE_UP_NAME, TieUpName);
+			AddString(ref str, PARAM_NAME_ARTIST_NAME, ArtistName);
+			AddString(ref str, PARAM_NAME_MAKER, Maker);
+			AddString(ref str, PARAM_NAME_WORKER, Worker);
 			return str;
 		}
 
@@ -149,6 +145,9 @@ namespace YukariBlazorDemo.Shared
 		private const String PARAM_NAME_FILE_NAME = "filename";
 		private const String PARAM_NAME_SONG_NAME = "songname";
 		private const String PARAM_NAME_TIE_UP_NAME = "tieupname";
+		private const String PARAM_NAME_ARTIST_NAME = "artistname";
+		private const String PARAM_NAME_MAKER = "maker";
+		private const String PARAM_NAME_WORKER = "worker";
 
 
 		class SearchWordAttribute : ValidationAttribute

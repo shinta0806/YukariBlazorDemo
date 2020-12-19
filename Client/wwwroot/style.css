@@ -116,6 +116,14 @@ header a {
         color: black;
     }
 
+h1 {
+    background-color: #E0001A;
+    color: white;
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 5px;
+}
+
 img {
     vertical-align: top;
 }
@@ -275,6 +283,12 @@ img {
 
 .req-list-no {
     text-align: right;
+}
+
+.play-icon {
+    font-weight: bold;
+    color: var(--primary-bg-color);
+    margin-right: 5px;
 }
 
 .req-list-thumb {

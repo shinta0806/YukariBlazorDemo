@@ -45,48 +45,24 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					if (!String.IsNullOrEmpty(searchWord.AnyWord))
 					{
-#if false
-						var a = availableSongContext.AvailableSong.Count();
-						var b = availableSongContext.AvailableSong.Where(x => x.Id == 5);
-						var b1 = b.ToList();
-						var c = availableSongContext.AvailableSong.Where(x => x.Path.StartsWith("D"));
-						var c1 = c.ToList();
-						var d = availableSongContext.AvailableSong.Where(x => x.Path.Contains("E"));
-						var d1 = d.ToList();
-#endif
-
-						// OK
-						//results = availableSongContext.AvailableSong.Where(x => x.Path.Contains(searchWord.AnyWord)).ToList();
-
-						// NG
-						//results = availableSongContext.AvailableSong.Where(x => x.Path.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase)).ToList();	
-
-						// NG
-						//results = availableSongContext.AvailableSong.Where(x => x.Path.Contains(searchWord.AnyWord, StringComparison.InvariantCultureIgnoreCase)).ToList();
-
 						// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
 						results = availableSongContext.AvailableSongs.Where(x => EF.Functions.Like(x.Path, $"%{searchWord.AnyWord}%")
-								|| !String.IsNullOrEmpty(x.SongName) && EF.Functions.Like(x.SongName, $"%{searchWord.AnyWord}%")
-								|| !String.IsNullOrEmpty(x.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.AnyWord}%")).ToList();
-
-#if false
-						results = availableSongContext.AvailableSong.Where(x => x.Path.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase)
-								|| !String.IsNullOrEmpty(x.SongName) && x.SongName.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase)
-								|| !String.IsNullOrEmpty(x.TieUpName) && x.TieUpName.Contains(searchWord.AnyWord, StringComparison.OrdinalIgnoreCase)).ToList();
-#endif
+								|| EF.Functions.Like(x.SongName, $"%{searchWord.AnyWord}%")
+								|| EF.Functions.Like(x.TieUpName, $"%{searchWord.AnyWord}%")
+								|| EF.Functions.Like(x.ArtistName, $"%{searchWord.AnyWord}%")
+								|| EF.Functions.Like(x.Maker, $"%{searchWord.AnyWord}%")
+								|| EF.Functions.Like(x.Worker, $"%{searchWord.AnyWord}%")).ToList();
 					}
 				}
 				else
 				{
 					results = availableSongContext.AvailableSongs.Where(x =>
-							(String.IsNullOrEmpty(searchWord.FileName) || !String.IsNullOrEmpty(searchWord.FileName) && EF.Functions.Like(x.Path, $"%{searchWord.FileName}%"))
+							(String.IsNullOrEmpty(searchWord.Path) || !String.IsNullOrEmpty(searchWord.Path) && EF.Functions.Like(x.Path, $"%{searchWord.Path}%"))
 							&& (String.IsNullOrEmpty(searchWord.SongName) || !String.IsNullOrEmpty(searchWord.SongName) && EF.Functions.Like(x.SongName, $"%{searchWord.SongName}%"))
-							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.TieUpName}%"))).ToList();
-#if false
-					results = availableSongContext.AvailableSong.Where(x => (String.IsNullOrEmpty(searchWord.FileName) || !String.IsNullOrEmpty(searchWord.FileName) && x.Path.Contains(searchWord.FileName))
-							&& (String.IsNullOrEmpty(searchWord.SongName) || !String.IsNullOrEmpty(searchWord.SongName) && !String.IsNullOrEmpty(x.SongName) && x.SongName.Contains(searchWord.SongName))
-							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && !String.IsNullOrEmpty(x.TieUpName) && x.TieUpName.Contains(searchWord.TieUpName)));
-#endif
+							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.TieUpName}%"))
+							&& (String.IsNullOrEmpty(searchWord.ArtistName) || !String.IsNullOrEmpty(searchWord.ArtistName) && EF.Functions.Like(x.ArtistName, $"%{searchWord.ArtistName}%"))
+							&& (String.IsNullOrEmpty(searchWord.Maker) || !String.IsNullOrEmpty(searchWord.Maker) && EF.Functions.Like(x.Maker, $"%{searchWord.Maker}%"))
+							&& (String.IsNullOrEmpty(searchWord.Worker) || !String.IsNullOrEmpty(searchWord.Worker) && EF.Functions.Like(x.Worker, $"%{searchWord.Worker}%"))).ToList();
 				}
 			}
 			catch (Exception)

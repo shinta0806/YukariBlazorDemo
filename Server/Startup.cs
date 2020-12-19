@@ -82,7 +82,7 @@ namespace YukariBlazorDemo.Server
 				if (availableSongContext.AvailableSongs.Count() == 0)
 				{
 					// サンプルデータ作成
-					AvailableSong[] availableSongs = new AvailableSong[]
+					AvailableSong[] availableSongs =
 					{
 						new AvailableSong { Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎" },
 						new AvailableSong { Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作太郎" },

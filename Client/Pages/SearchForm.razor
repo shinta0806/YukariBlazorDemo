@@ -54,6 +54,18 @@
 								<td class="input-td">タイアップ名</td>
 								<td class="input-td"><input class="input-general" type="text" @bind="word.TieUpName" /></td>
 							</tr>
+							<tr>
+								<td class="input-td">歌手名</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="word.ArtistName" /></td>
+							</tr>
+							<tr>
+								<td class="input-td">制作会社</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="word.Maker" /></td>
+							</tr>
+							<tr>
+								<td class="input-td">カラオケ動画制作者</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="word.Worker" /></td>
+							</tr>
 						</table>
 					</div>
 				}
@@ -82,10 +94,6 @@
 		NavigationManager.NavigateTo($"/searchresult/{word}");
 	}
 
-	private String hoge()
-	{
-		return "<div>hoge</div>";
-	}
 
 }
 

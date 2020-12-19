@@ -2,7 +2,9 @@
 @inject NavigationManager NavigationManager
 @inject SearchService SearchService
 
-<h3>SearchResult</h3>
+@{ 
+	<h1>検索結果（@availableSongs.Count() 件）</h1>
+}
 
 <table>
 	<tr>
@@ -14,7 +16,7 @@
 	</tr>
 	@foreach (AvailableSong availableSong in availableSongs)
 	{
-		<tr @key="@availableSong.Id">
+		<tr @key="@availableSong.Id" @onclick="() => OnClickRequest(availableSong)">
 			<td>@availableSong.SongName</td>
 			<td>@availableSong.TieUpName</td>
 			<td>@availableSong.Path</td>

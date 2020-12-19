@@ -12,11 +12,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Client.Models.Misc
 {
 	public class ClientCommon
 	{
+		public static void CopySongProperty(ISongProperty source, ISongProperty dest)
+		{
+			dest.Path = source.Path;
+			dest.SongName = source.SongName;
+			dest.TieUpName = source.TieUpName;
+			dest.ArtistName = source.ArtistName;
+			dest.Maker = source.Maker;
+			dest.Worker = source.Worker;
+		}
+
 		public static String GenerateTabHeader(IEnumerable<TabItem> items, String activeItemLabel)
 		{
 			String header = "<div class='tab-header'>";

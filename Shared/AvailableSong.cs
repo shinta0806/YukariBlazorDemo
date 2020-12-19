@@ -19,24 +19,24 @@ using System.Threading.Tasks;
 namespace YukariBlazorDemo.Shared
 {
 	[Table("t_available_song")]
-	public class AvailableSong
+	public class AvailableSong : ISongProperty
 	{
 		[Key]
-		[Column("KeyId")]
+		[Column("AvailableSongId")]
 		public Int32 Id { get; set; }
 
 		[Required]
 		public String Path { get; set; } = String.Empty;
 
-		public String? SongName { get; set; }
+		public String SongName { get; set; } = String.Empty;
 
-		public String? TieUpName { get; set; }
+		public String TieUpName { get; set; } = String.Empty;
 
-		public String? ArtistName { get; set; }
+		public String ArtistName { get; set; } = String.Empty;
 
-		public String? Maker { get; set; }
+		public String Maker { get; set; } = String.Empty;
 
-		public String? Worker { get; set; }
+		public String Worker { get; set; } = String.Empty;
 
 	}
 }

@@ -62,7 +62,7 @@
 			{
 				return;
 			}
-			requestSong.Import(availableSong);
+			ClientCommon.CopySongProperty(availableSong, requestSong);
 		}
 		catch (Exception excep)
 		{

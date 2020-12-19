@@ -18,7 +18,7 @@
 		@foreach (RequestSong requestSong in requestSongs)
 		{
 			String trClassName;
-			String? playIcon = null;
+			String playIcon = String.Empty;
 			switch (requestSong.PlayStatus)
 			{
 				case PlayStatus.Unplayed:
@@ -26,11 +26,11 @@
 					break;
 				case PlayStatus.Playing:
 					trClassName = "req-list-tr-playing";
-					playIcon = "＞";
+					playIcon = "<span class='play-icon'>&#9654;</span>";
 					break;
 				case PlayStatus.Pause:
 					trClassName = "req-list-tr-pause";
-					playIcon = "□";
+					playIcon = "<span class='play-icon'>||</span>";
 					break;
 				default:
 					trClassName = "req-list-tr-played";
@@ -38,7 +38,7 @@
 			}
 
 			<tr @key="requestSong.Id" class="@trClassName">
-				<td class="req-list-td"><div class="req-list-no"><span class="play-icon">@playIcon</span>@requestSong.Id</div></td>
+				<td class="req-list-td"><div class="req-list-no">@((MarkupString)playIcon)@requestSong.Id</div></td>
 				<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></div></td>
 				<td class="req-list-td">
 					<div class="req-list-song">@requestSong.SongName</div>
