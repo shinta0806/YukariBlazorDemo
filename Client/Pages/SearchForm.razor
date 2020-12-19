@@ -1,57 +1,80 @@
-﻿@page "/searchform"
+﻿@page "/searchform/{Detail?}"
 @inject NavigationManager NavigationManager
 
-<h3>キーワード検索</h3>
 
-<div class="searchform">
-	<EditForm Model="word" OnValidSubmit="OnOK">
 
-		<DataAnnotationsValidator />
+<div class="content">
 
-		<div class="tabs">
-			<InputRadioGroup Name="tab-item" @bind-Value="word.Type">
-				<InputRadio id="any-word" Value="SearchWordType.AnyWord" />
-				<label class="tab-item" for="any-word">なんでも検索</label>
-				<InputRadio id="detail" Value="SearchWordType.Detail" />
-				<label class="tab-item" for="detail">詳細検索</label>
-			</InputRadioGroup>
+	<div class="searchform">
+		<EditForm Model="word" OnValidSubmit="OnOK">
 
-			<div class="tab-content" id="any-word-content">
-				<div class="name">
-					<span class="caption">キーワード</span>
-					<span class="input-field">
-						<input type="text" @bind="word.AnyWord" />
-					</span>
-				</div>
+			<DataAnnotationsValidator />
+
+			@{
+				// タブ
+				TabItem[] tabItems =
+				{
+					new TabItem("なんでも検索", "/searchform"),
+					new TabItem("詳細検索", "/searchform/detail"),
+				};
+
+
+				if (String.IsNullOrEmpty(Detail))
+				{
+					// なんでも検索
+					word.Type = SearchWordType.AnyWord;
+
+					@((MarkupString)ClientCommon.GenerateTabHeader(tabItems, "なんでも検索"))
+					<div class="tab-content">
+						<table class="input-table">
+							<tr>
+								<td class="input-td">キーワード</td>
+								<td class="input-td"><input class="input-general" type="text" placeholder="曲名、歌手名、タイアップ名、ファイル名の一部" @bind="word.AnyWord" /></td>
+							</tr>
+							<tr>
+								<td class="input-td"></td>
+								<td class="input-td"><div class="supplement">※「mp4」をキーワードにすると多くの動画を検索できます。</div></td>
+							</tr>
+						</table>
+					</div>
+				}
+				else
+				{
+					// 詳細検索
+					word.Type = SearchWordType.Detail;
+
+					@((MarkupString)ClientCommon.GenerateTabHeader(tabItems, "詳細検索"))
+					<div class="tab-content" id="detail-content">
+						<table class="input-table">
+							<tr>
+								<td class="input-td">曲名</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="word.SongName" /></td>
+							</tr>
+							<tr>
+								<td class="input-td">タイアップ名</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="word.TieUpName" /></td>
+							</tr>
+						</table>
+					</div>
+				}
+			}
+
+			<div class="actions">
+				<button class="default-button">検索</button>
 			</div>
 
-			<div class="tab-content" id="detail-content">
-				<div class="name">
-					<span class="caption">曲名</span>
-					<span class="input-field">
-						<input type="text" @bind="word.SongName" />
-					</span>
-				</div>
-
-				<div class="name">
-					<span class="caption">タイアップ名</span>
-					<span class="input-field">
-						<input type="text" @bind="word.TieUpName" />
-					</span>
-				</div>
+			<div class="error-message">
+				<ValidationSummary></ValidationSummary>
 			</div>
-		</div>
+		</EditForm>
+	</div>
 
-		<div class="error-message">
-			<ValidationSummary></ValidationSummary>
-		</div>
-		<div class="actions">
-			<button class="button">OK</button>
-		</div>
-	</EditForm>
 </div>
 
 @code {
+	[Parameter]
+	public String? Detail { get; set; }
+
 	private SearchWord word = new SearchWord();
 
 	private void OnOK()
@@ -59,4 +82,11 @@
 		NavigationManager.NavigateTo($"/searchresult/{word}");
 	}
 
+	private String hoge()
+	{
+		return "<div>hoge</div>";
+	}
+
 }
+
+

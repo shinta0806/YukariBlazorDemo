@@ -4,50 +4,54 @@
 @using System.Text
 @using System.Web
 
-<table class="req-list-table">
-	<tr class="req-list-tr">
-		<th class="req-list-th">No.</th>
-		<th class="req-list-th">サムネイル</th>
-		<th class="req-list-th">曲名</th>
-		<th class="req-list-th">登録者</th>
-		<th class="req-list-th">コメント</th>
-	</tr>
-
-	@foreach (RequestSong requestSong in requestSongs)
-	{
-		String trClassName;
-		String? playIcon = null;
-		switch (requestSong.PlayStatus)
-		{
-			case PlayStatus.Unplayed:
-				trClassName = "req-list-tr-unplayed";
-				break;
-			case PlayStatus.Playing:
-				trClassName = "req-list-tr-playing";
-				playIcon = "＞";
-				break;
-			case PlayStatus.Pause:
-				trClassName = "req-list-tr-pause";
-				playIcon = "□";
-				break;
-			default:
-				trClassName = "req-list-tr-played";
-				break;
-		}
-
-		<tr @key="requestSong.Id" class="@trClassName">
-			<td class="req-list-td"><div class="req-list-no"><span class="play-icon">@playIcon</span>@requestSong.Id</div></td>
-			<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></div></td>
-			<td class="req-list-td">
-				<div class="req-list-song">@requestSong.SongName</div>
-				<div class="req-list-tie">@requestSong.TieUpName</div>
-				<div class="req-list-path">@Path.GetFileName(requestSong.Path.Replace('\\', '/'))</div>
-			</td>
-			<td class="req-list-td">@requestSong.User</td>
-			<td class="req-list-td">@requestSong.Comment</td>
+<div class="content">
+	
+	<table class="req-list-table">
+		<tr class="req-list-tr">
+			<th class="req-list-th">No.</th>
+			<th class="req-list-th">サムネイル</th>
+			<th class="req-list-th">曲名</th>
+			<th class="req-list-th">登録者</th>
+			<th class="req-list-th">コメント</th>
 		</tr>
-	}
-</table>
+
+		@foreach (RequestSong requestSong in requestSongs)
+		{
+			String trClassName;
+			String? playIcon = null;
+			switch (requestSong.PlayStatus)
+			{
+				case PlayStatus.Unplayed:
+					trClassName = "req-list-tr-unplayed";
+					break;
+				case PlayStatus.Playing:
+					trClassName = "req-list-tr-playing";
+					playIcon = "＞";
+					break;
+				case PlayStatus.Pause:
+					trClassName = "req-list-tr-pause";
+					playIcon = "□";
+					break;
+				default:
+					trClassName = "req-list-tr-played";
+					break;
+			}
+
+			<tr @key="requestSong.Id" class="@trClassName">
+				<td class="req-list-td"><div class="req-list-no"><span class="play-icon">@playIcon</span>@requestSong.Id</div></td>
+				<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></div></td>
+				<td class="req-list-td">
+					<div class="req-list-song">@requestSong.SongName</div>
+					<div class="req-list-tie">@requestSong.TieUpName</div>
+					<div class="req-list-path">@Path.GetFileName(requestSong.Path.Replace('\\', '/'))</div>
+				</td>
+				<td class="req-list-td">@requestSong.User</td>
+				<td class="req-list-td">@requestSong.Comment</td>
+			</tr>
+		}
+	</table>
+
+</div>
 
 @code
 {

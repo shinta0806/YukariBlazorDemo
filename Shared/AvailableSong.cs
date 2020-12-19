@@ -32,5 +32,11 @@ namespace YukariBlazorDemo.Shared
 
 		public String? TieUpName { get; set; }
 
+		public String? ArtistName { get; set; }
+
+		public String? Maker { get; set; }
+
+		public String? Worker { get; set; }
+
 	}
 }

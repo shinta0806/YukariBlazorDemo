@@ -7,7 +7,7 @@
     --light-bg-color: #ffc947;
     --invalid-bg-color: #ebebeb;
     --border-color: #acacac;
-    --shadow-color: rgba(0, 0, 0, 0.2);
+    --shadow-color: #999999;
 }
 
 /*
@@ -60,7 +60,7 @@
 */
 
 #blazor-error-ui {
-    background: #ffffe0;
+    background-color: #ffffe0;
     bottom: 0;
     box-shadow: 0 -1px 2px var(--shadow-color);
     display: none;
@@ -89,7 +89,7 @@ body {
 header {
     display: flex;
     align-items: center;
-    background: #222222;
+    background-color: #222222;
     margin: 0px 0px 10px 0px;
     font-size: 1.2rem;
     height: 3rem;
@@ -108,11 +108,11 @@ header a {
 }
 
     header a:hover {
-        background: #555555;
+        background-color: #555555;
     }
 
     header a.active {
-        background: #eeeeee;
+        background-color: #eeeeee;
         color: black;
     }
 
@@ -120,36 +120,151 @@ img {
     vertical-align: top;
 }
 
+.content {
+    margin: 20px 10px;
+}
+
+.supplement {
+    font-size: 0.9rem;
+    color: #999999;
+}
+
+/*
+    タブ
+*/
+
+.tab-header {
+    display: flex;
+    margin-top: 20px;
+    border-bottom: 4px solid #4597F5;
+}
+
+.tab-item-active, .tab-item {
+    flex-grow: 1;
+    margin: 0px 5px 0px 0px;
+    max-width: 200px;
+    height: 1.8rem;
+    text-align: center;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.tab-item-active {
+    background-color: #4597F5;
+}
+
+.tab-item {
+    background-color: #999999;
+    transition: all 0.2s ease;
+}
+
+    .tab-item:hover {
+        opacity: 0.75;
+    }
+
+.tab-item-link {
+    display: block;
+    color: white;
+    text-decoration: none;
+}
+
+.tab-content {
+    box-shadow: 0 0 10px var(--shadow-color);
+    padding: 10px;
+}
+
+/* 
+    入力
+*/
+
+.input-table {
+    width: 100%;
+}
+
+.input-td {
+    padding: 5px 10px 5px 0px;
+}
+
+    .input-td:first-child {
+        width: 1px;
+        white-space: nowrap;
+        text-align: right;
+    }
+
+.input-general {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    outline: 1px solid var(--border-color);
+    font-size: 1.2rem;
+}
+
+    .input-general::placeholder {
+        color: #999999;
+        font-size: 0.9rem;
+    }
+
+    .input-general:focus {
+        outline: 2px solid var(--primary-bg-color);
+    }
+
+        .input-general:focus::placeholder {
+            visibility: hidden;
+        }
+
+.actions {
+    margin: 20px 0px 0px 0px;
+}
+
+.default-button {
+    background-color: var(--primary-bg-color);
+    border-radius: 4px;
+    border-width: 0px;
+    outline: none;
+    font-size: 1rem;
+    padding: 5px;
+    min-width: 120px;
+    box-shadow: 0 0 10px var(--shadow-color);
+    transition: all 0.2s ease;
+}
+
+    .default-button:hover {
+        opacity: 0.75;
+    }
+
+.error-message {
+    color: red;
+}
+
 /*
     予約一覧
 */
-
 .req-list-table {
-    margin: 0px 10px 0px 10px;
+    margin: 10px 0px 0px 0px;
     border-collapse: collapse;
     border-spacing: 0;
     box-shadow: 0 0 10px var(--shadow-color);
 }
 
 .req-list-tr-unplayed {
-    background: #edf8e0;
+    background-color: #edf8e0;
 }
 
     .req-list-tr-unplayed:nth-child(even) {
-        background: white;
+        background-color: white;
     }
 
 .req-list-tr-playing, .req-list-tr-pause {
-    background: var(--light-bg-color);
+    background-color: var(--light-bg-color);
 }
 
 .req-list-tr-played {
-    background: #BBBBBB;
+    background-color: #BBBBBB;
 }
 
 .req-list-th {
     padding: 1rem 0.5rem 1rem 0.5rem;
-    background: #9bd060;
+    background-color: #9bd060;
     border: 1px solid #60a030;
 }
 
@@ -177,57 +292,4 @@ img {
 .req-list-path {
     font-size: 0.8rem;
     color: #999999;
-}
-
-/*
-    タブ
-*/
-.tabs {
-    margin: 50px 20px 0 20px;
-    padding-bottom: 20px;
-    box-shadow: 0 0 10px var(--shadow-color);
-}
-
-.tab-item {
-    width: calc(100%/3);
-    max-width: 200px;
-    height: 40px;
-    margin-top: -40px;
-    margin-right: -2px;
-    border: 2px solid var(--border-color);
-    background-color: var(--invalid-bg-color);
-    font-size: 120%;
-    text-align: center;
-    display: block;
-    float: left;
-    vertical-align: middle;
-    transition: all 0.2s ease;
-}
-
-    .tab-item:hover {
-        opacity: 0.75;
-    }
-
-input[name="tab-item"] {
-    display: none;
-}
-
-.tabs input:checked + .tab-item {
-    height: 44px;
-    margin-top: -44px;
-    border-bottom: none;
-    background-color: white;
-    font-weight: bold;
-}
-
-.tab-content {
-    display: none;
-    padding: 40px 40px 0;
-    clear: both;
-    overflow: hidden;
-}
-
-#any-word:checked ~ #any-word-content,
-#detail:checked ~ #detail-content {
-    display: block;
 }

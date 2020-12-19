@@ -84,16 +84,16 @@ namespace YukariBlazorDemo.Server
 					// サンプルデータ作成
 					AvailableSong[] availableSongs = new AvailableSong[]
 					{
-						new AvailableSong { Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花" },
-						new AvailableSong { Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花" },
-						new AvailableSong { Path = FILE_NAME_ROSE, SongName = "薔薇", TieUpName = "花花花花" },
-						new AvailableSong { Path = FILE_NAME_POINSETTIA, SongName = "ポインセチア", TieUpName = "花花花花" },
-						new AvailableSong { Path = FILE_NAME_TOY_POODLE, SongName = "トイプードル", TieUpName = "犬がいっぱい" },
-						new AvailableSong { Path = FILE_NAME_CHIHUAHUA, SongName = "チワワ", TieUpName = "犬がいっぱい" },
-						new AvailableSong { Path = FILE_NAME_SHIBA, SongName = "柴犬", TieUpName = "犬がいっぱい" },
-						new AvailableSong { Path = FILE_NAME_POMERANIAN, SongName = "ポメラニアン", TieUpName = "犬がいっぱい" },
-						new AvailableSong { Path = FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花" },
-						new AvailableSong { Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花" },
+						new AvailableSong { Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎" },
+						new AvailableSong { Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作太郎" },
+						new AvailableSong { Path = FILE_NAME_ROSE, SongName = "薔薇", TieUpName = "花花花花", ArtistName="歌唱谷子", Maker="アニメスタジオA", Worker="製作二郎" },
+						new AvailableSong { Path = FILE_NAME_POINSETTIA, SongName = "ポインセチア", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作二郎" },
+						new AvailableSong { Path = FILE_NAME_TOY_POODLE, SongName = "トイプードル", TieUpName = "犬がいっぱい", ArtistName="歌唱空子", Maker="ゲームスタジオB", Worker="製作三郎" },
+						new AvailableSong { Path = FILE_NAME_CHIHUAHUA, SongName = "チワワ", TieUpName = "犬がいっぱい", ArtistName="歌唱海子", Maker="ゲームスタジオB", Worker="製作三郎" },
+						new AvailableSong { Path = FILE_NAME_SHIBA, SongName = "柴犬", TieUpName = "犬がいっぱい", ArtistName="歌唱山子", Maker="ゲームスタジオB", Worker="製作四郎" },
+						new AvailableSong { Path = FILE_NAME_POMERANIAN, SongName = "ポメラニアン", TieUpName = "犬がいっぱい", ArtistName="歌唱川子", Maker="ゲームスタジオB", Worker="製作四郎" },
+						new AvailableSong { Path = FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作五郎" },
+						new AvailableSong { Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作五郎" },
 					};
 					availableSongContext.AvailableSongs.AddRange(availableSongs);
 					availableSongContext.SaveChanges();
@@ -109,7 +109,7 @@ namespace YukariBlazorDemo.Server
 				if (thumbnailContext.Thumbnails.Count() == 0)
 				{
 					// サンプルデータ作成
-					Thumbnail[] thumbnails = new Thumbnail[]
+					Thumbnail[] thumbnails =
 					{
 						CreateThumbnail(FILE_NAME_TULIP, "Tulip.png"),
 						CreateThumbnail(FILE_NAME_SUNFLOWER, "Sunflower.png"),

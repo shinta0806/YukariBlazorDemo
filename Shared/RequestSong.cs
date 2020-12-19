@@ -29,6 +29,12 @@ namespace YukariBlazorDemo.Shared
 
 		public String? TieUpName { get; set; }
 
+		public String? ArtistName { get; set; }
+
+		public String? Maker { get; set; }
+
+		public String? Worker { get; set; }
+
 		[Required(ErrorMessage = "リクエスト者を入力してください。")]
 		public String User { get; set; } = String.Empty;
 
@@ -41,6 +47,9 @@ namespace YukariBlazorDemo.Shared
 			Path = availableSong.Path;
 			SongName = availableSong.SongName;
 			TieUpName = availableSong.TieUpName;
+			ArtistName = availableSong.ArtistName;
+			Maker = availableSong.Maker;
+			Worker = availableSong.Worker;
 		}
 
 		public Boolean IsValid()
