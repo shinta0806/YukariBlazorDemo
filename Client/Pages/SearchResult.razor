@@ -1,4 +1,5 @@
 ﻿@page "/searchresult/{Query?}"
+@using System.IO;
 @using System.Web
 @using System.Text
 @inject NavigationManager NavigationManager
@@ -25,6 +26,16 @@
 			}
 		}
 		@((MarkupString)condition)
+
+		// 案内
+		@if (availableSongs.Count() == 0)
+		{
+			<div>曲が見つかりませんでした。検索条件を変えて検索してください。</div>
+		}
+		else
+		{
+			<div>予約したい曲をクリックしてください。</div>
+		}
 
 		// 検索方法のアクティブタブ
 		String typeActiveTab = "すべて";
@@ -82,28 +93,33 @@
 			new TabItem("サイズ順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
 		};
 		@((MarkupString)ClientCommon.GenerateTabHeader(sortTabItems,YbdConstants. SEARCH_RESULT_SORT_NAMES[(Int32)searchWord.Sort]))
-
-
 	}
 
-	<table>
-		<tr>
-			<th>曲名</th>
-			<th>タイアップ</th>
-			<th>ファイル名</th>
-			<th>予約</th>
-			<th>test</th>
-		</tr>
-		@foreach (AvailableSong availableSong in availableSongs)
-		{
-			<tr @key="@availableSong.Id" @onclick="() => OnClickRequest(availableSong)">
-				<td>@availableSong.SongName</td>
-				<td>@availableSong.TieUpName</td>
-				<td>@availableSong.Path</td>
-				<td><button @onclick="() => OnClickRequest(availableSong)">予約</button></td>
-			</tr>
-		}
-	</table>
+	<div class="tab-content">
+
+		<table class="search-result-table">
+			@foreach (AvailableSong availableSong in availableSongs)
+			{
+				<tr class="req-list-tr-unplayed" @key="@availableSong.Id">
+					<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(availableSong.Path, Encoding.UTF8)" /></div></td>
+					<td class="req-list-td" @onclick="() => OnClickRequest(availableSong)">
+						<div class="search-result-song">@availableSong.SongName</div>
+						@{
+							String misc = availableSong.ArtistName;
+							if (!String.IsNullOrEmpty(availableSong.TieUpName))
+							{
+								misc += " / " + availableSong.TieUpName;
+							}
+						}
+						<div class="req-list-misc">@misc</div>
+						<div class="req-list-path">@Path.GetFileName(availableSong.Path.Replace('\\', '/'))</div>
+					</td>
+					<td class="req-list-td"><div class="req-list-misc">@(availableSong.FileSize/1024/1024) MB</div></td>
+				</tr>
+			}
+		</table>
+
+	</div>
 
 </div>
 

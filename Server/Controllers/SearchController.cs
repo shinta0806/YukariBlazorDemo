@@ -46,6 +46,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					if (!String.IsNullOrEmpty(searchWord.AnyWord))
 					{
 						// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
+						// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToList() で新しいコンテナに格納する
 						results = SortSearchResult(availableSongContext.AvailableSongs.Where(x => EF.Functions.Like(x.Path, $"%{searchWord.AnyWord}%")
 								|| EF.Functions.Like(x.SongName, $"%{searchWord.AnyWord}%")
 								|| EF.Functions.Like(x.TieUpName, $"%{searchWord.AnyWord}%")

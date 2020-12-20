@@ -81,7 +81,7 @@ namespace YukariBlazorDemo.Server
 				}
 				if (availableSongContext.AvailableSongs.Count() == 0)
 				{
-					// サンプルデータ作成
+					// 予約可能な曲のサンプルデータ作成
 					AvailableSong[] availableSongs =
 					{
 						new AvailableSong { Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎",
@@ -104,6 +104,10 @@ namespace YukariBlazorDemo.Server
 								LastModified = 58950.0, FileSize = 103 * 1024 * 1024 },
 						new AvailableSong { Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作五郎",
 								LastModified = 58945.0, FileSize = 110 * 1024 * 1024 },
+						new AvailableSong { Path = FILE_NAME_TEMPLE, SongName = "寺", TieUpName = String.Empty, ArtistName = "唱和坊主", Maker = String.Empty, Worker="製作五郎",
+								LastModified = 58944.0, FileSize = 102 * 1024 * 1024 },
+						new AvailableSong { Path = FILE_NAME_REMOTE, SongName = "リモコン", TieUpName = "家電", ArtistName = String.Empty, Maker = "アニメスタジオC", Worker="製作五郎",
+								LastModified = 58943.0, FileSize = 104 * 1024 * 1024 },
 					};
 					availableSongContext.AvailableSongs.AddRange(availableSongs);
 					availableSongContext.SaveChanges();
@@ -118,7 +122,7 @@ namespace YukariBlazorDemo.Server
 				}
 				if (thumbnailContext.Thumbnails.Count() == 0)
 				{
-					// サンプルデータ作成
+					// サムネイルのサンプルデータ作成
 					Thumbnail[] thumbnails =
 					{
 						CreateThumbnail(FILE_NAME_TULIP, "Tulip.png"),
@@ -130,6 +134,7 @@ namespace YukariBlazorDemo.Server
 						CreateThumbnail(FILE_NAME_SHIBA, "Shiba.png"),
 						CreateThumbnail(FILE_NAME_POMERANIAN, "Pomeranian.png"),
 						CreateThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
+						CreateThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
 					};
 					thumbnailContext.Thumbnails.AddRange(thumbnails);
 					thumbnailContext.SaveChanges();
@@ -186,5 +191,7 @@ namespace YukariBlazorDemo.Server
 		private const String FILE_NAME_POMERANIAN = @"D:\Song\ポメラニアン.mp4";
 		private const String FILE_NAME_ANTHURIUM = @"E:\AddSong\Beni.mp4";
 		private const String FILE_NAME_IRIS = @"E:\AddSong\Ayame.mp4";
+		private const String FILE_NAME_TEMPLE = @"E:\AddSong\Temple.mp4";
+		private const String FILE_NAME_REMOTE = @"E:\AddSong\Remote.mp4";
 	}
 }
