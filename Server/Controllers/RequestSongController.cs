@@ -41,7 +41,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			return results;
 		}
 
-		[HttpPost]
+		[HttpPost, Route("request")]
 		public IActionResult AddRequestSong([FromBody] RequestSong requestSong)
 		{
 			try
@@ -78,6 +78,28 @@ namespace YukariBlazorDemo.Server.Controllers
 				// 追加する曲は最後
 				requestSong.Sort = sort;
 				requestSongContext.RequestSongs.Add(requestSong);
+				requestSongContext.SaveChanges();
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine(excep.Message);
+				return BadRequest();
+			}
+		}
+
+		[HttpPut, Route("deleteall")]
+		public IActionResult DeleteAllSongs([FromBody] Int32 dummy)
+		{
+			try
+			{
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSongs == null)
+				{
+					throw new Exception();
+				}
+				requestSongContext.Database.EnsureDeleted();
+				requestSongContext.Database.EnsureCreated();
 				requestSongContext.SaveChanges();
 				return Ok();
 			}

@@ -9,13 +9,13 @@
 		<div>@songName</div>
 	</div>
 
-	<div class="actions">
-		<form>
+	<form>
+		<div class="actions">
 			<button class="general-button" type="button" @onclick="OnClickPrev">&#9665;&#9665;　前の曲</button>
 			<button class="default-button" type="button" @onclick="OnClickPlayOrPause">&#9654;　再生／一時停止</button>
 			<button class="general-button" type="button" @onclick="OnClickNext">&#9655;&#9655;　次の曲</button>
-		</form>
-	</div>
+		</div>
+	</form>
 
 	<div>@playResult</div>
 
@@ -69,12 +69,14 @@
 		try
 		{
 			HttpResponseMessage message = await PlayerService.PlayOrPauseAsync();
-			if (!message.IsSuccessStatusCode)
+			if (message.IsSuccessStatusCode)
+			{
+				await UpdateStatusAsync();
+			}
+			else
 			{
 				playResult = "再生できませんでした。";
-				return;
 			}
-			await UpdateStatusAsync();
 			StateHasChanged();
 		}
 		catch (Exception)
@@ -88,12 +90,14 @@
 		try
 		{
 			HttpResponseMessage message = await PlayerService.NextAsync();
-			if (!message.IsSuccessStatusCode)
+			if (message.IsSuccessStatusCode)
+			{
+				await UpdateStatusAsync();
+			}
+			else
 			{
 				playResult = "再生できませんでした。";
-				return;
 			}
-			await UpdateStatusAsync();
 			StateHasChanged();
 		}
 		catch (Exception)
@@ -108,12 +112,14 @@
 		try
 		{
 			HttpResponseMessage message = await PlayerService.PrevAsync();
-			if (!message.IsSuccessStatusCode)
+			if (message.IsSuccessStatusCode)
+			{
+				await UpdateStatusAsync();
+			}
+			else
 			{
 				playResult = "再生できませんでした。";
-				return;
 			}
-			await UpdateStatusAsync();
 			StateHasChanged();
 		}
 		catch (Exception)

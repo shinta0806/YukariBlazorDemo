@@ -46,7 +46,13 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		public async Task<HttpResponseMessage> RequestAsync(RequestSong requestSong)
 		{
-			return await HttpClient.PostAsJsonAsync("api/requestsongs", requestSong);
+			return await HttpClient.PostAsJsonAsync("api/requestsongs/request", requestSong);
 		}
+
+		public async Task<HttpResponseMessage> DeleteAllAsync()
+		{
+			return await HttpClient.PutAsJsonAsync("api/requestsongs/deleteall", 0);
+		}
+
 	}
 }

@@ -1,0 +1,50 @@
+﻿@page "/admin"
+@inject RequestSongService RequestSongService
+@inject IJSRuntime JSRuntime
+
+<h1>予約管理</h1>
+
+<div class="content">
+
+	<form>
+		<div class="actions">
+			<button class="general-button" type="button" @onclick="OnClickDeleteAll">予約をすべて削除</button>
+		</div>
+	</form>
+
+	<div>@adminResult</div>
+
+</div>
+
+@code {
+	private String? adminResult;
+
+	private async void OnClickDeleteAll()
+	{
+		try
+		{
+			Boolean confirm = await JSRuntime.InvokeAsync<Boolean>("confirm", "予約をすべて削除してもよろしいですか？");
+			if (!confirm)
+			{
+				return;
+			}
+
+			HttpResponseMessage message = await RequestSongService.DeleteAllAsync();
+			if (message.IsSuccessStatusCode)
+			{
+				adminResult = "削除しました。";
+			}
+			else
+			{
+				adminResult = "削除できませんでした。";
+			}
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+
+		}
+
+	}
+
+}
