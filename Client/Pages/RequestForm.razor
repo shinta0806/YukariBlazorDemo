@@ -3,43 +3,67 @@
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
 
-<h3>予約</h3>
+<h1>予約</h1>
 
-<div class="requestform">
-	<EditForm Model="requestSong" OnValidSubmit="OnOK">
+<div class="content">
 
-		<DataAnnotationsValidator />
+	<div class="requestform">
+		<EditForm Model="requestSong" OnValidSubmit="OnOK">
 
-		<table>
-			<tr><th>曲名</th><td>@requestSong.SongName</td></tr>
-			<tr><th>タイアップ</th><td>@requestSong.TieUpName</td></tr>
-			<tr><th>ファイル名</th><td>@requestSong.Path</td></tr>
-		</table>
+			<DataAnnotationsValidator />
 
-		<div class="name">
-			<span class="caption">リクエスト者</span>
-			<span class="input-field">
-				<input type="text" @bind="requestSong.User" />
-			</span>
-		</div>
+			<div class="tab-content">
 
-		<div class="name">
-			<span class="caption">コメント</span>
-			<span class="input-field">
-				<input type="text" @bind="requestSong.Comment" />
-			</span>
-		</div>
+				<table class="input-table">
+					<tr>
+						<td class="input-td">曲名</td>
+						<td class="input-td">@requestSong.SongName</td>
+					</tr>
+					<tr>
+						<td class="input-td">タイアップ名</td>
+						<td class="input-td">@requestSong.TieUpName</td>
+					</tr>
+					<tr>
+						<td class="input-td">歌手名</td>
+						<td class="input-td">@requestSong.ArtistName</td>
+					</tr>
+					<tr>
+						<td class="input-td">制作会社</td>
+						<td class="input-td">@requestSong.Maker</td>
+					</tr>
+					<tr>
+						<td class="input-td">カラオケ動画制作者</td>
+						<td class="input-td">@requestSong.Worker</td>
+					</tr>
+					<tr>
+						<td class="input-td">ファイル名</td>
+						<td class="input-td">@requestSong.Path</td>
+					</tr>
+					<tr>
+						<td class="input-td">予約者</td>
+						<td class="input-td"><input class="input-general" type="text" @bind="requestSong.User" /></td>
+					</tr>
+					<tr>
+						<td class="input-td">コメント</td>
+						<td class="input-td"><input class="input-general" type="text" @bind="requestSong.Comment" /></td>
+					</tr>
+				</table>
 
-		<div class="error-message">
-			<ValidationSummary></ValidationSummary>
-		</div>
-		<div class="actions">
-			<button class="button">OK</button>
-		</div>
+			</div>
 
-	</EditForm>
+			<div class="actions">
+				<button class="default-button">予約</button>
+			</div>
 
-	<div>@requestResult</div>
+			<div class="error-message">
+				<ValidationSummary></ValidationSummary>
+			</div>
+
+		</EditForm>
+
+		<div>@requestResult</div>
+
+	</div>
 
 </div>
 
@@ -78,8 +102,8 @@
 			HttpResponseMessage message = await RequestSongService.RequestAsync(requestSong);
 			if (!message.IsSuccessStatusCode)
 			{
-				// ToDo: 1 回目は表示に反映されない
 				requestResult = "予約できませんでした。やり直してください。";
+				StateHasChanged();
 				return;
 			}
 			NavigationManager.NavigateTo("/");
