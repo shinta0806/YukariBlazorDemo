@@ -46,6 +46,18 @@ namespace YukariBlazorDemo.Shared
 	}
 
 	// --------------------------------------------------------------------
+	// 検索結果並び順
+	// --------------------------------------------------------------------
+	public enum SearchResultSort
+	{
+		Latest,
+		SongName,
+		ArtistName,
+		FileSize,
+		__End__,
+	}
+
+	// --------------------------------------------------------------------
 	// 検索方法
 	// --------------------------------------------------------------------
 	public enum SearchWordType
@@ -66,8 +78,14 @@ namespace YukariBlazorDemo.Shared
 		// SearchDetailCondition に対応する URL パラメーター
 		public static readonly String[] SEARCH_DETAIL_PARAM_NAMES = { "songname", "tieupname", "artistname", "maker", "worker", "filename" };
 
-		// AnyWord に対応する URL パラメーター
-		public const String PARAM_NAME_ANY_WORD = "anyword";
+		// 検索方法に AnyWord を指定する URL パラメーター
+		public const String SEARCH_PARAM_NAME_ANY_WORD = "anyword";
+
+		// SearchResultSort に対応する名称
+		public static readonly String[] SEARCH_RESULT_SORT_NAMES = { "新着順", "曲名順", "歌手名順", "サイズ順" };
+
+		// SearchResultSort を指定する URL パラメーター
+		public const String SEARCH_PARAM_NAME_SORT = "sort";
 
 	}
 }

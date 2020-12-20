@@ -35,9 +35,14 @@ namespace YukariBlazorDemo.Shared
 				}
 				String paramName = elements[0];
 				String paramValue = HttpUtility.UrlDecode(elements[1], Encoding.UTF8);
-				if (paramName == YbdConstants.PARAM_NAME_ANY_WORD)
+				if (paramName == YbdConstants.SEARCH_PARAM_NAME_ANY_WORD)
 				{
 					AnyWord = paramValue;
+				}
+				else if (paramName == YbdConstants.SEARCH_PARAM_NAME_SORT)
+				{
+					Int32.TryParse(paramValue, out Int32 paramValueNum);
+					Sort = (SearchResultSort)Math.Clamp(paramValueNum, 0, (Int32)(SearchResultSort.__End__) - 1);
 				}
 				else
 				{
@@ -95,7 +100,22 @@ namespace YukariBlazorDemo.Shared
 
 		public String[] DetailValues { get; set; } = new String[(Int32)SearchDetailCondition.__End__];
 
+		public SearchResultSort Sort { get; set; }
 
+		public SearchWord DeepCopy()
+		{
+			// 簡易コピー
+			SearchWord copy = (SearchWord)MemberwiseClone();
+
+			// 詳細コピー
+			copy.DetailValues = new String[(Int32)SearchDetailCondition.__End__];
+			for (Int32 i = 0; i < DetailValues.Length; i++)
+			{
+				copy.DetailValues[i] = DetailValues[i];
+			}
+
+			return copy;
+		}
 
 
 		public Boolean IsValid([NotNullWhen(false)] out String? errorMessage)
@@ -131,15 +151,21 @@ namespace YukariBlazorDemo.Shared
 
 		public override String? ToString()
 		{
+			String str = String.Empty;
 			if (Type == SearchWordType.AnyWord)
 			{
-				return YbdConstants.PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(AnyWord, Encoding.UTF8);
+				AddString(ref str, YbdConstants.SEARCH_PARAM_NAME_ANY_WORD, AnyWord);
 			}
-
-			String str = String.Empty;
-			for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
+			else
 			{
-				AddString(ref str, YbdConstants.SEARCH_DETAIL_PARAM_NAMES[i], DetailValues[i]);
+				for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
+				{
+					AddString(ref str, YbdConstants.SEARCH_DETAIL_PARAM_NAMES[i], DetailValues[i]);
+				}
+			}
+			if (Sort != 0)
+			{
+				AddString(ref str, YbdConstants.SEARCH_PARAM_NAME_SORT, ((Int32)Sort).ToString());
 			}
 			return str;
 		}

@@ -38,5 +38,9 @@ namespace YukariBlazorDemo.Shared
 		[Required]
 		public String Path { get; set; } = String.Empty;
 
+		// 修正ユリウス日
+		public Double LastModified { get; set; }
+
+		public Int64 FileSize { get; set; }
 	}
 }

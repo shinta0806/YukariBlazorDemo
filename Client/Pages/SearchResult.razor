@@ -29,48 +29,60 @@
 		// 検索方法のアクティブタブ
 		String typeActiveTab = "すべて";
 		String typeActiveKeyword = String.Empty;
-		if (searchWord.Type == SearchWordType.AnyWord)
+		if (searchWord.IsValid(out String? errorMessage))
 		{
-			typeActiveKeyword = searchWord.AnyWord;
-		}
-		else
-		{
-			Int32 numConditions = searchWord.DetailValues.Where(x => x != String.Empty).Count();
-			if (numConditions == 1)
+			if (searchWord.Type == SearchWordType.AnyWord)
 			{
-				if (!String.IsNullOrEmpty(searchWord.SongName))
-				{
-					typeActiveTab = "曲名";
-					typeActiveKeyword = searchWord.SongName;
-				}
-				else if (!String.IsNullOrEmpty(searchWord.TieUpName))
-				{
-					typeActiveTab = "タイアップ名";
-					typeActiveKeyword = searchWord.TieUpName;
-				}
-				else if (!String.IsNullOrEmpty(searchWord.ArtistName))
-				{
-					typeActiveTab = "歌手名";
-					typeActiveKeyword = searchWord.ArtistName;
-				}
+				typeActiveKeyword = searchWord.AnyWord;
 			}
 			else
 			{
-				typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
+				Int32 numConditions = searchWord.DetailValues.Where(x => x != String.Empty).Count();
+				if (numConditions == 1)
+				{
+					if (!String.IsNullOrEmpty(searchWord.SongName))
+					{
+						typeActiveTab = "曲名";
+						typeActiveKeyword = searchWord.SongName;
+					}
+					else if (!String.IsNullOrEmpty(searchWord.TieUpName))
+					{
+						typeActiveTab = "タイアップ名";
+						typeActiveKeyword = searchWord.TieUpName;
+					}
+					else if (!String.IsNullOrEmpty(searchWord.ArtistName))
+					{
+						typeActiveTab = "歌手名";
+						typeActiveKeyword = searchWord.ArtistName;
+					}
+				}
+				else
+				{
+					typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
+				}
 			}
 		}
 
 		// 検索方法タブ
 		TabItem[] typeTabItems =
-		{
-			new TabItem("すべて", "/searchresult/" + YbdConstants.PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+	{
+			new TabItem("すべて", "/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
 			new TabItem("曲名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
 			new TabItem("タイアップ名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+			new TabItem("歌手名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
 		};
 		@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
 
-		<a href="/searchresult">searchresult</a> <a href="/searchresult/hoge/hoge">searchresult hoge hoge</a>
-		<div @onclick="() => OnClickTest()">div link</div>
+		// ソートタブ
+		TabItem[] sortTabItems =
+		{
+			new TabItem("新着順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.Latest)),
+			new TabItem("曲名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.SongName)),
+			new TabItem("歌手名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.ArtistName)),
+			new TabItem("サイズ順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
+		};
+		@((MarkupString)ClientCommon.GenerateTabHeader(sortTabItems,YbdConstants. SEARCH_RESULT_SORT_NAMES[(Int32)searchWord.Sort]))
+
 
 	}
 
@@ -109,16 +121,6 @@
 
 	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
 
-#if false
-protected override void OnParametersSet()
-{
-	if(!String.IsNullOrEmpty(renderedQuery) && renderedQuery != Query)
-	{
-		NavigationManager.NavigateTo($"/searchresult/{Query}", true);
-	}
-}
-#endif
-
 	protected override async Task OnParametersSetAsync()
 	{
 		if (!String.IsNullOrEmpty(renderedQuery) && renderedQuery != Query)
@@ -128,7 +130,6 @@ protected override void OnParametersSet()
 			StateHasChanged();
 		}
 	}
-
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -163,10 +164,11 @@ protected override void OnParametersSet()
 		str += "<span class='condition-name'>" + condName + "：</span><span class='condition-value'>" + HttpUtility.HtmlEncode(condValue) + "</span>";
 	}
 
-	private void OnClickTest()
+	private SearchWord ChangeSort(SearchWord searchWord, SearchResultSort sort)
 	{
-		NavigationManager.NavigateTo($"/searchresult/anyword=z");
-		StateHasChanged();
+		SearchWord change = searchWord.DeepCopy();
+		change.Sort = sort;
+		return change;
 	}
 
 
