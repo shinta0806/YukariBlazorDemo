@@ -2,18 +2,24 @@
 @inject NavigationManager NavigationManager
 @inject PlayerService PlayerService
 
-<div>@playStatus</div>
-<div>@songName</div>
+<div class="content">
 
-<div class="player">
-	<form>
-		<button class="button" type="button" @onclick="OnClickPrev">前の曲へ</button>
-		<button class="button" type="button" @onclick="OnClickPlayOrPause">再生／一時停止</button>
-		<button class="button" type="button" @onclick="OnClickNext">次の曲へ</button>
-	</form>
+	<div class="tab-content">
+		<div class="player-status">@playStatus</div>
+		<div>@songName</div>
+	</div>
+
+	<div class="actions">
+		<form>
+			<button class="general-button" type="button" @onclick="OnClickPrev">&#9665;&#9665;　前の曲</button>
+			<button class="default-button" type="button" @onclick="OnClickPlayOrPause">&#9654;　再生／一時停止</button>
+			<button class="general-button" type="button" @onclick="OnClickNext">&#9655;&#9655;　次の曲</button>
+		</form>
+	</div>
+
+	<div>@playResult</div>
+
 </div>
-
-<div>@playResult</div>
 
 @code {
 	private RequestSong? playingSong;
