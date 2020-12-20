@@ -1,6 +1,6 @@
 ﻿@page "/searchform/{Detail?}"
 @inject NavigationManager NavigationManager
-
+@inject IJSRuntime JSRuntime
 
 
 <div class="content">
@@ -28,11 +28,11 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">キーワード</td>
-								<td class="input-td"><input class="input-general" type="text" placeholder="曲名、歌手名、タイアップ名、ファイル名の一部" @bind="word.AnyWord" /></td>
+								<td class="input-td"><input class="input-general" id="keyword" type="text" @bind="word.AnyWord" /></td>
 							</tr>
 							<tr>
 								<td class="input-td"></td>
-								<td class="input-td"><div class="supplement">※「mp4」をキーワードにすると多くの動画を検索できます。</div></td>
+								<td class="input-td"><div class="supplement">曲名、歌手名、タイアップ名、ファイル名の一部をキーワードにして検索できます。<br />「mp4」をキーワードにすると多くの動画を検索できます。</div></td>
 							</tr>
 						</table>
 					</div>
@@ -48,7 +48,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">曲名</td>
-								<td class="input-td"><input class="input-general" type="text" @bind="word.SongName" /></td>
+								<td class="input-td"><input class="input-general" id="song-name" type="text" @bind="word.SongName" /></td>
 							</tr>
 							<tr>
 								<td class="input-td">タイアップ名</td>
@@ -91,6 +91,8 @@
 	[Parameter]
 	public String? Detail { get; set; }
 
+	private String? prevDetail = "__Init__";
+
 	private SearchWord word = new SearchWord();
 
 	private void OnOK()
@@ -98,6 +100,58 @@
 		NavigationManager.NavigateTo($"/searchresult/{word}");
 	}
 
+#if true
+	protected override async Task OnAfterRenderAsync(Boolean firstRender)
+	{
+		if (prevDetail != Detail)
+		{
+			//await Focus("keyword");
+			//var yes = await JSRuntime.InvokeAsync<bool>("confirm", "削除してもよろしいですか?");
+			//var yes = await JSRuntime.InvokeAsync<string>("exampleJsFunctions.showPrompt", "calling showPrompt");
+			//var yes = await JSRuntime.InvokeAsync<string>("MyMessage", "calling MyMessage");
+			String id;
+			if (word.Type == SearchWordType.AnyWord)
+			{
+				id = "keyword";
+			}
+			else
+			{
+				id = "song-name";
+			}
+			await JSRuntime.InvokeVoidAsync("MySetFocus2", id);
+			prevDetail = Detail;
+		}
+	}
+#endif
+
+#if false
+// たぶんレンダリング途中の bind でも呼びだされていて、id が見つからずに null 参照になるっぽい
+protected override async Task OnParametersSetAsync()
+{
+if (prevDetail != Detail)
+{
+String id;
+if (word.Type == SearchWordType.AnyWord)
+{
+id = "keyword";
+}
+else
+{
+id = "song-name";
+}
+await JSRuntime.InvokeVoidAsync("MySetFocus2", id);
+prevDetail = Detail;
+}
+}
+#endif
+
+
+#if false
+private async Task Focus(string controlId)
+{
+	await JSRuntime.InvokeAsync<bool>("MySetFocus", controlId);
+}
+#endif
 
 }
 

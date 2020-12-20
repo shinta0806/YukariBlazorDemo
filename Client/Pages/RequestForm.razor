@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
+@inject IJSRuntime JSRuntime
 
 <h1>予約</h1>
 
@@ -17,7 +18,7 @@
 				<table class="input-table">
 					<tr>
 						<td class="input-td">曲名</td>
-						<td class="input-td">@requestSong.SongName</td>
+						<td class="input-td"><div class="req-list-song">@requestSong.SongName</div></td>
 					</tr>
 					<tr>
 						<td class="input-td">タイアップ名</td>
@@ -37,11 +38,11 @@
 					</tr>
 					<tr>
 						<td class="input-td">ファイル名</td>
-						<td class="input-td">@requestSong.Path</td>
+						<td class="input-td"><div class="req-list-path">@requestSong.Path</div></td>
 					</tr>
 					<tr>
 						<td class="input-td">予約者</td>
-						<td class="input-td"><input class="input-general" type="text" @bind="requestSong.User" /></td>
+						<td class="input-td"><input class="input-general" id="user" type="text" @bind="requestSong.User" /></td>
 					</tr>
 					<tr>
 						<td class="input-td">コメント</td>
@@ -92,6 +93,14 @@
 		{
 			Debug.WriteLine(excep.Message);
 			Debug.WriteLine(excep.StackTrace);
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(Boolean firstRender)
+	{
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("MySetFocus2", "user");
 		}
 	}
 

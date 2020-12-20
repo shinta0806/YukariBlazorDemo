@@ -20,6 +20,13 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="functions.js"></script>
+    <script>
+        window.MySetFocus = (ctrl) => {
+            document.getElementById(ctrl).focus();
+            return true;
+        };
+    </script>
 </body>
 
 </html>

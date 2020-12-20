@@ -8,6 +8,7 @@
 // 
 // ----------------------------------------------------------------------------
 
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,5 +47,6 @@ namespace YukariBlazorDemo.Client.Models.Misc
 
 			return header;
 		}
+
 	}
 }
