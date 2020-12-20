@@ -46,13 +46,13 @@ namespace YukariBlazorDemo.Server.Controllers
 					if (!String.IsNullOrEmpty(searchWord.AnyWord))
 					{
 						// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
-						// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToList() で新しいコンテナに格納する
+						// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
 						results = SortSearchResult(availableSongContext.AvailableSongs.Where(x => EF.Functions.Like(x.Path, $"%{searchWord.AnyWord}%")
 								|| EF.Functions.Like(x.SongName, $"%{searchWord.AnyWord}%")
 								|| EF.Functions.Like(x.TieUpName, $"%{searchWord.AnyWord}%")
 								|| EF.Functions.Like(x.ArtistName, $"%{searchWord.AnyWord}%")
 								|| EF.Functions.Like(x.Maker, $"%{searchWord.AnyWord}%")
-								|| EF.Functions.Like(x.Worker, $"%{searchWord.AnyWord}%")), searchWord.Sort).ToList();
+								|| EF.Functions.Like(x.Worker, $"%{searchWord.AnyWord}%")), searchWord.Sort).Take(RESULT_MAX).ToArray();
 					}
 				}
 				else
@@ -63,7 +63,8 @@ namespace YukariBlazorDemo.Server.Controllers
 							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.TieUpName}%"))
 							&& (String.IsNullOrEmpty(searchWord.ArtistName) || !String.IsNullOrEmpty(searchWord.ArtistName) && EF.Functions.Like(x.ArtistName, $"%{searchWord.ArtistName}%"))
 							&& (String.IsNullOrEmpty(searchWord.Maker) || !String.IsNullOrEmpty(searchWord.Maker) && EF.Functions.Like(x.Maker, $"%{searchWord.Maker}%"))
-							&& (String.IsNullOrEmpty(searchWord.Worker) || !String.IsNullOrEmpty(searchWord.Worker) && EF.Functions.Like(x.Worker, $"%{searchWord.Worker}%"))), searchWord.Sort).ToList();
+							&& (String.IsNullOrEmpty(searchWord.Worker) || !String.IsNullOrEmpty(searchWord.Worker) && EF.Functions.Like(x.Worker, $"%{searchWord.Worker}%"))), searchWord.Sort).
+							Take(RESULT_MAX).ToArray();
 				}
 			}
 			catch (Exception)
@@ -90,6 +91,8 @@ namespace YukariBlazorDemo.Server.Controllers
 					return result.OrderByDescending(x => x.LastModified);
 			}
 		}
+
+		private Int32 RESULT_MAX = 100;
 
 	}
 }
