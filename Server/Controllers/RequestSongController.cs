@@ -100,7 +100,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				requestSongContext.Database.EnsureDeleted();
 				requestSongContext.Database.EnsureCreated();
-				requestSongContext.SaveChanges();
+				//requestSongContext.SaveChanges();
 				return Ok();
 			}
 			catch (Exception excep)

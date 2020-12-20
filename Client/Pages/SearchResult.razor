@@ -105,7 +105,7 @@
 			@foreach (AvailableSong availableSong in availableSongs)
 			{
 				<tr class="req-list-tr-unplayed" @key="@availableSong.Id">
-					<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(availableSong.Path, Encoding.UTF8)" /></div></td>
+					<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(availableSong.Path)" /></div></td>
 					<td class="req-list-td" @onclick="() => OnClickRequest(availableSong)">
 						<div class="search-result-song">@availableSong.SongName</div>
 						@{

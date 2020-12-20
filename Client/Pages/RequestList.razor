@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject RequestSongService RequestSongService
-@using System.IO;
+@using System
+@using System.IO
 @using System.Text
 @using System.Web
 
@@ -45,7 +46,7 @@
 
 			<tr class="@trClassName" @key="requestSong.Id">
 				<td class="req-list-td"><div class="req-list-no">@((MarkupString)playIcon)@requestSong.Sort</div></td>
-				<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@HttpUtility.UrlEncode(requestSong.Path, Encoding.UTF8)" /></div></td>
+				<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.Path)" /></div></td>
 				<td class="req-list-td">
 					<div class="req-list-song">@requestSong.SongName</div>
 					@{
