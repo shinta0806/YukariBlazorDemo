@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using YukariBlazorDemo.Server.Controllers;
 using YukariBlazorDemo.Server.Database;
+using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server
@@ -63,9 +64,16 @@ namespace YukariBlazorDemo.Server
 				endpoints.MapFallbackToFile("index.html");
 			});
 
-			Debug.WriteLine("calling CreateDatabaseIfNeeded()");
-			CreateDatabaseIfNeeded();
-			ThumbnailController.DefaultThumbnail = CreateThumbnail(String.Empty, "NoImage.png");
+			try
+			{
+				CreateDatabaseIfNeeded();
+				ThumbnailController.DefaultThumbnail = CreateThumbnail(String.Empty, "NoImage.png");
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("スタートアップエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
 		}
 
 		private void CreateDatabaseIfNeeded()
@@ -108,6 +116,8 @@ namespace YukariBlazorDemo.Server
 								LastModified = 58944.0, FileSize = 102 * 1024 * 1024 },
 						new AvailableSong { Path = FILE_NAME_REMOTE, SongName = "リモコン", TieUpName = "家電", ArtistName = String.Empty, Maker = "アニメスタジオC", Worker="製作五郎",
 								LastModified = 58943.0, FileSize = 104 * 1024 * 1024 },
+						new AvailableSong { Path = FILE_NAME_HANA, SongName = "花と鼻", TieUpName = String.Empty, ArtistName = String.Empty, Maker = String.Empty, Worker="製作五郎",
+								LastModified = 58942.0, FileSize = 101 * 1024 * 1024 },
 					};
 					availableSongContext.AvailableSongs.AddRange(availableSongs);
 					availableSongContext.SaveChanges();
@@ -193,5 +203,6 @@ namespace YukariBlazorDemo.Server
 		private const String FILE_NAME_IRIS = @"E:\AddSong\Ayame.mp4";
 		private const String FILE_NAME_TEMPLE = @"E:\AddSong\Temple.mp4";
 		private const String FILE_NAME_REMOTE = @"E:\AddSong\Remote.mp4";
+		private const String FILE_NAME_HANA = @"E:\AddSong\Hana.mp4";
 	}
 }

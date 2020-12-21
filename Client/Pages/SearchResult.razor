@@ -1,134 +1,138 @@
 ﻿@page "/searchresult/{Query?}"
-@using System.IO;
+@using System.IO
 @using System.Web
+@using System.Threading
 @using System.Text
 @inject NavigationManager NavigationManager
 @inject SearchService SearchService
 
-@{
+@if (initialized)
+{
 	<h1>検索結果（@availableSongs.Count() 件）</h1>
-}
 
-<div class="content">
+	<div class="content">
 
-	@{
-		// 検索条件表示
-		String condition = String.Empty;
-		if (searchWord.Type == SearchWordType.AnyWord)
-		{
-			AddCondition(ref condition, "キーワード", searchWord.AnyWord);
-		}
-		else
-		{
-			for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
-			{
-				AddCondition(ref condition, YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[i], searchWord.DetailValues[i]);
-			}
-		}
-		@((MarkupString)condition)
-
-		// 案内
-		@if (availableSongs.Count() == 0)
-		{
-			<div>曲が見つかりませんでした。検索条件を変えて検索してください。</div>
-		}
-		else
-		{
-			<div>予約したい曲をクリックしてください。</div>
-		}
-
-		// 検索方法のアクティブタブ
-		String typeActiveTab = "すべて";
-		String typeActiveKeyword = String.Empty;
-		if (searchWord.IsValid(out String? errorMessage))
-		{
+		@{
+			// 検索条件表示
+			String condition = String.Empty;
 			if (searchWord.Type == SearchWordType.AnyWord)
 			{
-				typeActiveKeyword = searchWord.AnyWord;
+				AddCondition(ref condition, "キーワード", searchWord.AnyWord);
 			}
 			else
 			{
-				Int32 numConditions = searchWord.DetailValues.Where(x => x != String.Empty).Count();
-				if (numConditions == 1)
+				for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
 				{
-					if (!String.IsNullOrEmpty(searchWord.SongName))
+					AddCondition(ref condition, YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[i], searchWord.DetailValues[i]);
+				}
+			}
+			@((MarkupString)condition)
+
+			// 案内
+			@if (availableSongs.Count() == 0)
+			{
+				<div>曲が見つかりませんでした。検索条件を変えて検索してください。</div>
+			}
+			else
+			{
+				<div>予約したい曲をクリックしてください。</div>
+			}
+
+			// 検索方法のアクティブタブ
+			String typeActiveTab = "すべて";
+			String typeActiveKeyword = String.Empty;
+			if (searchWord.IsValid(out String? errorMessage))
+			{
+				if (searchWord.Type == SearchWordType.AnyWord)
+				{
+					typeActiveKeyword = searchWord.AnyWord;
+				}
+				else
+				{
+					Int32 numConditions = searchWord.DetailValues.Where(x => x != String.Empty).Count();
+					if (numConditions == 1)
 					{
-						typeActiveTab = "曲名";
-						typeActiveKeyword = searchWord.SongName;
-					}
-					else if (!String.IsNullOrEmpty(searchWord.TieUpName))
-					{
-						typeActiveTab = "タイアップ名";
-						typeActiveKeyword = searchWord.TieUpName;
-					}
-					else if (!String.IsNullOrEmpty(searchWord.ArtistName))
-					{
-						typeActiveTab = "歌手名";
-						typeActiveKeyword = searchWord.ArtistName;
+						if (!String.IsNullOrEmpty(searchWord.SongName))
+						{
+							typeActiveTab = "曲名";
+							typeActiveKeyword = searchWord.SongName;
+						}
+						else if (!String.IsNullOrEmpty(searchWord.TieUpName))
+						{
+							typeActiveTab = "タイアップ名";
+							typeActiveKeyword = searchWord.TieUpName;
+						}
+						else if (!String.IsNullOrEmpty(searchWord.ArtistName))
+						{
+							typeActiveTab = "歌手名";
+							typeActiveKeyword = searchWord.ArtistName;
+						}
+						else
+						{
+							typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
+						}
 					}
 					else
 					{
 						typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
 					}
 				}
-				else
-				{
-					typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
-				}
 			}
+
+			// 検索方法タブ
+			TabItem[] typeTabItems =
+			{
+				new TabItem("すべて", "/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem("曲名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem("タイアップ名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem("歌手名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+			};
+			@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
+
+			// ソートタブ
+			TabItem[] sortTabItems =
+			{
+				new TabItem("新着順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.Latest)),
+				new TabItem("曲名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.SongName)),
+				new TabItem("歌手名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.ArtistName)),
+				new TabItem("サイズ順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
+			};
+			@((MarkupString)ClientCommon.GenerateTabHeader(sortTabItems,YbdConstants. SEARCH_RESULT_SORT_NAMES[(Int32)searchWord.Sort]))
 		}
 
-		// 検索方法タブ
-		TabItem[] typeTabItems =
-	{
-			new TabItem("すべて", "/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-			new TabItem("曲名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-			new TabItem("タイアップ名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-			new TabItem("歌手名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-		};
-		@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
+		<div class="tab-content">
 
-		// ソートタブ
-		TabItem[] sortTabItems =
-		{
-			new TabItem("新着順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.Latest)),
-			new TabItem("曲名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.SongName)),
-			new TabItem("歌手名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.ArtistName)),
-			new TabItem("サイズ順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
-		};
-		@((MarkupString)ClientCommon.GenerateTabHeader(sortTabItems,YbdConstants. SEARCH_RESULT_SORT_NAMES[(Int32)searchWord.Sort]))
-	}
-
-	<div class="tab-content">
-
-		<table class="search-result-table">
-			@foreach (AvailableSong availableSong in availableSongs)
-			{
-				<tr class="req-list-tr-unplayed" @key="@availableSong.Id">
-					<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(availableSong.Path)" /></div></td>
-					<td class="req-list-td" @onclick="() => OnClickRequest(availableSong)">
-						<div class="search-result-song">@availableSong.SongName</div>
-						@{
-							String misc = availableSong.ArtistName;
-							if (!String.IsNullOrEmpty(availableSong.TieUpName))
-							{
-								misc += " / " + availableSong.TieUpName;
+			<table class="search-result-table">
+				@foreach (AvailableSong availableSong in availableSongs)
+				{
+					<tr class="req-list-tr-unplayed" @key="@availableSong.Id">
+						<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(availableSong.Path)" /></div></td>
+						<td class="req-list-td" @onclick="() => OnClickRequest(availableSong)">
+							<div class="search-result-song">@availableSong.SongName</div>
+							@{
+								String misc = availableSong.ArtistName;
+								if (!String.IsNullOrEmpty(availableSong.TieUpName))
+								{
+									misc += " / " + availableSong.TieUpName;
+								}
 							}
-						}
-						<div class="req-list-misc">@misc</div>
-						<div class="req-list-path">@Path.GetFileName(availableSong.Path.Replace('\\', '/'))</div>
-					</td>
-					<td class="req-list-td"><div class="req-list-misc">@(availableSong.FileSize/1024/1024) MB</div></td>
-				</tr>
-			}
-		</table>
+							<div class="req-list-misc">@misc</div>
+							<div class="req-list-path">@Path.GetFileName(availableSong.Path.Replace('\\', '/'))</div>
+						</td>
+						<td class="req-list-td"><div class="req-list-misc">@(availableSong.FileSize/1024/1024) MB</div></td>
+					</tr>
+				}
+			</table>
+
+		</div>
 
 	</div>
 
-</div>
-
-@{
 	prevQuery = Query;
+}
+else
+{
+	<div class="loading">Loading...</div>
 }
 
 @code {
@@ -136,6 +140,8 @@
 	public String? Query { get; set; }
 
 	private String? prevQuery;
+
+	private Boolean initialized;
 
 	private SearchWord searchWord = new();
 
@@ -157,6 +163,7 @@
 		{
 			searchWord = new SearchWord(Query);
 			availableSongs = await SearchService.SearchByWordAsync(Query);
+			initialized = true;
 		}
 		catch (Exception excep)
 		{
