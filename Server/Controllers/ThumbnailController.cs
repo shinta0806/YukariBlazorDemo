@@ -11,10 +11,12 @@
 using Microsoft.AspNetCore.Mvc;
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
 using YukariBlazorDemo.Server.Database;
+using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
@@ -62,8 +64,11 @@ namespace YukariBlazorDemo.Server.Controllers
 				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == path);
 				return File(thumbnail.Bitmap, thumbnail.Mime);
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine("サムネイル取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+
 				if (DefaultThumbnail != null)
 				{
 					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime);
@@ -71,6 +76,37 @@ namespace YukariBlazorDemo.Server.Controllers
 				return BadRequest();
 			}
 		}
+
+		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		[Produces(ServerConstants.MIME_TYPE_JSON)]
+		[HttpGet, Route(YbdConstants.URL_STATUS)]
+		public String ThumbnailControllerStatus()
+		{
+			String status;
+			try
+			{
+				if (DefaultThumbnail == null)
+				{
+					throw new Exception("デフォルトサムネイルが作成できませんでした。SampleDataImage フォルダーがあるか確認してください。");
+				}
+				using ThumbnailContext thumbnailContext = new();
+				if (thumbnailContext.Thumbnails == null)
+				{
+					throw new Exception();
+				}
+				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();
+			}
+			catch (Exception excep)
+			{
+				status = "エラー / " + excep.Message;
+				Debug.WriteLine("サムネイル API 状態取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return status;
+		}
+
 
 	}
 }

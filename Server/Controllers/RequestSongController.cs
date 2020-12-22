@@ -1,6 +1,6 @@
 ﻿// ============================================================================
 // 
-// 再生 API
+// 予約 API
 // 
 // ============================================================================
 
@@ -132,5 +132,32 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			return results;
 		}
+
+		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_STATUS)]
+		public String RequestSongControllerStatus()
+		{
+			String status;
+			try
+			{
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSongs == null)
+				{
+					throw new Exception("データベースにアクセスできません。");
+				}
+				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
+			}
+			catch (Exception excep)
+			{
+				status = "エラー / " + excep.Message;
+				Debug.WriteLine("予約 API 状態取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return status;
+		}
+
+
 	}
 }

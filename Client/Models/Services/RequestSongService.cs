@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-
+using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Client.Models.Services
@@ -78,5 +78,27 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			return songs;
 		}
+
+		// --------------------------------------------------------------------
+		// 検索 API の状態を取得
+		// --------------------------------------------------------------------
+		public async Task<String> Status()
+		{
+			String? status;
+			try
+			{
+				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_STATUS);
+				if (status == null)
+				{
+					status = ClientConstants.API_STATUS_ERROR_CANNOT_GET;
+				}
+			}
+			catch (Exception)
+			{
+				status = ClientConstants.API_STATUS_ERROR_CANNOT_CONNECT;
+			}
+			return status;
+		}
+
 	}
 }

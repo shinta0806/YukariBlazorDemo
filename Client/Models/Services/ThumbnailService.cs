@@ -1,15 +1,14 @@
 ﻿// ============================================================================
 // 
-// 検索結果を提供
+// サムネイルを提供
 // 
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// サムネイル画像を取得する場合は本サービスを使わずに HTML から直接 URL を指定する
 // ----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -19,7 +18,7 @@ using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Client.Models.Services
 {
-	public class SearchService
+	public class ThumbnailService
 	{
 		// ====================================================================
 		// コンストラクター・デストラクター
@@ -28,7 +27,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// コンストラクター
 		// --------------------------------------------------------------------
-		public SearchService(HttpClient httpClient)
+		public ThumbnailService(HttpClient httpClient)
 		{
 			HttpClient = httpClient;
 		}
@@ -45,42 +44,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// AvailableSong.Id で曲を検索
-		// --------------------------------------------------------------------
-		public async Task<AvailableSong?> SearchByIdAsync(String? id)
-		{
-			AvailableSong? result = null;
-			try
-			{
-				result = await HttpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
-			}
-			catch (Exception)
-			{
-			}
-			return result;
-		}
-
-		// --------------------------------------------------------------------
-		// キーワードで曲を検索
-		// --------------------------------------------------------------------
-		public async Task<IEnumerable<AvailableSong>> SearchByWordAsync(String? query)
-		{
-			AvailableSong[]? results = null;
-			try
-			{
-				results = await HttpClient.GetFromJsonAsync<AvailableSong[]>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_WORD + query);
-			}
-			catch (Exception)
-			{
-			}
-			if (results == null)
-			{
-				return new AvailableSong[0];
-			}
-			return results;
-		}
-
-		// --------------------------------------------------------------------
 		// 検索 API の状態を取得
 		// --------------------------------------------------------------------
 		public async Task<String> Status()
@@ -88,7 +51,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			String? status;
 			try
 			{
-				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_STATUS);
+				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_THUMBNAIL + YbdConstants.URL_STATUS);
 				if (status == null)
 				{
 					status = ClientConstants.API_STATUS_ERROR_CANNOT_GET;
@@ -96,7 +59,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			catch (Exception)
 			{
-				status =ClientConstants.API_STATUS_ERROR_CANNOT_CONNECT;
+				status = ClientConstants.API_STATUS_ERROR_CANNOT_CONNECT;
 			}
 			return status;
 		}

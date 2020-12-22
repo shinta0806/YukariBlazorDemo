@@ -130,10 +130,12 @@ namespace YukariBlazorDemo.Server
 			}
 			if (thumbnailContext.Thumbnails.Count() == 0)
 			{
-				// サムネイルのサンプルデータ作成
-				// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
-				Thumbnail[] thumbnails =
+				try
 				{
+					// サムネイルのサンプルデータ作成
+					// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
+					Thumbnail[] thumbnails =
+					{
 						CreateThumbnail(FILE_NAME_TULIP, "Tulip.png"),
 						CreateThumbnail(FILE_NAME_SUNFLOWER, "Sunflower.png"),
 						CreateThumbnail(FILE_NAME_ROSE, "Rose.png"),
@@ -145,8 +147,14 @@ namespace YukariBlazorDemo.Server
 						CreateThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
 						CreateThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
 					};
-				thumbnailContext.Thumbnails.AddRange(thumbnails);
-				thumbnailContext.SaveChanges();
+					thumbnailContext.Thumbnails.AddRange(thumbnails);
+					thumbnailContext.SaveChanges();
+				}
+				catch (Exception excep)
+				{
+					Debug.WriteLine("サムネイル作成エラー：\n" + excep.Message);
+					Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				}
 			}
 
 			// 予約一覧

@@ -22,6 +22,7 @@ namespace YukariBlazorDemo.Client
 			builder.Services.AddScoped<RequestSongService>();
 			builder.Services.AddScoped<PlayerService>();
 			builder.Services.AddScoped<SearchService>();
+			builder.Services.AddScoped<ThumbnailService>();
 
 			await builder.Build().RunAsync();
 		}

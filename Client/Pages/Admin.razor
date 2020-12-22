@@ -1,6 +1,38 @@
 ﻿@page "/admin"
 @inject RequestSongService RequestSongService
+@inject SearchService SearchService
+@inject ThumbnailService ThumbnailService
+@inject PlayerService PlayerService
 @inject IJSRuntime JSRuntime
+
+<h1>デモの状態</h1>
+
+<div class="content">
+
+	<div class="tab-content">
+
+		<table class="input-table">
+			<tr>
+				<td class="input-td">予約可能曲データベース：</td>
+				<td class="input-td">@searchStatus</td>
+			</tr>
+			<tr>
+				<td class="input-td">サムネイルデータベース：</td>
+				<td class="input-td">@thumbnailStatus</td>
+			</tr>
+			<tr>
+				<td class="input-td">予約一覧データベース：</td>
+				<td class="input-td">@requestStatus</td>
+			</tr>
+			<tr>
+				<td class="input-td">Player：</td>
+				<td class="input-td">@playerStatus</td>
+			</tr>
+		</table>
+
+	</div>
+
+</div>
 
 <h1>予約管理</h1>
 
@@ -19,8 +51,35 @@
 @code {
 
 	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			searchStatus = await SearchService.Status();
+			thumbnailStatus = await ThumbnailService.Status();
+			requestStatus = await RequestSongService.Status();
+			playerStatus = await PlayerService.Status();
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	// ====================================================================
 	// private 変数
 	// ====================================================================
+
+	// 各種状態
+	private String? searchStatus;
+	private String? thumbnailStatus;
+	private String? requestStatus;
+	private String? playerStatus;
 
 	// 管理作業結果メッセージ
 	private String? adminResult;
@@ -46,6 +105,7 @@
 			if (message.IsSuccessStatusCode)
 			{
 				adminResult = "削除しました。";
+				requestStatus = await RequestSongService.Status();
 			}
 			else
 			{

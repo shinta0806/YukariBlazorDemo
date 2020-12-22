@@ -53,6 +53,15 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_STATUS)]
+		public String PlayerControllerStatus()
+		{
+			return "正常";
+		}
+
+		// --------------------------------------------------------------------
 		// 現在の曲を再生または一時停止する
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_PLAY_OR_PAUSE)]

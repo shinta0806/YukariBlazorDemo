@@ -59,6 +59,31 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_STATUS)]
+		public String SearchControllerStatus()
+		{
+			String status;
+			try
+			{
+				using AvailableSongContext availableSongContext = new();
+				if (availableSongContext.AvailableSongs == null)
+				{
+					throw new Exception("データベースにアクセスできません。");
+				}
+				status = "正常 / 曲数：" + availableSongContext.AvailableSongs.Count();
+			}
+			catch (Exception excep)
+			{
+				status = "エラー / " + excep.Message;
+				Debug.WriteLine("検索 API 状態取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return status;
+		}
+
+		// --------------------------------------------------------------------
 		// キーワードで曲を検索
 		// --------------------------------------------------------------------
 		[HttpGet, Route(YbdConstants.URL_WORD + "{query}")]
