@@ -164,7 +164,7 @@ namespace YukariBlazorDemo.Server
 
 		private Thumbnail CreateThumbnail(String songPath, String imageFileName)
 		{
-			using Image sourceImage = Image.FromFile("SampleDataImage\\" + imageFileName);
+			using Image sourceImage = Image.FromFile("SampleDataImages\\" + imageFileName);
 
 			// サムネイルサイズ
 			Single scale = Math.Min((Single)SCALE_WIDTH / sourceImage.Width, (Single)SCALE_HEIGHT / (float)sourceImage.Height);

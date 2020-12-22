@@ -89,7 +89,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (DefaultThumbnail == null)
 				{
-					throw new Exception("デフォルトサムネイルが作成できませんでした。SampleDataImage フォルダーがあるか確認してください。");
+					throw new Exception("デフォルトサムネイルが作成できませんでした。SampleDataImages フォルダーがあるか確認してください。");
 				}
 				using ThumbnailContext thumbnailContext = new();
 				if (thumbnailContext.Thumbnails == null)
