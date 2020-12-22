@@ -64,6 +64,38 @@ Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッ�
 予約者として自分の名前を入力し、必要に応じてコメントも入力してから「予約」ボタンをクリックすると、その曲を予約することができます。
 <br clear="right">
 
+## 再生
 
+<img src="Server/Documents/Images/Player_Stop.png" width="256" align="right">
+Player ページでは、予約した曲を再生します。
 
+<br clear="right">
+<img src="Server/Documents/Images/Player_Play.png" width="256" align="right">
+最初は曲が再生されておらず、「停止中」と表示されていますが、「再生／一時停止」ボタンをクリックすると、予約した曲を再生できます。
+
+「前の曲」「次の曲」ボタンで、再生する曲を変更できます。
+
+<br clear="right">
+<img src="Server/Documents/Images/RequestList_Play.png" width="256" align="right">
+予約一覧ページを表示すると、再生中の曲が橙色で表示されます。
+
+> このデモでは実際の動画は再生されず、予約一覧ページでの表示のみとなります。
+
+<br clear="right">
+
+## 管理
+
+<img src="Server/Documents/Images/Admin.png" width="256" align="right">
+管理ページでは、デモの状態が表示されます。
+
+ここにエラーと表示されている場合は、何らかの障害が発生しています。
+
+「予約をすべて削除」ボタンをクリックすると、予約をすべて削除できます。
+<br clear="right">
+
+# 謝辞
+
+感謝です。
+- Blazor WebAssembly での開発について、[Blazor WebAssembly (client-side Blazor) アプリケーションプログラミング自習書](https://github.com/jsakamoto/self-learning-materials-for-blazor-jp)で勉強しました。分かりやすい自習書です。
+- サンプルデータのサムネイルは[いらすとや](https://www.irasutoya.com/)を使わせて頂きました。
 
