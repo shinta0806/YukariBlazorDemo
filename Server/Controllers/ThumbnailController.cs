@@ -1,24 +1,41 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// ============================================================================
+// 
+// サムネイル API
+// 
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Mvc;
+
 using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Imaging;
-using YukariBlazorDemo.Server.Database;
 using System.Threading;
-using System.Diagnostics;
+
+using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Shared;
-using YukariBlazorDemo.Server.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
-	[Route("api/thumbnail")]
+	[Route(YbdConstants.URL_API + YbdConstants.URL_THUMBNAIL)]
 	public class ThumbnailController : Controller
 	{
+		// ====================================================================
+		// public static プロパティー
+		// ====================================================================
+
+		// サムネイルが見つからない場合に返すデフォルトのサムネイル
 		public static Thumbnail? DefaultThumbnail { get; set; }
 
+		// ====================================================================
+		// API
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ファイル名に対応するサムネイルを返す
+		// --------------------------------------------------------------------
 		[HttpGet, Route("{path}")]
 		public IActionResult GetThumbnail(String? path)
 		{

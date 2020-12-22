@@ -39,7 +39,7 @@
 			}
 
 			// 検索方法のアクティブタブ
-			String typeActiveTab = "すべて";
+			String typeActiveTab = TAB_LABEL_ALL;
 			String typeActiveKeyword = String.Empty;
 			if (searchWord.IsValid(out String? errorMessage))
 			{
@@ -54,17 +54,17 @@
 					{
 						if (!String.IsNullOrEmpty(searchWord.SongName))
 						{
-							typeActiveTab = "曲名";
+							typeActiveTab = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName];
 							typeActiveKeyword = searchWord.SongName;
 						}
 						else if (!String.IsNullOrEmpty(searchWord.TieUpName))
 						{
-							typeActiveTab = "タイアップ名";
+							typeActiveTab = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName];
 							typeActiveKeyword = searchWord.TieUpName;
 						}
 						else if (!String.IsNullOrEmpty(searchWord.ArtistName))
 						{
-							typeActiveTab = "歌手名";
+							typeActiveTab = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.ArtistName];
 							typeActiveKeyword = searchWord.ArtistName;
 						}
 						else
@@ -79,23 +79,27 @@
 				}
 			}
 
-			// 検索方法タブ
+			// 検索方法疑似タブ
 			TabItem[] typeTabItems =
 			{
-				new TabItem("すべて", "/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-				new TabItem("曲名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-				new TabItem("タイアップ名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
-				new TabItem("歌手名", "/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem(TAB_LABEL_ALL,
+						"/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName],
+						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName],
+						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.ArtistName],
+						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
 			};
 			@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
 
-			// ソートタブ
+			// ソート疑似タブ
 			TabItem[] sortTabItems =
 			{
-				new TabItem("新着順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.Latest)),
-				new TabItem("曲名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.SongName)),
-				new TabItem("歌手名順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.ArtistName)),
-				new TabItem("サイズ順", "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.Latest], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.Latest)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.SongName], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.SongName)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.ArtistName], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.ArtistName)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.FileSize], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
 			};
 			@((MarkupString)ClientCommon.GenerateTabHeader(sortTabItems,YbdConstants. SEARCH_RESULT_SORT_NAMES[(Int32)searchWord.Sort]))
 		}
@@ -136,47 +140,84 @@ else
 }
 
 @code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 検索条件
 	[Parameter]
 	public String? Query { get; set; }
 
-	private String? prevQuery;
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
 
-	private Boolean initialized;
-
-	private SearchWord searchWord = new();
-
-	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
-
-	protected override async Task OnParametersSetAsync()
-	{
-		if (!String.IsNullOrEmpty(prevQuery) && prevQuery != Query)
-		{
-			searchWord = new SearchWord(Query);
-			availableSongs = await SearchService.SearchByWordAsync(Query);
-			StateHasChanged();
-		}
-	}
-
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
 	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
-			searchWord = new SearchWord(Query);
-			availableSongs = await SearchService.SearchByWordAsync(Query);
+			await SearchAsync();
 			initialized = true;
 		}
-		catch (Exception excep)
+		catch (Exception)
 		{
-			Debug.WriteLine(excep.Message);
-			Debug.WriteLine(excep.StackTrace);
 		}
 	}
 
-	private void OnClickRequest(AvailableSong availableSong)
+	// --------------------------------------------------------------------
+	// パラメーター類がセットされた
+	// --------------------------------------------------------------------
+	protected override async Task OnParametersSetAsync()
 	{
-		NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
+		try
+		{
+			if (!String.IsNullOrEmpty(prevQuery) && prevQuery != Query)
+			{
+				// 疑似タブクリックにより検索条件が変更されたため再度検索
+				await SearchAsync();
+				StateHasChanged();
+			}
+		}
+		catch (Exception)
+		{
+		}
 	}
 
+	// ====================================================================
+	// private 定数
+	// ====================================================================
+
+	// 検索方法疑似タブのラベル
+	private const String TAB_LABEL_ALL = "すべて";
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// OnInitializedAsync() 完了前にも描画されるため、後続で検索結果が来る場合でも少しの間「検索結果 0 件」が表示されてしまう
+	// それを防止するためのフラグ
+	private Boolean initialized;
+
+	// 多重描画防止用
+	private String? prevQuery;
+
+	// 検索条件
+	private SearchWord searchWord = new();
+
+	// 検索結果
+	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 検索条件表示用文字列作成
+	// --------------------------------------------------------------------
 	private void AddCondition(ref String str, String condName, String condValue)
 	{
 		if (String.IsNullOrEmpty(condValue))
@@ -191,11 +232,31 @@ else
 		str += "<span class='condition-name'>" + condName + "：</span><span class='condition-value'>" + HttpUtility.HtmlEncode(condValue) + "</span>";
 	}
 
+	// --------------------------------------------------------------------
+	// 検索条件の並び替えを変更したインスタンスを返す
+	// --------------------------------------------------------------------
 	private SearchWord ChangeSort(SearchWord searchWord, SearchResultSort sort)
 	{
 		SearchWord change = searchWord.DeepCopy();
 		change.Sort = sort;
 		return change;
+	}
+
+	// --------------------------------------------------------------------
+	// 予約リンククリック
+	// --------------------------------------------------------------------
+	private void OnClickRequest(AvailableSong availableSong)
+	{
+		NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
+	}
+
+	// --------------------------------------------------------------------
+	// 検索結果を格納
+	// --------------------------------------------------------------------
+	private async Task SearchAsync()
+	{
+		searchWord = new SearchWord(Query);
+		availableSongs = await SearchService.SearchByWordAsync(Query);
 	}
 
 

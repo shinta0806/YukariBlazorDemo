@@ -1,47 +1,38 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// ============================================================================
+// 
+// 再生 API
+// 
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Mvc;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+
 using YukariBlazorDemo.Server.Database;
+using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
-	[Produces("application/json")]
-	[Route("api/requestsongs")]
+	[Produces(ServerConstants.MIME_TYPE_JSON)]
+	[Route(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS)]
 	public class RequestSongController : Controller
 	{
-		public RequestSongController()
-		{
+		// ====================================================================
+		// API
+		// ====================================================================
 
-		}
-
-		[HttpGet]
-		public IEnumerable<RequestSong> GetRequestSongs()
-		{
-			IEnumerable<RequestSong>? results = null;
-			try
-			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
-				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).ToArray();
-			}
-			catch (Exception)
-			{
-			}
-			if (results == null)
-			{
-				return new RequestSong[0];
-			}
-			return results;
-		}
-
-		[HttpPost, Route("request")]
+		// --------------------------------------------------------------------
+		// 予約を追加
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_REQUEST)]
 		public IActionResult AddRequestSong([FromBody] RequestSong requestSong)
 		{
 			try
@@ -83,12 +74,16 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine(excep.Message);
+				Debug.WriteLine("予約追加サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return BadRequest();
 			}
 		}
 
-		[HttpPut, Route("deleteall")]
+		// --------------------------------------------------------------------
+		// 予約をすべて削除
+		// --------------------------------------------------------------------
+		[HttpPut, Route(YbdConstants.URL_DELETE_ALL)]
 		public IActionResult DeleteAllSongs([FromBody] Int32 dummy)
 		{
 			try
@@ -100,17 +95,42 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				requestSongContext.Database.EnsureDeleted();
 				requestSongContext.Database.EnsureCreated();
-				//requestSongContext.SaveChanges();
 				return Ok();
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine(excep.Message);
+				Debug.WriteLine("予約全削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return BadRequest();
 			}
 		}
 
-
-
+		// --------------------------------------------------------------------
+		// 予約一覧を返す
+		// --------------------------------------------------------------------
+		[HttpGet]
+		public IEnumerable<RequestSong> GetRequestSongs()
+		{
+			IEnumerable<RequestSong>? results = null;
+			try
+			{
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSongs == null)
+				{
+					throw new Exception();
+				}
+				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).ToArray();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("予約一覧取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			if (results == null)
+			{
+				return new RequestSong[0];
+			}
+			return results;
+		}
 	}
 }

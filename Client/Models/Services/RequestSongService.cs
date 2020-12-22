@@ -10,29 +10,64 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Client.Models.Services
 {
 	public class RequestSongService
 	{
-		public HttpClient HttpClient { get; }
+		// ====================================================================
+		// コンストラクター・デストラクター
+		// ====================================================================
 
+		// --------------------------------------------------------------------
+		// コンストラクター
+		// --------------------------------------------------------------------
 		public RequestSongService(HttpClient httpClient)
 		{
 			HttpClient = httpClient;
 		}
 
+		// ====================================================================
+		// public プロパティー
+		// ====================================================================
+
+		// HTTP 通信用
+		public HttpClient HttpClient { get; }
+
+		// ====================================================================
+		// public メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 予約を追加
+		// --------------------------------------------------------------------
+		public async Task<HttpResponseMessage> AddRequestAsync(RequestSong requestSong)
+		{
+			return await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
+		}
+
+		// --------------------------------------------------------------------
+		// 予約をすべて削除
+		// --------------------------------------------------------------------
+		public async Task<HttpResponseMessage> DeleteAllAsync()
+		{
+			return await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_DELETE_ALL, 0);
+		}
+
+		// --------------------------------------------------------------------
+		// 予約一覧を取得
+		// --------------------------------------------------------------------
 		public async Task<IEnumerable<RequestSong>> GetRequestSongsAsync()
 		{
 			RequestSong[]? songs = null;
 			try
 			{
-				songs = await HttpClient.GetFromJsonAsync<RequestSong[]>("api/requestsongs");
+				songs = await HttpClient.GetFromJsonAsync<RequestSong[]>(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS);
 			}
 			catch (Exception)
 			{
@@ -43,16 +78,5 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			return songs;
 		}
-
-		public async Task<HttpResponseMessage> RequestAsync(RequestSong requestSong)
-		{
-			return await HttpClient.PostAsJsonAsync("api/requestsongs/request", requestSong);
-		}
-
-		public async Task<HttpResponseMessage> DeleteAllAsync()
-		{
-			return await HttpClient.PutAsJsonAsync("api/requestsongs/deleteall", 0);
-		}
-
 	}
 }

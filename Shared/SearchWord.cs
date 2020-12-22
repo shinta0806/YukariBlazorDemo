@@ -1,21 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// ============================================================================
+// 
+// 検索条件
+// 
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace YukariBlazorDemo.Shared
 {
 	public class SearchWord : ISongProperty
 	{
+		// ====================================================================
+		// コンストラクター・デストラクター
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// コンストラクター（デフォルト）
+		// --------------------------------------------------------------------
 		public SearchWord()
 		{
 			InitDetailValues();
 		}
 
+		// --------------------------------------------------------------------
+		// コンストラクター（URL パラメーター）
+		// --------------------------------------------------------------------
 		public SearchWord(String? query)
 		{
 			InitDetailValues();
@@ -56,52 +74,72 @@ namespace YukariBlazorDemo.Shared
 			Type = String.IsNullOrEmpty(AnyWord) ? SearchWordType.Detail : SearchWordType.AnyWord;
 		}
 
+		// ====================================================================
+		// public プロパティー
+		// ====================================================================
 
+		// 検索方法
 		public SearchWordType Type { get; set; } = SearchWordType.AnyWord;
 
+		// キーワード
 		[SearchWord()]
 		public String AnyWord { get; set; } = String.Empty;
 
+		// 詳細条件：曲名
 		public String SongName
 		{
 			get => DetailValues[(Int32)SearchDetailCondition.SongName];
 			set => DetailValues[(Int32)SearchDetailCondition.SongName] = value;
 		}
 
+		// 詳細条件：タイアップ名
 		public String TieUpName
 		{
 			get => DetailValues[(Int32)SearchDetailCondition.TieUpName];
 			set => DetailValues[(Int32)SearchDetailCondition.TieUpName] = value;
 		}
 
+		// 詳細条件：歌手名
 		public String ArtistName
 		{
 			get => DetailValues[(Int32)SearchDetailCondition.ArtistName];
 			set => DetailValues[(Int32)SearchDetailCondition.ArtistName] = value;
 		}
 
+		// 詳細条件：制作会社
 		public String Maker
 		{
 			get => DetailValues[(Int32)SearchDetailCondition.Maker];
 			set => DetailValues[(Int32)SearchDetailCondition.Maker] = value;
 		}
 
+		// 詳細条件：動画制作者
 		public String Worker
 		{
 			get => DetailValues[(Int32)SearchDetailCondition.Worker];
 			set => DetailValues[(Int32)SearchDetailCondition.Worker] = value;
 		}
 
+		// 詳細条件：動画ファイル名
 		public String Path
 		{
 			get => DetailValues[(Int32)SearchDetailCondition.Path];
 			set => DetailValues[(Int32)SearchDetailCondition.Path] = value;
 		}
 
+		// 詳細条件：配列アクセス用
 		public String[] DetailValues { get; set; } = new String[(Int32)SearchDetailCondition.__End__];
 
+		// 検索結果ソート方法
 		public SearchResultSort Sort { get; set; }
 
+		// ====================================================================
+		// public メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 詳細コピー
+		// --------------------------------------------------------------------
 		public SearchWord DeepCopy()
 		{
 			// 簡易コピー
@@ -117,7 +155,9 @@ namespace YukariBlazorDemo.Shared
 			return copy;
 		}
 
-
+		// --------------------------------------------------------------------
+		// 必須項目が格納されているか
+		// --------------------------------------------------------------------
 		public Boolean IsValid([NotNullWhen(false)] out String? errorMessage)
 		{
 			Boolean valid = true;
@@ -149,6 +189,9 @@ namespace YukariBlazorDemo.Shared
 			return valid;
 		}
 
+		// --------------------------------------------------------------------
+		// URL パラメーターとして出力
+		// --------------------------------------------------------------------
 		public override String? ToString()
 		{
 			String str = String.Empty;
@@ -170,6 +213,13 @@ namespace YukariBlazorDemo.Shared
 			return str;
 		}
 
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// URL パラメーター追加
+		// --------------------------------------------------------------------
 		private void AddString(ref String str, String paramName, String? paramValue)
 		{
 			if (String.IsNullOrEmpty(paramValue))
@@ -184,6 +234,9 @@ namespace YukariBlazorDemo.Shared
 			str += paramName + "=" + HttpUtility.UrlEncode(paramValue, Encoding.UTF8);
 		}
 
+		// --------------------------------------------------------------------
+		// 詳細条件初期化
+		// --------------------------------------------------------------------
 		private void InitDetailValues()
 		{
 			for (Int32 i = 0; i < (Int32)SearchDetailCondition.__End__; i++)
@@ -192,10 +245,11 @@ namespace YukariBlazorDemo.Shared
 			}
 		}
 
+		// ====================================================================
+		// SearchWord 用の入力チェッカー
+		// ====================================================================
 
-
-
-		class SearchWordAttribute : ValidationAttribute
+		private class SearchWordAttribute : ValidationAttribute
 		{
 			protected override ValidationResult? IsValid(Object? value, ValidationContext validationContext)
 			{
@@ -208,7 +262,7 @@ namespace YukariBlazorDemo.Shared
 					}
 					return new ValidationResult(errorMessage);
 				}
-				return new ValidationResult("入力が不適切です：" + validationContext.ObjectInstance?.GetType().Name);
+				return new ValidationResult("内部エラー：型が不適切です：" + validationContext.ObjectInstance?.GetType().Name);
 			}
 		}
 

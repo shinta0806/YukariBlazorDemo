@@ -72,6 +72,28 @@ namespace YukariBlazorDemo.Shared
 		// public 定数
 		// ====================================================================
 
+		// --------------------------------------------------------------------
+		// API URL
+		// --------------------------------------------------------------------
+
+		public const String URL_API = "api/";
+		public const String URL_DELETE_ALL = "deleteall/";
+		public const String URL_ID = "id/";
+		public const String URL_NEXT = "next/";
+		public const String URL_PLAY_OR_PAUSE = "playorpause/";
+		public const String URL_PLAYER = "player/";
+		public const String URL_PLAYING = "playing/";
+		public const String URL_PREV = "prev/";
+		public const String URL_REQUEST = "request/";
+		public const String URL_REQUEST_SONGS = "requestsongs/";
+		public const String URL_SEARCH = "search/";
+		public const String URL_THUMBNAIL = "thumbnail/";
+		public const String URL_WORD = "word/";
+
+		// --------------------------------------------------------------------
+		// 検索関連
+		// --------------------------------------------------------------------
+
 		// SearchDetailCondition に対応する名称
 		public static readonly String[] SEARCH_DETAIL_CONDITION_NAMES = { "曲名", "タイアップ名", "歌手名", "制作会社", "カラオケ動画制作者", "ファイル名" };
 
@@ -86,6 +108,5 @@ namespace YukariBlazorDemo.Shared
 
 		// SearchResultSort を指定する URL パラメーター
 		public const String SEARCH_PARAM_NAME_SORT = "sort";
-
 	}
 }

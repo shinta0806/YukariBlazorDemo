@@ -67,21 +67,31 @@
 
 </div>
 
-@code
-{
-	private IEnumerable<RequestSong> requestSongs = new RequestSong[0];
+@code {
 
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
 	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
 			requestSongs = await RequestSongService.GetRequestSongsAsync();
 		}
-		catch (Exception excep)
+		catch (Exception)
 		{
-			Debug.WriteLine(excep.Message);
-			Debug.WriteLine(excep.StackTrace);
 		}
 	}
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// 予約曲群
+	private IEnumerable<RequestSong> requestSongs = new RequestSong[0];
 
 }

@@ -6,7 +6,7 @@
 
 	<div class="tab-content">
 		<div class="player-status">@playStatus</div>
-		<div>@songName</div>
+		<div>@playingSongName</div>
 	</div>
 
 	<form>
@@ -22,27 +22,117 @@
 </div>
 
 @code {
-	private RequestSong? playingSong;
 
-	private String? playResult;
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
 
-	private String? playStatus;
-
-	private String? songName;
-
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
 	protected override async Task OnInitializedAsync()
 	{
 		try
 		{
 			await UpdateStatusAsync();
 		}
-		catch (Exception excep)
+		catch (Exception)
 		{
-			Debug.WriteLine(excep.Message);
-			Debug.WriteLine(excep.StackTrace);
 		}
 	}
 
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// 再生中（または一時停止中）の曲
+	private RequestSong? playingSong;
+
+	// 再生中（または一時停止中）の曲名
+	private String? playingSongName;
+
+	// 再生状態（停止～再生）
+	private String? playStatus;
+
+	// 再生操作結果メッセージ
+	private String? playResult;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 次の曲ボタンクリック
+	// --------------------------------------------------------------------
+	private async void OnClickNext()
+	{
+		try
+		{
+			HttpResponseMessage message = await PlayerService.NextAsync();
+			if (message.IsSuccessStatusCode)
+			{
+				await UpdateStatusAsync();
+			}
+			else
+			{
+				playResult = "次の曲を再生できませんでした。未再生の曲があるか確認してください。";
+			}
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 再生／一時停止ボタンクリック
+	// --------------------------------------------------------------------
+	private async void OnClickPlayOrPause()
+	{
+		try
+		{
+			HttpResponseMessage message = await PlayerService.PlayOrPauseAsync();
+			if (message.IsSuccessStatusCode)
+			{
+				await UpdateStatusAsync();
+			}
+			else
+			{
+				playResult = "再生／一時停止できませんでした。曲が予約されているか確認してください。";
+			}
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 前の曲ボタンクリック
+	// --------------------------------------------------------------------
+	private async void OnClickPrev()
+	{
+		try
+		{
+			HttpResponseMessage message = await PlayerService.PrevAsync();
+			if (message.IsSuccessStatusCode)
+			{
+				await UpdateStatusAsync();
+			}
+			else
+			{
+				playResult = "前の曲を再生できませんでした。曲が予約されているか確認してください。";
+			}
+			StateHasChanged();
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 再生情報を更新
+	// --------------------------------------------------------------------
 	private async Task UpdateStatusAsync()
 	{
 		playingSong = await PlayerService.GetPlayingSongAsync();
@@ -60,73 +150,10 @@
 			{
 				playStatus = "一時停止中";
 			}
-			songName = playingSong.SongName;
+			playingSongName = playingSong.SongName;
 		}
 	}
 
-	private async void OnClickPlayOrPause()
-	{
-		try
-		{
-			HttpResponseMessage message = await PlayerService.PlayOrPauseAsync();
-			if (message.IsSuccessStatusCode)
-			{
-				await UpdateStatusAsync();
-			}
-			else
-			{
-				playResult = "再生できませんでした。";
-			}
-			StateHasChanged();
-		}
-		catch (Exception)
-		{
 
-		}
-	}
-
-	private async void OnClickNext()
-	{
-		try
-		{
-			HttpResponseMessage message = await PlayerService.NextAsync();
-			if (message.IsSuccessStatusCode)
-			{
-				await UpdateStatusAsync();
-			}
-			else
-			{
-				playResult = "再生できませんでした。";
-			}
-			StateHasChanged();
-		}
-		catch (Exception)
-		{
-
-		}
-
-	}
-
-	private async void OnClickPrev()
-	{
-		try
-		{
-			HttpResponseMessage message = await PlayerService.PrevAsync();
-			if (message.IsSuccessStatusCode)
-			{
-				await UpdateStatusAsync();
-			}
-			else
-			{
-				playResult = "再生できませんでした。";
-			}
-			StateHasChanged();
-		}
-		catch (Exception)
-		{
-
-		}
-
-	}
 
 }

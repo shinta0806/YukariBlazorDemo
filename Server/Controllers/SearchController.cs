@@ -1,31 +1,67 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// ============================================================================
+// 
+// 検索 API
+// 
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
-	[Produces("application/json")]
-	[Route("api/search")]
+	[Produces(ServerConstants.MIME_TYPE_JSON)]
+	[Route(YbdConstants.URL_API + YbdConstants.URL_SEARCH)]
 	public class SearchController : Controller
 	{
-		public SearchController()
-		{
+		// ====================================================================
+		// API
+		// ====================================================================
 
-		}
-
-		[HttpGet, Route("id/{id}")]
+		// --------------------------------------------------------------------
+		// AvailableSong.Id で曲を検索
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_ID + "{id}")]
 		public AvailableSong? SearchById(String? id)
 		{
-			return ServerCommon.AvailableSongById(id);
+			AvailableSong? result = null;
+			try
+			{
+				if (!Int32.TryParse(id, out Int32 idNum))
+				{
+					throw new Exception();
+				}
+				using AvailableSongContext availableSongContext = new();
+				if (availableSongContext.AvailableSongs == null)
+				{
+					throw new Exception();
+				}
+				result = availableSongContext.AvailableSongs.FirstOrDefault(x => x.Id == idNum);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("曲取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return result;
 		}
 
-		[HttpGet, Route("word/{query}")]
+		// --------------------------------------------------------------------
+		// キーワードで曲を検索
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_WORD + "{query}")]
 		public IEnumerable<AvailableSong> SearchByWord(String? query)
 		{
 			IEnumerable<AvailableSong>? results = null;
@@ -67,8 +103,10 @@ namespace YukariBlazorDemo.Server.Controllers
 							Take(RESULT_MAX).ToArray();
 				}
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine("キーワード検索サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 			}
 			if (results == null)
 			{
@@ -77,6 +115,20 @@ namespace YukariBlazorDemo.Server.Controllers
 			return results;
 		}
 
+		// ====================================================================
+		// private メンバー定数
+		// ====================================================================
+
+		// 検索結果を返す最大数
+		private Int32 RESULT_MAX = 100;
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 検索結果のソート
+		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SortSearchResult(IQueryable<AvailableSong> result, SearchResultSort sort)
 		{
 			switch (sort)
@@ -91,8 +143,5 @@ namespace YukariBlazorDemo.Server.Controllers
 					return result.OrderByDescending(x => x.LastModified);
 			}
 		}
-
-		private Int32 RESULT_MAX = 100;
-
 	}
 }

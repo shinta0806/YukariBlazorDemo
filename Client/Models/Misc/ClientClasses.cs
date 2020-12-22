@@ -1,6 +1,6 @@
 ﻿// ============================================================================
 // 
-// クライエント側の雑多なクラス群
+// クライアント側の雑多なクラス群
 // 
 // ============================================================================
 
@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace YukariBlazorDemo.Client.Models.Misc
 {
+	// ====================================================================
+	// 疑似タブ描画用情報
+	// ====================================================================
 	public class TabItem
 	{
 		public TabItem(String label, String address)
@@ -23,9 +23,10 @@ namespace YukariBlazorDemo.Client.Models.Misc
 			Address = address;
 		}
 
+		// 表示用ラベル
+		public String Label { get; }
 
-		public String Label { get; private set; }
-
-		public String Address { get; private set; }
+		// クリック時のリンク先
+		public String Address { get; }
 	}
 }

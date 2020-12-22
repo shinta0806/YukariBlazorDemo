@@ -9,16 +9,28 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.JSInterop;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Client.Models.Misc
 {
 	public class ClientCommon
 	{
+		// --------------------------------------------------------------------
+		// 確認用ダイアログを表示
+		// --------------------------------------------------------------------
+		public static async Task<Boolean> ConfirmAsync(IJSRuntime jsRuntime, String message)
+		{
+			return await jsRuntime.InvokeAsync<Boolean>("confirm", message);
+		}
+
+		// --------------------------------------------------------------------
+		// ISongProperty コピー
+		// --------------------------------------------------------------------
 		public static void CopySongProperty(ISongProperty source, ISongProperty dest)
 		{
 			dest.Path = source.Path;
@@ -29,6 +41,9 @@ namespace YukariBlazorDemo.Client.Models.Misc
 			dest.Worker = source.Worker;
 		}
 
+		// --------------------------------------------------------------------
+		// 疑似タブ HTML 生成
+		// --------------------------------------------------------------------
 		public static String GenerateTabHeader(IEnumerable<TabItem> items, String activeItemLabel)
 		{
 			String header = "<div class='tab-header'>";
@@ -46,6 +61,15 @@ namespace YukariBlazorDemo.Client.Models.Misc
 			header += "</div>";
 
 			return header;
+		}
+
+		// --------------------------------------------------------------------
+		// id 属性が id の HTML 要素にフォーカスを当てる
+		// Microsoft.AspNetCore.Components.WebAssembly v5.0.1 時点で HTML autofocus 属性が効かないため JS で実装
+		// --------------------------------------------------------------------
+		public static async Task SetFocusAsync(IJSRuntime jsRuntime, String id)
+		{
+			await jsRuntime.InvokeVoidAsync("SetFocus", id);
 		}
 
 	}

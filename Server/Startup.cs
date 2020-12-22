@@ -78,20 +78,18 @@ namespace YukariBlazorDemo.Server
 
 		private void CreateDatabaseIfNeeded()
 		{
-			try
+			// 予約可能な曲の一覧
+			using AvailableSongContext availableSongContext = new();
+			availableSongContext.Database.EnsureCreated();
+			if (availableSongContext.AvailableSongs == null)
 			{
-				// 予約可能な曲の一覧
-				using AvailableSongContext availableSongContext = new();
-				availableSongContext.Database.EnsureCreated();
-				if (availableSongContext.AvailableSongs == null)
+				throw new Exception();
+			}
+			if (availableSongContext.AvailableSongs.Count() == 0)
+			{
+				// 予約可能な曲のサンプルデータ作成
+				AvailableSong[] availableSongs =
 				{
-					throw new Exception();
-				}
-				if (availableSongContext.AvailableSongs.Count() == 0)
-				{
-					// 予約可能な曲のサンプルデータ作成
-					AvailableSong[] availableSongs =
-					{
 						new AvailableSong { Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎",
 								LastModified = 58970.0, FileSize = 110 * 1024 * 1024 },
 						new AvailableSong { Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作太郎",
@@ -119,22 +117,23 @@ namespace YukariBlazorDemo.Server
 						new AvailableSong { Path = FILE_NAME_HANA, SongName = "花と鼻", TieUpName = String.Empty, ArtistName = String.Empty, Maker = String.Empty, Worker="製作五郎",
 								LastModified = 58942.0, FileSize = 101 * 1024 * 1024 },
 					};
-					availableSongContext.AvailableSongs.AddRange(availableSongs);
-					availableSongContext.SaveChanges();
-				}
+				availableSongContext.AvailableSongs.AddRange(availableSongs);
+				availableSongContext.SaveChanges();
+			}
 
-				// 予約可能な曲のサムネイル
-				using ThumbnailContext thumbnailContext = new();
-				thumbnailContext.Database.EnsureCreated();
-				if (thumbnailContext.Thumbnails == null)
+			// 予約可能な曲のサムネイル
+			using ThumbnailContext thumbnailContext = new();
+			thumbnailContext.Database.EnsureCreated();
+			if (thumbnailContext.Thumbnails == null)
+			{
+				throw new Exception();
+			}
+			if (thumbnailContext.Thumbnails.Count() == 0)
+			{
+				// サムネイルのサンプルデータ作成
+				// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
+				Thumbnail[] thumbnails =
 				{
-					throw new Exception();
-				}
-				if (thumbnailContext.Thumbnails.Count() == 0)
-				{
-					// サムネイルのサンプルデータ作成
-					Thumbnail[] thumbnails =
-					{
 						CreateThumbnail(FILE_NAME_TULIP, "Tulip.png"),
 						CreateThumbnail(FILE_NAME_SUNFLOWER, "Sunflower.png"),
 						CreateThumbnail(FILE_NAME_ROSE, "Rose.png"),
@@ -146,17 +145,13 @@ namespace YukariBlazorDemo.Server
 						CreateThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
 						CreateThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
 					};
-					thumbnailContext.Thumbnails.AddRange(thumbnails);
-					thumbnailContext.SaveChanges();
-				}
+				thumbnailContext.Thumbnails.AddRange(thumbnails);
+				thumbnailContext.SaveChanges();
+			}
 
-				// 予約一覧
-				using RequestSongContext requestSongContext = new();
-				requestSongContext.Database.EnsureCreated();
-			}
-			catch (Exception)
-			{
-			}
+			// 予約一覧
+			using RequestSongContext requestSongContext = new();
+			requestSongContext.Database.EnsureCreated();
 		}
 
 		private Thumbnail CreateThumbnail(String songPath, String imageFileName)

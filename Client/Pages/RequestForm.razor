@@ -69,15 +69,33 @@
 </div>
 
 @code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 予約する曲の ID
 	[Parameter]
 	public String? AvailableSongId { get; set; }
 
-	private AvailableSong? availableSong;
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
 
-	private RequestSong requestSong = new();
+	// --------------------------------------------------------------------
+	// 描画が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnAfterRenderAsync(Boolean firstRender)
+	{
+		if (firstRender)
+		{
+			await ClientCommon.SetFocusAsync(JSRuntime, "user");
+		}
+	}
 
-	private String? requestResult;
-
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
 	protected override async Task OnInitializedAsync()
 	{
 		try
@@ -89,26 +107,36 @@
 			}
 			ClientCommon.CopySongProperty(availableSong, requestSong);
 		}
-		catch (Exception excep)
+		catch (Exception)
 		{
-			Debug.WriteLine(excep.Message);
-			Debug.WriteLine(excep.StackTrace);
 		}
 	}
 
-	protected override async Task OnAfterRenderAsync(Boolean firstRender)
-	{
-		if (firstRender)
-		{
-			await JSRuntime.InvokeVoidAsync("MySetFocus2", "user");
-		}
-	}
+	// ====================================================================
+	// private 変数
+	// ====================================================================
 
-	private async void OnOK()
+	// 予約対象の曲の情報（URL パラメーターで指定された元の情報）
+	private AvailableSong? availableSong;
+
+	// 予約情報（送信する情報）
+	private RequestSong requestSong = new();
+
+	// 予約結果メッセージ
+	private String? requestResult;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 有効な状態で検索ボタンクリック
+	// --------------------------------------------------------------------
+	private async Task OnOK()
 	{
 		try
 		{
-			HttpResponseMessage message = await RequestSongService.RequestAsync(requestSong);
+			HttpResponseMessage message = await RequestSongService.AddRequestAsync(requestSong);
 			if (!message.IsSuccessStatusCode)
 			{
 				requestResult = "予約できませんでした。やり直してください。";

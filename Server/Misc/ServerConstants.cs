@@ -1,39 +1,24 @@
 ﻿// ============================================================================
 // 
-// 曲情報のプロパティーを規定するインターフェース
+// サーバー側共通で使用する定数
 // 
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+//
 // ----------------------------------------------------------------------------
 
 using System;
 
-namespace YukariBlazorDemo.Shared
+namespace YukariBlazorDemo.Server.Misc
 {
-	public interface ISongProperty
+	public class ServerConstants
 	{
 		// ====================================================================
-		// public プロパティー
+		// public 定数
 		// ====================================================================
 
-		// 曲名
-		String SongName { get; set; }
-
-		// タイアップ名
-		String TieUpName { get; set; }
-
-		// 歌手名
-		String ArtistName { get; set; }
-
-		// 制作会社
-		String Maker { get; set; }
-
-		// 動画制作者
-		String Worker { get; set; }
-
-		// 動画ファイル名
-		String Path { get; set; }
+		// JSON
+		public const String MIME_TYPE_JSON = "application/json";
 	}
 }

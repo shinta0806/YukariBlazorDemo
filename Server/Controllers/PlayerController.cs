@@ -1,23 +1,37 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// ============================================================================
+// 
+// 再生 API
+// 
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+
+using Microsoft.AspNetCore.Mvc;
+
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+
 using YukariBlazorDemo.Server.Database;
+using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
-	[Produces("application/json")]
-	[Route("api/player")]
+	[Produces(ServerConstants.MIME_TYPE_JSON)]
+	[Route(YbdConstants.URL_API + YbdConstants.URL_PLAYER)]
 	public class PlayerController : Controller
 	{
-		public PlayerController()
-		{
+		// ====================================================================
+		// API
+		// ====================================================================
 
-		}
-
-		[HttpGet, Route("playing")]
+		// --------------------------------------------------------------------
+		// 再生中（または一時停止中）の曲を返す
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_PLAYING)]
 		public RequestSong? GetPlayingSong()
 		{
 			RequestSong? result = null;
@@ -30,13 +44,18 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				result = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).First();
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine("再生曲取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 			}
 			return result;
 		}
 
-		[HttpPost, Route("playorpause")]
+		// --------------------------------------------------------------------
+		// 現在の曲を再生または一時停止する
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_PLAY_OR_PAUSE)]
 		public IActionResult PlayOrPause([FromBody] Int32 dummy)
 		{
 			try
@@ -75,14 +94,18 @@ namespace YukariBlazorDemo.Server.Controllers
 					return Ok();
 				}
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine("再生／一時停止サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 			}
-
 			return BadRequest();
 		}
 
-		[HttpPost, Route("next")]
+		// --------------------------------------------------------------------
+		// 次の曲を再生
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_NEXT)]
 		public IActionResult Next([FromBody] Int32 dummy)
 		{
 			try
@@ -103,13 +126,18 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				return PlayOrPause(dummy);
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine("次曲再生サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return BadRequest();
 			}
-			return BadRequest();
 		}
 
-		[HttpPost, Route("prev")]
+		// --------------------------------------------------------------------
+		// 前の曲を再生
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_PREV)]
 		public IActionResult Prev([FromBody] Int32 dummy)
 		{
 			try
@@ -146,12 +174,12 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				return PlayOrPause(dummy);
 			}
-			catch (Exception)
+			catch (Exception excep)
 			{
+				Debug.WriteLine("前曲再生サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return BadRequest();
 			}
-			return BadRequest();
 		}
-
-
 	}
 }
