@@ -45,6 +45,23 @@
         animation: rotation 1.5s linear 0s infinite;
     }
 
+.miniloading {
+    color: transparent;
+}
+
+    .miniloading::after {
+        content: '';
+        display: inline-block;
+        border: solid 0.4rem;
+        border-color: #8888aa #eeeeee #eeeeee;
+        border-radius: 1rem;
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        margin: auto;
+        animation: rotation 1.5s linear 0s infinite;
+    }
+
 @keyframes rotation {
     0% {
         transform: rotate(45deg);

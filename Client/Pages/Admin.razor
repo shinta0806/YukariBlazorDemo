@@ -14,19 +14,19 @@
 		<table class="input-table">
 			<tr>
 				<td class="input-td">予約可能曲データベース：</td>
-				<td class="input-td">@searchStatus</td>
+				<td class="input-td">@((MarkupString)searchStatus)</td>
 			</tr>
 			<tr>
 				<td class="input-td">サムネイルデータベース：</td>
-				<td class="input-td">@thumbnailStatus</td>
+				<td class="input-td">@((MarkupString)thumbnailStatus)</td>
 			</tr>
 			<tr>
 				<td class="input-td">予約一覧データベース：</td>
-				<td class="input-td">@requestStatus</td>
+				<td class="input-td">@((MarkupString)requestStatus)</td>
 			</tr>
 			<tr>
 				<td class="input-td">Player：</td>
-				<td class="input-td">@playerStatus</td>
+				<td class="input-td">@((MarkupString)playerStatus)</td>
 			</tr>
 		</table>
 
@@ -75,18 +75,15 @@
 	// private 定数
 	// ====================================================================
 
-	// 確認中
-	private const String STATUS_CHECKING = "確認中...";
-
 	// ====================================================================
 	// private 変数
 	// ====================================================================
 
 	// 各種状態
-	private String searchStatus = STATUS_CHECKING;
-	private String thumbnailStatus = STATUS_CHECKING;
-	private String requestStatus = STATUS_CHECKING;
-	private String playerStatus = STATUS_CHECKING;
+	private String searchStatus = ClientConstants.DIV_MINI_LOADING;
+	private String thumbnailStatus = ClientConstants.DIV_MINI_LOADING;
+	private String requestStatus = ClientConstants.DIV_MINI_LOADING;
+	private String playerStatus = ClientConstants.DIV_MINI_LOADING;
 
 	// 管理作業結果メッセージ
 	private String? adminResult;
