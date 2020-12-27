@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
@@ -72,6 +73,9 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception("データベースにアクセスできません。");
 				}
+#if DEBUG
+				Thread.Sleep(1000);
+#endif
 				status = "正常 / 曲数：" + availableSongContext.AvailableSongs.Count();
 			}
 			catch (Exception excep)

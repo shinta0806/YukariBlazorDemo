@@ -72,14 +72,21 @@
 	}
 
 	// ====================================================================
+	// private 定数
+	// ====================================================================
+
+	// 確認中
+	private const String STATUS_CHECKING = "確認中...";
+
+	// ====================================================================
 	// private 変数
 	// ====================================================================
 
 	// 各種状態
-	private String? searchStatus;
-	private String? thumbnailStatus;
-	private String? requestStatus;
-	private String? playerStatus;
+	private String searchStatus = STATUS_CHECKING;
+	private String thumbnailStatus = STATUS_CHECKING;
+	private String requestStatus = STATUS_CHECKING;
+	private String playerStatus = STATUS_CHECKING;
 
 	// 管理作業結果メッセージ
 	private String? adminResult;
