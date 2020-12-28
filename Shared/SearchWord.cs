@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -43,16 +44,11 @@ namespace YukariBlazorDemo.Shared
 				return;
 			}
 
-			String[] parameters = query.Split('&', StringSplitOptions.RemoveEmptyEntries);
-			foreach (String param in parameters)
+			Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(query);
+			foreach (KeyValuePair<String, String> param in parameters)
 			{
-				String[] elements = param.Split('=', StringSplitOptions.RemoveEmptyEntries);
-				if (elements.Length < 2)
-				{
-					continue;
-				}
-				String paramName = elements[0];
-				String paramValue = HttpUtility.UrlDecode(elements[1], Encoding.UTF8);
+				String paramName = param.Key;
+				String paramValue = param.Value;
 				if (paramName == YbdConstants.SEARCH_PARAM_NAME_ANY_WORD)
 				{
 					AnyWord = paramValue;
@@ -231,7 +227,7 @@ namespace YukariBlazorDemo.Shared
 			{
 				str += "&";
 			}
-			str += paramName + "=" + HttpUtility.UrlEncode(paramValue, Encoding.UTF8);
+			str += paramName + "=" + Uri.EscapeDataString(paramValue);
 		}
 
 		// --------------------------------------------------------------------

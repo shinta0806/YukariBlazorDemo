@@ -83,13 +83,13 @@
 			TabItem[] typeTabItems =
 			{
 				new TabItem(TAB_LABEL_ALL,
-						"/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+						"/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + Uri.EscapeDataString(typeActiveKeyword)),
 				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName],
-						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + Uri.EscapeDataString(typeActiveKeyword)),
 				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName],
-						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + Uri.EscapeDataString(typeActiveKeyword)),
 				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.ArtistName],
-						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + HttpUtility.UrlEncode(typeActiveKeyword, Encoding.UTF8)),
+						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + Uri.EscapeDataString(typeActiveKeyword)),
 			};
 			@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
 
@@ -163,8 +163,9 @@ else
 			await SearchAsync();
 			initialized = true;
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -182,8 +183,9 @@ else
 				StateHasChanged();
 			}
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 

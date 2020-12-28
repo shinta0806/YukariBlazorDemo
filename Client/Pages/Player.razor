@@ -36,8 +36,9 @@
 		{
 			await UpdateStatusAsync();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -79,8 +80,9 @@
 			}
 			StateHasChanged();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -102,8 +104,9 @@
 			}
 			StateHasChanged();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -125,8 +128,9 @@
 			}
 			StateHasChanged();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 

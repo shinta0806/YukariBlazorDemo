@@ -1,9 +1,10 @@
 ﻿@page "/admin"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject PlayerService PlayerService
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
 @inject ThumbnailService ThumbnailService
-@inject PlayerService PlayerService
-@inject IJSRuntime JSRuntime
 
 <h1>デモの状態</h1>
 
@@ -128,8 +129,9 @@
 			}
 			StateHasChanged();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 

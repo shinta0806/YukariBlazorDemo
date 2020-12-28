@@ -1,8 +1,8 @@
 ﻿@page "/requestform/{AvailableSongId?}"
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
-@inject IJSRuntime JSRuntime
 
 <h1>予約</h1>
 
@@ -87,9 +87,16 @@
 	// --------------------------------------------------------------------
 	protected override async Task OnAfterRenderAsync(Boolean firstRender)
 	{
-		if (firstRender)
+		try
 		{
-			await ClientCommon.SetFocusAsync(JSRuntime, "user");
+			if (firstRender)
+			{
+				await ClientCommon.SetFocusAsync(JSRuntime, "user");
+			}
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -107,8 +114,9 @@
 			}
 			ClientCommon.CopySongProperty(availableSong, requestSong);
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -145,8 +153,9 @@
 			}
 			NavigationManager.NavigateTo("/");
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 

@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
 @inject RequestSongService RequestSongService
 @using System
 @using System.IO
@@ -82,8 +83,9 @@
 		{
 			requestSongs = await RequestSongService.GetRequestSongsAsync();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 

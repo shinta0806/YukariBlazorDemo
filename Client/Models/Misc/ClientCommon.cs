@@ -8,6 +8,7 @@
 // 
 // ----------------------------------------------------------------------------
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 using System;
@@ -61,6 +62,15 @@ namespace YukariBlazorDemo.Client.Models.Misc
 			header += "</div>";
 
 			return header;
+		}
+
+		// --------------------------------------------------------------------
+		// クライアント側のエラーページに遷移
+		// --------------------------------------------------------------------
+		public static void NavigateToClientError(NavigationManager navigationManager, Exception excep)
+		{
+			navigationManager.NavigateTo("/clienterror/" + ClientConstants.ERROR_PARAM_NAME_MESSAGE + "=" + Uri.EscapeDataString(excep.Message)
+					+ "&" + ClientConstants.ERROR_PARAM_NAME_TRACE + "=" + Uri.EscapeDataString(excep.StackTrace ?? String.Empty));
 		}
 
 		// --------------------------------------------------------------------

@@ -1,6 +1,6 @@
 ﻿@page "/searchform/{Detail?}"
-@inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 
 <div class="content">
 
@@ -105,23 +105,30 @@
 	// --------------------------------------------------------------------
 	protected override async Task OnAfterRenderAsync(Boolean firstRender)
 	{
-		if (prevDetail == Detail)
+		try
 		{
-			return;
-		}
+			if (prevDetail == Detail)
+			{
+				return;
+			}
 
-		// アクティブな疑似タブ内の要素にフォーカスを当てる
-		String id;
-		if (word.Type == SearchWordType.AnyWord)
-		{
-			id = "keyword";
+			// アクティブな疑似タブ内の要素にフォーカスを当てる
+			String id;
+			if (word.Type == SearchWordType.AnyWord)
+			{
+				id = "keyword";
+			}
+			else
+			{
+				id = "song-name";
+			}
+			await ClientCommon.SetFocusAsync(JSRuntime, id);
+			prevDetail = Detail;
 		}
-		else
+		catch (Exception excep)
 		{
-			id = "song-name";
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
-		await ClientCommon.SetFocusAsync(JSRuntime, id);
-		prevDetail = Detail;
 	}
 
 	// ====================================================================

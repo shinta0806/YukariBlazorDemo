@@ -1,0 +1,66 @@
+﻿@page "/clienterror/{Query?}"
+
+<h1>エラーが発生しました</h1>
+
+<div class="content">
+
+	<div class="tab-content">
+
+		<table class="input-table">
+			<tr>
+				<td class="input-td">メッセージ：</td>
+				<td class="input-td">@errorMessage</td>
+			</tr>
+			<tr>
+				<td class="input-td">スタックトレース：</td>
+				<td class="input-td">@stackTrace</td>
+			</tr>
+		</table>
+
+	</div>
+
+</div>
+
+@code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// エラー情報
+	[Parameter]
+	public String? Query { get; set; }
+
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override void OnInitialized()
+	{
+		try
+		{
+			Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(Query);
+			parameters.TryGetValue(ClientConstants.ERROR_PARAM_NAME_MESSAGE, out errorMessage);
+			parameters.TryGetValue(ClientConstants.ERROR_PARAM_NAME_TRACE, out stackTrace);
+			stackTrace = stackTrace?.Replace("\n", "<br>");
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// エラーメッセージ
+	private String? errorMessage;
+
+	// スタックトレース
+	private String? stackTrace;
+
+
+}
