@@ -42,7 +42,7 @@
 					</tr>
 					<tr>
 						<td class="input-td">予約者</td>
-						<td class="input-td"><input class="input-general" id="user" type="text" @bind="requestSong.User" /></td>
+						<td class="input-td"><input class="input-general" id="user" type="text" @bind="requestSong.User" @ref="inputUser" /></td>
 					</tr>
 					<tr>
 						<td class="input-td">コメント</td>
@@ -91,7 +91,7 @@
 		{
 			if (firstRender)
 			{
-				await ClientCommon.SetFocusAsync(JSRuntime, "user");
+				await inputUser.FocusAsync();
 			}
 		}
 		catch (Exception excep)
@@ -132,6 +132,9 @@
 
 	// 予約結果メッセージ
 	private String? requestResult;
+
+	// 要素参照用
+	private ElementReference inputUser;
 
 	// ====================================================================
 	// private 関数

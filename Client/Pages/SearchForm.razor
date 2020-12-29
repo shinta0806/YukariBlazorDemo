@@ -27,7 +27,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">キーワード</td>
-								<td class="input-td"><input class="input-general" id="keyword" type="text" @bind="word.AnyWord" /></td>
+								<td class="input-td"><input class="input-general" id="keyword" type="text" @bind="word.AnyWord" @ref="inputAnyWord"/></td>
 							</tr>
 							<tr>
 								<td class="input-td"></td>
@@ -47,7 +47,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">曲名</td>
-								<td class="input-td"><input class="input-general" id="song-name" type="text" @bind="word.SongName" /></td>
+								<td class="input-td"><input class="input-general" id="song-name" type="text" @bind="word.SongName" @ref="inputSongName"/></td>
 							</tr>
 							<tr>
 								<td class="input-td">タイアップ名</td>
@@ -113,16 +113,14 @@
 			}
 
 			// アクティブな疑似タブ内の要素にフォーカスを当てる
-			String id;
 			if (word.Type == SearchWordType.AnyWord)
 			{
-				id = "keyword";
+				await inputAnyWord.FocusAsync();
 			}
 			else
 			{
-				id = "song-name";
+				await inputSongName.FocusAsync();
 			}
-			await ClientCommon.SetFocusAsync(JSRuntime, id);
 			prevDetail = Detail;
 		}
 		catch (Exception excep)
@@ -148,6 +146,10 @@
 
 	// 多重描画防止用
 	private String? prevDetail = "__Init__";
+
+	// 要素参照用
+	private ElementReference inputAnyWord;
+	private ElementReference inputSongName;
 
 	// ====================================================================
 	// private 関数

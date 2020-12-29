@@ -73,14 +73,17 @@ namespace YukariBlazorDemo.Client.Models.Misc
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_TRACE + "=" + Uri.EscapeDataString(excep.StackTrace ?? String.Empty));
 		}
 
+#if false
 		// --------------------------------------------------------------------
 		// id 属性が id の HTML 要素にフォーカスを当てる
 		// Microsoft.AspNetCore.Components.WebAssembly v5.0.1 時点で HTML autofocus 属性が効かないため JS で実装
+		// → ElementReference.FocusAsync() を使う
 		// --------------------------------------------------------------------
 		public static async Task SetFocusAsync(IJSRuntime jsRuntime, String id)
 		{
 			await jsRuntime.InvokeVoidAsync("SetFocus", id);
 		}
+#endif
 
 	}
 }
