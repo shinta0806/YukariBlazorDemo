@@ -27,7 +27,7 @@ namespace YukariBlazorDemo.Shared
 		[Column("AvailableSongId")]
 		public Int32 Id { get; set; }
 
-		// 更新日（修正ユリウス日）
+		// 更新日時 UTC（修正ユリウス日）
 		public Double LastModified { get; set; }
 
 		// 動画ファイルサイズ

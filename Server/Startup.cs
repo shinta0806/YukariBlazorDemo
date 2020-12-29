@@ -188,6 +188,7 @@ namespace YukariBlazorDemo.Server
 				Path = songPath,
 				Bitmap = stream.ToArray(),
 				Mime = "image/png",
+				LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow),
 			};
 		}
 

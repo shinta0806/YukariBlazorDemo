@@ -37,5 +37,8 @@ namespace YukariBlazorDemo.Server.Database
 		[Required]
 		public String Mime { get; set; } = String.Empty;
 
+		// 更新日時 UTC（修正ユリウス日）
+		[Required]
+		public Double LastModified { get; set; }
 	}
 }

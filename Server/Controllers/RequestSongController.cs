@@ -147,6 +147,10 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception("データベースにアクセスできません。");
 				}
+
+				// Where を使用すると列の不足を検出できる
+				requestSongContext.RequestSongs.Where(x => x.Id == 0).FirstOrDefault();
+
 				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
 			}
 			catch (Exception excep)

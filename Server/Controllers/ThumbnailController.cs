@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -62,7 +62,9 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == path);
-				return File(thumbnail.Bitmap, thumbnail.Mime);
+				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
+				EntityTagHeaderValue entityTagHeaderValue = new EntityTagHeaderValue("\"" + thumbnail.LastModified.ToString() + "\"");
+				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, entityTagHeaderValue);
 			}
 			catch (Exception excep)
 			{
@@ -96,6 +98,10 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
+
+				// Where を使用すると列の不足を検出できる
+				thumbnailContext.Thumbnails.Where(x => x.Id == 0).FirstOrDefault();
+
 				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();
 			}
 			catch (Exception excep)
