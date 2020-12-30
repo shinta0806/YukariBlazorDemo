@@ -105,5 +105,14 @@ namespace YukariBlazorDemo.Shared
 
 		// SearchResultSort を指定する URL パラメーター
 		public const String SEARCH_PARAM_NAME_SORT = "sort";
+
+		// 表示ページを指定する URL パラメーター
+		public const String SEARCH_PARAM_NAME_PAGE = "page";
+
+		// 1 ページ当たりの結果の数
+		public const Int32 PAGE_SIZE = 20;
+
+		// 結果の数パラメーター
+		public const String RESULT_PARAM_NAME_COUNT = "count";
 	}
 }

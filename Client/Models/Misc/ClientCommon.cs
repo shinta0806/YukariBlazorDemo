@@ -13,6 +13,7 @@ using Microsoft.JSInterop;
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 using YukariBlazorDemo.Shared;
@@ -21,6 +22,22 @@ namespace YukariBlazorDemo.Client.Models.Misc
 {
 	public class ClientCommon
 	{
+		// ====================================================================
+		// public static メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ETag をパラメーター名と値に分離
+		// --------------------------------------------------------------------
+		public static Dictionary<String, String> AnalyzeEntityTag(EntityTagHeaderValue? eTag)
+		{
+			if (eTag == null)
+			{
+				return new();
+			}
+			return YbdCommon.AnalyzeQuery(eTag.Tag.Trim('"'));
+		}
+
 		// --------------------------------------------------------------------
 		// 確認用ダイアログを表示
 		// --------------------------------------------------------------------
@@ -65,6 +82,37 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		}
 
 		// --------------------------------------------------------------------
+		// ページ切替 HTML 生成
+		// currentPage は 0 ベース
+		// --------------------------------------------------------------------
+		public static String GeneratePageNavigation(Int32 numPages, Int32 currentPage, String baseUrl)
+		{
+			if (numPages < 1)
+			{
+				return String.Empty;
+			}
+
+			String navi = "<div class='page-navi'>";
+
+			// 前のページへ
+			AddPageNavigation(ref navi, "&#9665;", currentPage != 0, baseUrl, currentPage - 1);
+
+			// ページ
+			Int32 minPage = Math.Max(0, currentPage - NUM_NAVI_PAGE_BUTTONS);
+			Int32 maxPage = Math.Min(numPages, currentPage + NUM_NAVI_PAGE_BUTTONS + 1);
+			for (Int32 i = minPage; i < maxPage; i++)
+			{
+				AddPageNavigation(ref navi, (i + 1).ToString(), i != currentPage, baseUrl, i);
+			}
+
+			// 次のページへ
+			AddPageNavigation(ref navi, "&#9655;", currentPage != numPages - 1, baseUrl, currentPage + 1);
+
+			navi += "</div>";
+			return navi;
+		}
+
+		// --------------------------------------------------------------------
 		// クライアント側のエラーページに遷移
 		// --------------------------------------------------------------------
 		public static void NavigateToClientError(NavigationManager navigationManager, Exception excep)
@@ -73,17 +121,50 @@ namespace YukariBlazorDemo.Client.Models.Misc
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_TRACE + "=" + Uri.EscapeDataString(excep.StackTrace ?? String.Empty));
 		}
 
-#if false
+		// ====================================================================
+		// private メンバー定数
+		// ====================================================================
+
+		private const String CLASS_NAME_PAGE_NAVI_ITEM = "page-navi-item";
+		private const String CLASS_NAME_PAGE_NAVI_CURRENT_ITEM = "page-navi-current-item";
+
+		private const Int32 NUM_NAVI_PAGE_BUTTONS = 3;
+
+		// ====================================================================
+		// public static メンバー関数
+		// ====================================================================
+
 		// --------------------------------------------------------------------
-		// id 属性が id の HTML 要素にフォーカスを当てる
-		// Microsoft.AspNetCore.Components.WebAssembly v5.0.1 時点で HTML autofocus 属性が効かないため JS で実装
-		// → ElementReference.FocusAsync() を使う
+		// ページ切替 HTML にボタン 1 つ追加
 		// --------------------------------------------------------------------
-		public static async Task SetFocusAsync(IJSRuntime jsRuntime, String id)
+		private static void AddPageNavigation(ref String navi, String label, Boolean enabled, String baseUrl, Int32 page)
 		{
-			await jsRuntime.InvokeVoidAsync("SetFocus", id);
+			if (enabled)
+			{
+				navi += "<a class='" + CLASS_NAME_PAGE_NAVI_ITEM + "' href='" + AddPageParameter(baseUrl, page) + "'>" + label + "</a>";
+			}
+			else
+			{
+				navi += "<span class='" + CLASS_NAME_PAGE_NAVI_CURRENT_ITEM + "'>" + label + "</span>";
+			}
 		}
-#endif
+
+		// --------------------------------------------------------------------
+		// baseUrl に page パラメーターを追加
+		// --------------------------------------------------------------------
+		private static String AddPageParameter(String baseUrl, Int32 page)
+		{
+			if (baseUrl.IndexOf('?') >= 0 || baseUrl.IndexOf('=') >= 0)
+			{
+				baseUrl += '&';
+			}
+			else
+			{
+				baseUrl += '?';
+			}
+			baseUrl += YbdConstants.SEARCH_PARAM_NAME_PAGE + "=" + (page + 1).ToString();
+			return baseUrl;
+		}
 
 	}
 }

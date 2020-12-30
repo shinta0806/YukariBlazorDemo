@@ -11,6 +11,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
+using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Database
@@ -35,7 +36,7 @@ namespace YukariBlazorDemo.Server.Database
 		{
 			SqliteConnectionStringBuilder stringBuilder = new()
 			{
-				DataSource = "AvailableSongs.sqlite3"
+				DataSource = ServerConstants.FILE_NAME_AVAILABLE_SONGS,
 			};
 			optionsBuilder.UseSqlite(new SqliteConnection(stringBuilder.ToString()));
 		}

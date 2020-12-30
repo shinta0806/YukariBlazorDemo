@@ -10,11 +10,12 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 
 using YukariBlazorDemo.Server.Database;
@@ -91,9 +92,11 @@ namespace YukariBlazorDemo.Server.Controllers
 		// キーワードで曲を検索
 		// --------------------------------------------------------------------
 		[HttpGet, Route(YbdConstants.URL_WORD + "{query}")]
-		public IEnumerable<AvailableSong> SearchByWord(String? query)
+		public IActionResult SearchByWord(String? query)
 		{
 			IEnumerable<AvailableSong>? results = null;
+			Int32 numResults = 0;
+			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
 				SearchWord searchWord = new SearchWord(query);
@@ -162,7 +165,9 @@ namespace YukariBlazorDemo.Server.Controllers
 						searchResults = SearchByPath(searchResults, pathes[i]);
 					}
 				}
-				results = SortSearchResult(searchResults, searchWord.Sort).Take(RESULT_MAX).ToArray();
+				numResults = searchResults.Count();
+				results = SortSearchResult(searchResults, searchWord.Sort).Skip(YbdConstants.PAGE_SIZE * searchWord.Page).Take(YbdConstants.PAGE_SIZE).ToArray();
+				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
 			}
 			catch (Exception excep)
 			{
@@ -171,17 +176,15 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			if (results == null)
 			{
-				return new AvailableSong[0];
+				results = new AvailableSong[0];
 			}
-			return results;
+			EntityTagHeaderValue eTag = ServerCommon.GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
 
 		// ====================================================================
 		// private メンバー定数
 		// ====================================================================
-
-		// 検索結果を返す最大数
-		private Int32 RESULT_MAX = 100;
 
 		// 半角スペース
 		private const Char HANKAKU_SPACE = ' ';

@@ -63,21 +63,32 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// キーワードで曲を検索
 		// --------------------------------------------------------------------
-		public async Task<IEnumerable<AvailableSong>> SearchByWordAsync(String? query)
+		public async Task<(IEnumerable<AvailableSong>, Int32)> SearchByWordAsync(String? query)
 		{
 			AvailableSong[]? results = null;
+			Int32 numResults = 0;
 			try
 			{
-				results = await HttpClient.GetFromJsonAsync<AvailableSong[]>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_WORD + query);
+				using HttpResponseMessage response = await HttpClient.GetAsync(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_WORD + query);
+				Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
+				results = await response.Content.ReadFromJsonAsync<AvailableSong[]>();
+				if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
+				{
+					Int32.TryParse(value, out numResults);
+				}
+				else
+				{
+					numResults = results?.Length ?? 0;
+				}
 			}
 			catch (Exception)
 			{
 			}
 			if (results == null)
 			{
-				return new AvailableSong[0];
+				return (new AvailableSong[0], 0);
 			}
-			return results;
+			return (results, numResults);
 		}
 
 		// --------------------------------------------------------------------
@@ -96,7 +107,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			catch (Exception)
 			{
-				status =ClientConstants.API_STATUS_ERROR_CANNOT_CONNECT;
+				status = ClientConstants.API_STATUS_ERROR_CANNOT_CONNECT;
 			}
 			return status;
 		}

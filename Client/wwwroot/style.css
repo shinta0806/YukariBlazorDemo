@@ -128,7 +128,7 @@ header a {
         background-color: #555555;
     }
 
-    header a.active {
+    header a:active {
         background-color: #eeeeee;
         color: black;
     }
@@ -198,10 +198,34 @@ img {
     padding: 10px;
 }
 
+/*
+    ページナビゲーション
+*/
+
+.page-navi {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0px 0px 0px;
+}
+
+.page-navi-item {
+    background-color: var(--light-bg-color);
+    text-decoration: none;
+    text-wrap: none;
+    color: black;
+}
+
+.page-navi-current-item {
+}
+
+.page-navi-item, .page-navi-current-item {
+    margin: 0px 20px 20px 0px;
+}
+
 /* 
     入力
 */
-
 .input-table {
     width: 100%;
 }
@@ -250,17 +274,20 @@ img {
 }
 
 .default-button, .general-button {
+    min-width: 120px;
+}
+
+.default-button, .general-button, .page-navi-item, .page-navi-current-item {
     border-radius: 4px;
     border-width: 0px;
     outline: none;
     font-size: 1rem;
     padding: 5px 20px 5px 20px;
-    min-width: 120px;
     box-shadow: 0 0 10px var(--shadow-color);
     transition: all 0.2s ease;
 }
 
-    .default-button:hover, .general-button:hover {
+    .default-button:hover, .general-button:hover, .page-navi-item:hover {
         opacity: 0.75;
     }
 

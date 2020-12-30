@@ -8,7 +8,7 @@
 
 @if (initialized)
 {
-	<h1>検索結果（@availableSongs.Count() 件）</h1>
+	<h1>検索結果（@numResults 件）</h1>
 
 	<div class="content">
 
@@ -96,10 +96,10 @@
 			// ソート疑似タブ
 			TabItem[] sortTabItems =
 			{
-				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.Latest], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.Latest)),
-				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.SongName], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.SongName)),
-				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.ArtistName], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.ArtistName)),
-				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.FileSize], "/searchresult/" + ChangeSort(searchWord, SearchResultSort.FileSize)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.Latest], "/searchresult/" + searchWord.ChangeSort(SearchResultSort.Latest)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.SongName], "/searchresult/" + searchWord.ChangeSort(SearchResultSort.SongName)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.ArtistName], "/searchresult/" + searchWord.ChangeSort(SearchResultSort.ArtistName)),
+				new TabItem(YbdConstants.SEARCH_RESULT_SORT_NAMES[(Int32)SearchResultSort.FileSize], "/searchresult/" + searchWord.ChangeSort(SearchResultSort.FileSize)),
 			};
 			@((MarkupString)ClientCommon.GenerateTabHeader(sortTabItems,YbdConstants. SEARCH_RESULT_SORT_NAMES[(Int32)searchWord.Sort]))
 		}
@@ -129,6 +129,8 @@
 			</table>
 
 		</div>
+
+		@((MarkupString)ClientCommon.GeneratePageNavigation((numResults + YbdConstants.PAGE_SIZE - 1)/ YbdConstants.PAGE_SIZE, searchWord.Page, "/searchresult/" + searchWord.ResetPage()))
 
 	</div>
 
@@ -213,6 +215,9 @@ else
 	// 検索結果
 	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
 
+	// 検索結果の総数
+	private Int32 numResults;
+
 	// ====================================================================
 	// private 関数
 	// ====================================================================
@@ -235,16 +240,6 @@ else
 	}
 
 	// --------------------------------------------------------------------
-	// 検索条件の並び替えを変更したインスタンスを返す
-	// --------------------------------------------------------------------
-	private SearchWord ChangeSort(SearchWord searchWord, SearchResultSort sort)
-	{
-		SearchWord change = searchWord.DeepCopy();
-		change.Sort = sort;
-		return change;
-	}
-
-	// --------------------------------------------------------------------
 	// 予約リンククリック
 	// --------------------------------------------------------------------
 	private void OnClickRequest(AvailableSong availableSong)
@@ -258,7 +253,7 @@ else
 	private async Task SearchAsync()
 	{
 		searchWord = new SearchWord(Query);
-		availableSongs = await SearchService.SearchByWordAsync(Query);
+		(availableSongs, numResults) = await SearchService.SearchByWordAsync(Query);
 	}
 
 

@@ -58,6 +58,11 @@ namespace YukariBlazorDemo.Shared
 					Int32.TryParse(paramValue, out Int32 paramValueNum);
 					Sort = (SearchResultSort)Math.Clamp(paramValueNum, 0, (Int32)(SearchResultSort.__End__) - 1);
 				}
+				else if (paramName == YbdConstants.SEARCH_PARAM_NAME_PAGE)
+				{
+					Int32.TryParse(paramValue, out Int32 paramValueNum);
+					Page = Math.Max(paramValueNum - 1, 0);
+				}
 				else
 				{
 					Int32 paramIndex = YbdConstants.SEARCH_DETAIL_PARAM_NAMES.ToList().IndexOf(paramName);
@@ -129,9 +134,23 @@ namespace YukariBlazorDemo.Shared
 		// 検索結果ソート方法
 		public SearchResultSort Sort { get; set; }
 
+		// 表示ページ
+		// 0 ベースだが、URL パラメーターにする際は 1 ベースに変換する
+		public Int32 Page { get; set; }
+
 		// ====================================================================
 		// public メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 検索条件の並び替えを変更したインスタンスを返す
+		// --------------------------------------------------------------------
+		public SearchWord ChangeSort(SearchResultSort sort)
+		{
+			SearchWord change = this.DeepCopy();
+			change.Sort = sort;
+			return change;
+		}
 
 		// --------------------------------------------------------------------
 		// 詳細コピー
@@ -186,6 +205,16 @@ namespace YukariBlazorDemo.Shared
 		}
 
 		// --------------------------------------------------------------------
+		// ページを 0 にしたインスタンスを返す
+		// --------------------------------------------------------------------
+		public SearchWord ResetPage()
+		{
+			SearchWord change = this.DeepCopy();
+			change.Page = 0;
+			return change;
+		}
+
+		// --------------------------------------------------------------------
 		// URL パラメーターとして出力
 		// --------------------------------------------------------------------
 		public override String? ToString()
@@ -205,6 +234,10 @@ namespace YukariBlazorDemo.Shared
 			if (Sort != 0)
 			{
 				AddString(ref str, YbdConstants.SEARCH_PARAM_NAME_SORT, ((Int32)Sort).ToString());
+			}
+			if (Page != 0)
+			{
+				AddString(ref str, YbdConstants.SEARCH_PARAM_NAME_PAGE, (Page + 1).ToString());
 			}
 			return str;
 		}

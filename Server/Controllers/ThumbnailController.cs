@@ -70,8 +70,7 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == availableSong.Path);
 				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
-				EntityTagHeaderValue eTag = new EntityTagHeaderValue("\"" + thumbnail.LastModified.ToString() + "\"");
-				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
+				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, ServerCommon.GenerateEntityTag(thumbnail.LastModified));
 			}
 			catch (Exception excep)
 			{

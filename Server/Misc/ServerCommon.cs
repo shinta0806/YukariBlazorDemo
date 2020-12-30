@@ -8,7 +8,10 @@
 // 
 // ----------------------------------------------------------------------------
 
+using Microsoft.Net.Http.Headers;
+
 using System;
+using System.IO;
 
 namespace YukariBlazorDemo.Server.Misc
 {
@@ -24,6 +27,31 @@ namespace YukariBlazorDemo.Server.Misc
 		public static Double DateTimeToModifiedJulianDate(DateTime dateTime)
 		{
 			return DateTimeToJulianDay(dateTime) - MJD_DELTA;
+		}
+
+		// --------------------------------------------------------------------
+		// ETag 生成
+		// --------------------------------------------------------------------
+		public static EntityTagHeaderValue GenerateEntityTag(Double lastModified)
+		{
+			return new EntityTagHeaderValue("\"" + lastModified.ToString() + "\"");
+		}
+
+		// --------------------------------------------------------------------
+		// ETag 生成（パラメーター 1 つ）
+		// --------------------------------------------------------------------
+		public static EntityTagHeaderValue GenerateEntityTag(Double lastModified, String paramName, String paramValue)
+		{
+			return new EntityTagHeaderValue("\"" + lastModified.ToString() + "&" + paramName + "=" + paramValue + "\"");
+		}
+
+		// --------------------------------------------------------------------
+		// ファイルの更新日時
+		// --------------------------------------------------------------------
+		public static DateTime LastModified(String path)
+		{
+			FileInfo fileInfo = new FileInfo(path);
+			return fileInfo.LastWriteTimeUtc;
 		}
 
 		// --------------------------------------------------------------------
