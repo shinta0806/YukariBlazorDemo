@@ -45,9 +45,9 @@
 					break;
 			}
 
-			<tr class="@trClassName" @key="requestSong.Id">
+			<tr class="@trClassName" @key="requestSong.RequestSongId">
 				<td class="req-list-td"><div class="req-list-no">@((MarkupString)playIcon)@requestSong.Sort</div></td>
-				<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.Path)" /></div></td>
+				<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.AvailableSongId)" /></div></td>
 				<td class="req-list-td">
 					<div class="req-list-song">@requestSong.SongName</div>
 					@{

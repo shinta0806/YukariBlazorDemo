@@ -149,7 +149,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// Where を使用すると列の不足を検出できる
-				requestSongContext.RequestSongs.Where(x => x.Id == 0).FirstOrDefault();
+				requestSongContext.RequestSongs.Where(x => x.RequestSongId == 0).FirstOrDefault();
 
 				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
 			}

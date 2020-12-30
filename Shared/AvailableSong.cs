@@ -25,7 +25,7 @@ namespace YukariBlazorDemo.Shared
 		// Column 属性を指定する必要は無いが、指定可能であることの備忘録として指定
 		[Key]
 		[Column("AvailableSongId")]
-		public Int32 Id { get; set; }
+		public String Id { get; set; } = String.Empty;
 
 		// 更新日時 UTC（修正ユリウス日）
 		public Double LastModified { get; set; }

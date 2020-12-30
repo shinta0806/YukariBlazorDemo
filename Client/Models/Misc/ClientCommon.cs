@@ -34,12 +34,12 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// --------------------------------------------------------------------
 		public static void CopySongProperty(ISongProperty source, ISongProperty dest)
 		{
-			dest.Path = source.Path;
 			dest.SongName = source.SongName;
 			dest.TieUpName = source.TieUpName;
 			dest.ArtistName = source.ArtistName;
 			dest.Maker = source.Maker;
 			dest.Worker = source.Worker;
+			dest.Path = source.Path;
 		}
 
 		// --------------------------------------------------------------------

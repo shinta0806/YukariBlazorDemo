@@ -113,6 +113,7 @@
 				return;
 			}
 			ClientCommon.CopySongProperty(availableSong, requestSong);
+			requestSong.AvailableSongId = availableSong.Id;
 		}
 		catch (Exception excep)
 		{

@@ -87,34 +87,37 @@ namespace YukariBlazorDemo.Server
 			}
 			if (availableSongContext.AvailableSongs.Count() == 0)
 			{
+				String idPrefix = Environment.TickCount.ToString() + "-";
+				Int32 idSuffix = 1;
+
 				// 予約可能な曲のサンプルデータ作成
 				AvailableSong[] availableSongs =
 				{
-						new AvailableSong { Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎",
-								LastModified = 58970.0, FileSize = 110 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作太郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花",
+								ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎", LastModified = 58970.0, FileSize = 110 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作太郎",
 								LastModified = 58969.0, FileSize = 120 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_ROSE, SongName = "薔薇", TieUpName = "花花花花", ArtistName="歌唱谷子", Maker="アニメスタジオA", Worker="製作二郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_ROSE, SongName = "薔薇", TieUpName = "花花花花", ArtistName="歌唱谷子", Maker="アニメスタジオA", Worker="製作二郎",
 								LastModified = 58971.0, FileSize = 115 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_POINSETTIA, SongName = "ポインセチア", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作二郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_POINSETTIA, SongName = "ポインセチア", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作二郎",
 								LastModified = 58960.0, FileSize = 118 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_TOY_POODLE, SongName = "トイプードル", TieUpName = "犬がいっぱい", ArtistName="歌唱空子", Maker="ゲームスタジオB", Worker="製作三郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_TOY_POODLE, SongName = "トイプードル", TieUpName = "犬がいっぱい", ArtistName="歌唱空子", Maker="ゲームスタジオB", Worker="製作三郎",
 								LastModified = 58965.0, FileSize = 95 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_CHIHUAHUA, SongName = "チワワ", TieUpName = "犬がいっぱい", ArtistName="歌唱花子", Maker="ゲームスタジオB", Worker="製作三郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_CHIHUAHUA, SongName = "チワワ", TieUpName = "犬がいっぱい", ArtistName="歌唱花子", Maker="ゲームスタジオB", Worker="製作三郎",
 								LastModified = 58976.0, FileSize = 205 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_SHIBA, SongName = "柴犬", TieUpName = "犬がいっぱい", ArtistName="歌唱山子", Maker="ゲームスタジオB", Worker="製作四郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_SHIBA, SongName = "柴犬", TieUpName = "犬がいっぱい", ArtistName="歌唱山子", Maker="ゲームスタジオB", Worker="製作四郎",
 								LastModified = 58970.0, FileSize = 110 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_POMERANIAN, SongName = "ポメラニアン", TieUpName = "犬がいっぱい", ArtistName="歌唱川子", Maker="ゲームスタジオB", Worker="製作四郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_POMERANIAN, SongName = "ポメラニアン", TieUpName = "犬がいっぱい", ArtistName="歌唱川子", Maker="ゲームスタジオB", Worker="製作四郎",
 								LastModified = 58980.0, FileSize = 119 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作五郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作五郎",
 								LastModified = 58950.0, FileSize = 103 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作五郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作五郎",
 								LastModified = 58945.0, FileSize = 110 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_TEMPLE, SongName = "寺", TieUpName = String.Empty, ArtistName = "唱和坊主", Maker = String.Empty, Worker="製作五郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_TEMPLE, SongName = "寺", TieUpName = String.Empty, ArtistName = "唱和坊主", Maker = String.Empty, Worker="製作五郎",
 								LastModified = 58944.0, FileSize = 102 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_REMOTE, SongName = "リモコン", TieUpName = "家電", ArtistName = String.Empty, Maker = "アニメスタジオC", Worker="製作五郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_REMOTE, SongName = "リモコン", TieUpName = "家電", ArtistName = String.Empty, Maker = "アニメスタジオC", Worker="製作五郎",
 								LastModified = 58943.0, FileSize = 104 * 1024 * 1024 },
-						new AvailableSong { Path = FILE_NAME_HANA, SongName = "花と鼻", TieUpName = String.Empty, ArtistName = String.Empty, Maker = String.Empty, Worker="製作五郎",
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_HANA, SongName = "花と鼻", TieUpName = String.Empty, ArtistName = String.Empty, Maker = String.Empty, Worker="製作五郎",
 								LastModified = 58942.0, FileSize = 101 * 1024 * 1024 },
 					};
 				availableSongContext.AvailableSongs.AddRange(availableSongs);

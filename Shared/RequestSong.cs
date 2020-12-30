@@ -19,8 +19,12 @@ namespace YukariBlazorDemo.Shared
 		// public プロパティー
 		// ====================================================================
 
-		// ID
-		public Int32 Id { get; set; }
+		// RequestSong ID
+		public Int32 RequestSongId { get; set; }
+
+		// AvailableSong ID
+		// 元の曲情報（サムネイル等）を参照する際に必要
+		public String AvailableSongId { get; set; } = String.Empty;
 
 		// ソート方法
 		public Int32 Sort { get; set; }

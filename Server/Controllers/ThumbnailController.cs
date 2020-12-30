@@ -36,13 +36,20 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// ファイル名に対応するサムネイルを返す
+		// AvailableSong.Id に対応するサムネイルを返す
 		// --------------------------------------------------------------------
-		[HttpGet, Route("{path}")]
-		public IActionResult GetThumbnail(String? path)
+		[HttpGet, Route("{id}")]
+		public IActionResult GetThumbnail(String? id)
 		{
 			try
 			{
+				using AvailableSongContext availableSongContext = new();
+				if (availableSongContext.AvailableSongs == null)
+				{
+					throw new Exception();
+				}
+				AvailableSong availableSong = availableSongContext.AvailableSongs.First(x => x.Id == id);
+
 				using ThumbnailContext thumbnailContext = new();
 				if (thumbnailContext.Thumbnails == null)
 				{
@@ -61,10 +68,10 @@ namespace YukariBlazorDemo.Server.Controllers
 					Thread.Sleep(random.Next(100, 300));
 				}
 
-				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == path);
+				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == availableSong.Path);
 				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
-				EntityTagHeaderValue entityTagHeaderValue = new EntityTagHeaderValue("\"" + thumbnail.LastModified.ToString() + "\"");
-				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, entityTagHeaderValue);
+				EntityTagHeaderValue eTag = new EntityTagHeaderValue("\"" + thumbnail.LastModified.ToString() + "\"");
+				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
