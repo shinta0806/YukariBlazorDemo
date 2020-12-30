@@ -108,16 +108,18 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				if (searchWord.Type == SearchWordType.AnyWord)
 				{
-					if (!String.IsNullOrEmpty(searchWord.AnyWord))
+					// 全角スペースを半角スペースに変換
+					searchWord.AnyWord = searchWord.AnyWord.Replace('　', ' ');
+
+					String[] anyWords = searchWord.AnyWord.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+					if (anyWords.Length > 0)
 					{
-						// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
-						// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
-						results = SortSearchResult(availableSongContext.AvailableSongs.Where(x => EF.Functions.Like(x.Path, $"%{searchWord.AnyWord}%")
-								|| EF.Functions.Like(x.SongName, $"%{searchWord.AnyWord}%")
-								|| EF.Functions.Like(x.TieUpName, $"%{searchWord.AnyWord}%")
-								|| EF.Functions.Like(x.ArtistName, $"%{searchWord.AnyWord}%")
-								|| EF.Functions.Like(x.Maker, $"%{searchWord.AnyWord}%")
-								|| EF.Functions.Like(x.Worker, $"%{searchWord.AnyWord}%")), searchWord.Sort).Take(RESULT_MAX).ToArray();
+						IQueryable<AvailableSong> searchResults = availableSongContext.AvailableSongs;
+						for (Int32 i = 0; i < anyWords.Length; i++)
+						{
+							searchResults = SearchByAnyWord(searchResults, anyWords[i]);
+						}
+						results = SortSearchResult(searchResults, searchWord.Sort).Take(RESULT_MAX).ToArray();
 					}
 				}
 				else
@@ -154,6 +156,21 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 		// private メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// AnyWord 検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchByAnyWord(IQueryable<AvailableSong> records, String word)
+		{
+			// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
+			// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
+			return records.Where(x => EF.Functions.Like(x.Path, $"%{word}%")
+					|| EF.Functions.Like(x.SongName, $"%{word}%")
+					|| EF.Functions.Like(x.TieUpName, $"%{word}%")
+					|| EF.Functions.Like(x.ArtistName, $"%{word}%")
+					|| EF.Functions.Like(x.Maker, $"%{word}%")
+					|| EF.Functions.Like(x.Worker, $"%{word}%"));
+		}
 
 		// --------------------------------------------------------------------
 		// 検索結果のソート
