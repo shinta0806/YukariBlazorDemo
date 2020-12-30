@@ -119,6 +119,22 @@ namespace YukariBlazorDemo.Server
 								LastModified = 58943.0, FileSize = 104 * 1024 * 1024 },
 						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_HANA, SongName = "花と鼻", TieUpName = String.Empty, ArtistName = String.Empty, Maker = String.Empty, Worker="製作五郎",
 								LastModified = 58942.0, FileSize = 101 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_FRENCH_BULLDOG, SongName = "フレンチブルドッグ", TieUpName = "犬がたくさん", ArtistName = "大声出子", Maker = "たくさんスタジオA", Worker="製作太郎",
+								LastModified = 58930.0, FileSize = 115 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_SHIH_TZU, SongName = "シーズー", TieUpName = "犬がたくさん", ArtistName = "大声出男", Maker = "たくさんスタジオA", Worker="つくっ太郎",
+								LastModified = 58931.0, FileSize = 118 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_MAMESHIBA, SongName = "豆柴", TieUpName = "犬がたくさん", ArtistName = "中声出男", Maker = "たくさんスタジオA", Worker="つく二郎",
+								LastModified = 58931.0, FileSize = 119 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_YORKSHIRE_TERRIER, SongName = "ヨークシャーテリア", TieUpName = "犬がたくさん", ArtistName = "中声出子", Maker = "たくさんスタジオA", Worker="つく三郎",
+								LastModified = 58931.0, FileSize = 120 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_CORGI, SongName = "コーギー", TieUpName = "犬がたくさん", ArtistName = "大声出子", Maker = "たくさんスタジオA", Worker="つく三郎",
+								LastModified = 58932.0, FileSize = 121 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_GOLDEN_RETRIEVER, SongName = "ゴールデンレトリバー", TieUpName = "犬がたくさん", ArtistName = "大声出男", Maker = "たくさんスタジオA", Worker="つく三郎",
+								LastModified = 58933.0, FileSize = 122 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_IRIS2, SongName = "燕子花", TieUpName = "花がたくさん", ArtistName = "大声出男", Maker = "たくさんスタジオB", Worker="つくっ太郎",
+								LastModified = 58934.0, FileSize = 123 * 1024 * 1024 },
+						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_COMMON_SNAPDRAGON, SongName = "金魚草", TieUpName = "花がたくさん", ArtistName = "中声出男", Maker = "たくさんスタジオB", Worker="つく二郎",
+								LastModified = 58971.0, FileSize = 101 * 1024 * 1024 },
 					};
 				availableSongContext.AvailableSongs.AddRange(availableSongs);
 				availableSongContext.SaveChanges();
@@ -149,6 +165,9 @@ namespace YukariBlazorDemo.Server
 						CreateThumbnail(FILE_NAME_POMERANIAN, "Pomeranian.png"),
 						CreateThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
 						CreateThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
+						CreateThumbnail(FILE_NAME_SHIH_TZU, "ShihTzu.png"),
+						CreateThumbnail(FILE_NAME_CORGI, "Corgi.png"),
+						CreateThumbnail(FILE_NAME_GOLDEN_RETRIEVER, "GoldenRetriever.png"),
 					};
 					thumbnailContext.Thumbnails.AddRange(thumbnails);
 					thumbnailContext.SaveChanges();
@@ -211,5 +230,13 @@ namespace YukariBlazorDemo.Server
 		private const String FILE_NAME_TEMPLE = @"E:\AddSong\Temple.mp4";
 		private const String FILE_NAME_REMOTE = @"E:\AddSong\Remote.mp4";
 		private const String FILE_NAME_HANA = @"E:\AddSong\Hana.mp4";
+		private const String FILE_NAME_FRENCH_BULLDOG = @"E:\AddSong2\FB.mp4";
+		private const String FILE_NAME_SHIH_TZU = @"E:\AddSong2\ST.mp4";
+		private const String FILE_NAME_MAMESHIBA = @"E:\AddSong2\Mame.mp4";
+		private const String FILE_NAME_YORKSHIRE_TERRIER = @"E:\AddSong2\York.mp4";
+		private const String FILE_NAME_CORGI = @"E:\AddSong2\Corgi.mp4";
+		private const String FILE_NAME_GOLDEN_RETRIEVER = @"E:\AddSong2\GR.mp4";
+		private const String FILE_NAME_IRIS2 = @"E:\AddSong2\Kaki.mp4";
+		private const String FILE_NAME_COMMON_SNAPDRAGON = @"E:\AddSong2\CSD.mp4";
 	}
 }

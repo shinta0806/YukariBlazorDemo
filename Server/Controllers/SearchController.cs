@@ -106,33 +106,63 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
+
+				IQueryable<AvailableSong> searchResults = availableSongContext.AvailableSongs;
 				if (searchWord.Type == SearchWordType.AnyWord)
 				{
-					// 全角スペースを半角スペースに変換
-					searchWord.AnyWord = searchWord.AnyWord.Replace('　', ' ');
-
-					String[] anyWords = searchWord.AnyWord.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-					if (anyWords.Length > 0)
+					// なんでも検索
+					String[] anyWords = SplitKeyword(searchWord.AnyWord);
+					for (Int32 i = 0; i < anyWords.Length; i++)
 					{
-						IQueryable<AvailableSong> searchResults = availableSongContext.AvailableSongs;
-						for (Int32 i = 0; i < anyWords.Length; i++)
-						{
-							searchResults = SearchByAnyWord(searchResults, anyWords[i]);
-						}
-						results = SortSearchResult(searchResults, searchWord.Sort).Take(RESULT_MAX).ToArray();
+						searchResults = SearchByAnyWord(searchResults, anyWords[i]);
 					}
 				}
 				else
 				{
-					results = SortSearchResult(availableSongContext.AvailableSongs.Where(x =>
-							(String.IsNullOrEmpty(searchWord.Path) || !String.IsNullOrEmpty(searchWord.Path) && EF.Functions.Like(x.Path, $"%{searchWord.Path}%"))
-							&& (String.IsNullOrEmpty(searchWord.SongName) || !String.IsNullOrEmpty(searchWord.SongName) && EF.Functions.Like(x.SongName, $"%{searchWord.SongName}%"))
-							&& (String.IsNullOrEmpty(searchWord.TieUpName) || !String.IsNullOrEmpty(searchWord.TieUpName) && EF.Functions.Like(x.TieUpName, $"%{searchWord.TieUpName}%"))
-							&& (String.IsNullOrEmpty(searchWord.ArtistName) || !String.IsNullOrEmpty(searchWord.ArtistName) && EF.Functions.Like(x.ArtistName, $"%{searchWord.ArtistName}%"))
-							&& (String.IsNullOrEmpty(searchWord.Maker) || !String.IsNullOrEmpty(searchWord.Maker) && EF.Functions.Like(x.Maker, $"%{searchWord.Maker}%"))
-							&& (String.IsNullOrEmpty(searchWord.Worker) || !String.IsNullOrEmpty(searchWord.Worker) && EF.Functions.Like(x.Worker, $"%{searchWord.Worker}%"))), searchWord.Sort).
-							Take(RESULT_MAX).ToArray();
+					// 曲名
+					// ToDo: SearchBySongName() を関数化すると実行できるが、地の文にすると例外が発生する
+					String[] songNames = SplitKeyword(searchWord.SongName);
+					for (Int32 i = 0; i < songNames.Length; i++)
+					{
+						searchResults = SearchBySongName(searchResults, songNames[i]);
+					}
+
+					// タイアップ名
+					String[] tieUpNames = SplitKeyword(searchWord.TieUpName);
+					for (Int32 i = 0; i < tieUpNames.Length; i++)
+					{
+						searchResults = SearchByTieUpName(searchResults, tieUpNames[i]);
+					}
+
+					// 歌手名
+					String[] artistNames = SplitKeyword(searchWord.ArtistName);
+					for (Int32 i = 0; i < artistNames.Length; i++)
+					{
+						searchResults = SearchByArtistName(searchResults, artistNames[i]);
+					}
+
+					// 制作会社
+					String[] makers = SplitKeyword(searchWord.Maker);
+					for (Int32 i = 0; i < makers.Length; i++)
+					{
+						searchResults = SearchByMaker(searchResults, makers[i]);
+					}
+
+					// カラオケ動画制作者
+					String[] workers = SplitKeyword(searchWord.Worker);
+					for (Int32 i = 0; i < workers.Length; i++)
+					{
+						searchResults = SearchByWorker(searchResults, workers[i]);
+					}
+
+					// ファイル名
+					String[] pathes = SplitKeyword(searchWord.Path);
+					for (Int32 i = 0; i < pathes.Length; i++)
+					{
+						searchResults = SearchByPath(searchResults, pathes[i]);
+					}
 				}
+				results = SortSearchResult(searchResults, searchWord.Sort).Take(RESULT_MAX).ToArray();
 			}
 			catch (Exception excep)
 			{
@@ -152,6 +182,12 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		// 検索結果を返す最大数
 		private Int32 RESULT_MAX = 100;
+
+		// 半角スペース
+		private const Char HANKAKU_SPACE = ' ';
+
+		// 全角スペース
+		private const Char ZENKAKU_SPACE = '　';
 
 		// ====================================================================
 		// private メンバー関数
@@ -173,10 +209,59 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 歌手名検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchByArtistName(IQueryable<AvailableSong> records, String word)
+		{
+			return records.Where(x => EF.Functions.Like(x.ArtistName, $"%{word}%"));
+		}
+
+		// --------------------------------------------------------------------
+		// 制作会社検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchByMaker(IQueryable<AvailableSong> records, String word)
+		{
+			return records.Where(x => EF.Functions.Like(x.Maker, $"%{word}%"));
+		}
+
+		// --------------------------------------------------------------------
+		// パス検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchByPath(IQueryable<AvailableSong> records, String word)
+		{
+			return records.Where(x => EF.Functions.Like(x.Path, $"%{word}%"));
+		}
+
+		// --------------------------------------------------------------------
+		// 曲名検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchBySongName(IQueryable<AvailableSong> records, String word)
+		{
+			return records.Where(x => EF.Functions.Like(x.SongName, $"%{word}%"));
+		}
+
+		// --------------------------------------------------------------------
+		// タイアップ名検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchByTieUpName(IQueryable<AvailableSong> records, String word)
+		{
+			return records.Where(x => EF.Functions.Like(x.TieUpName, $"%{word}%"));
+		}
+
+		// --------------------------------------------------------------------
+		// カラオケ動画制作者検索
+		// --------------------------------------------------------------------
+		private IQueryable<AvailableSong> SearchByWorker(IQueryable<AvailableSong> records, String word)
+		{
+			return records.Where(x => EF.Functions.Like(x.Worker, $"%{word}%"));
+		}
+
+		// --------------------------------------------------------------------
 		// 検索結果のソート
 		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SortSearchResult(IQueryable<AvailableSong> result, SearchResultSort sort)
 		{
+			Debug.WriteLine("SortSearchResult() " + result.Count());
 			switch (sort)
 			{
 				case SearchResultSort.SongName:
@@ -188,6 +273,15 @@ namespace YukariBlazorDemo.Server.Controllers
 				default:
 					return result.OrderByDescending(x => x.LastModified);
 			}
+		}
+
+		// --------------------------------------------------------------------
+		// 検索キーワードを全角・半角スペースで分割
+		// --------------------------------------------------------------------
+		private String[] SplitKeyword(String keyword)
+		{
+			keyword = keyword.Replace(ZENKAKU_SPACE, HANKAKU_SPACE);
+			return keyword.Split(HANKAKU_SPACE, StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }

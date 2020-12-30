@@ -340,5 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 # Project
-*.sqlite3
+*.sqlite3*
 Log.txt
