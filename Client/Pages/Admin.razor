@@ -73,10 +73,10 @@
 	{
 		try
 		{
-			searchStatus = await SearchService.Status();
-			thumbnailStatus = await ThumbnailService.Status();
-			requestStatus = await RequestSongService.Status();
-			playerStatus = await PlayerService.Status();
+			searchStatus = await SearchService.StatusAsync();
+			thumbnailStatus = await ThumbnailService.StatusAsync();
+			requestStatus = await RequestSongService.StatusAsync();
+			playerStatus = await PlayerService.StatusAsync();
 		}
 		catch (Exception)
 		{
@@ -121,7 +121,7 @@
 			if (message.IsSuccessStatusCode)
 			{
 				adminResult = "削除しました。";
-				requestStatus = await RequestSongService.Status();
+				requestStatus = await RequestSongService.StatusAsync();
 			}
 			else
 			{

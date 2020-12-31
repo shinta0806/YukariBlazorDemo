@@ -243,10 +243,6 @@ img {
 
 .input-general {
     width: 100%;
-    padding: 5px;
-    border: none;
-    outline: 1px solid var(--border-color);
-    font-size: 1.2rem;
 }
 
     .input-general::placeholder {
@@ -254,13 +250,16 @@ img {
         font-size: 0.9rem;
     }
 
-    .input-general:focus {
+.input-general, .input-narrow {
+    padding: 5px;
+    border: none;
+    outline: 1px solid var(--border-color);
+    font-size: 1.2rem;
+}
+
+    .input-general:focus, .input-narrow:focus {
         outline: 2px solid var(--primary-bg-color);
     }
-
-        .input-general:focus::placeholder {
-            visibility: hidden;
-        }
 
 .actions {
     margin: 20px 0px 0px 0px;

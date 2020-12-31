@@ -86,6 +86,7 @@ namespace YukariBlazorDemo.Shared
 		public const String URL_SEARCH = "search/";
 		public const String URL_STATUS = "status/";
 		public const String URL_THUMBNAIL = "thumbnail/";
+		public const String URL_USER_NAMES = "usernames/";
 		public const String URL_WORD = "word/";
 
 		// --------------------------------------------------------------------

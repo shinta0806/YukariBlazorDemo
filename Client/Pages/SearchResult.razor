@@ -42,9 +42,9 @@
 			String typeActiveTab;
 			TabItem[] typeTabItems =
 			{
-				new TabItem(YbdConstants.SEARCH_ANY_WORD_CONDITION_NAME, 
+				new TabItem(YbdConstants.SEARCH_ANY_WORD_CONDITION_NAME,
 						"/searchresult/" + searchWord.ChangeType(SearchWordType.AnyWord, 0, out typeActiveTab)),
-				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName], 
+				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName],
 						"/searchresult/" + searchWord.ChangeType(SearchWordType.Detail, SearchDetailCondition.SongName, out typeActiveTab)),
 				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName],
 						"/searchresult/" + searchWord.ChangeType(SearchWordType.Detail, SearchDetailCondition.TieUpName, out typeActiveTab)),
@@ -170,7 +170,7 @@ else
 	private SearchWord searchWord = new();
 
 	// 検索結果
-	private IEnumerable<AvailableSong> availableSongs = new AvailableSong[0];
+	private AvailableSong[] availableSongs = new AvailableSong[0];
 
 	// 検索結果の総数
 	private Int32 numResults;

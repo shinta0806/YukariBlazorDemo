@@ -51,13 +51,14 @@
 							<tr>
 								<td class="input-td">予約者</td>
 								<td class="input-td">
-									<select class="title_list" id="Title" name="Title" @bind="requestSong.User">
-										<option value="">選択してください</option>
-										<option value="a">a</option>
-										<option value="b">b</option>
-										<option value="c">c</option>
+									<select class="input-narrow" @bind="requestSong.User">
+										<option value="">新規（入力→）</option>
+										@foreach (String userName in userNames)
+										{
+											<option value="@userName">@userName</option>
+										}
 									</select>
-									<input id="user" type="text" @bind="requestSong.User" @ref="inputUser" />
+									<input class="input-narrow" id="user" type="text" @bind="requestSong.User" @ref="inputUser" />
 								</td>
 							</tr>
 							<tr>
@@ -134,6 +135,8 @@ else
 		try
 		{
 			availableSong = await SearchService.SearchByIdAsync(AvailableSongId);
+			Int32 temp;
+			(userNames, temp) = await RequestSongService.GetUserNamesAsync();
 			initialized = true;
 
 			if (availableSong == null)
@@ -162,6 +165,9 @@ else
 
 	// 予約情報（送信する情報）
 	private RequestSong requestSong = new();
+
+	// 予約者名一覧
+	private String[] userNames = new String[0];
 
 	// 予約結果メッセージ
 	private String? requestResult;

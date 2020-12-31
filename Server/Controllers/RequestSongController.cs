@@ -184,6 +184,47 @@ namespace YukariBlazorDemo.Server.Controllers
 			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
 
+		// --------------------------------------------------------------------
+		// 予約者名一覧を返す
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_USER_NAMES)]
+		public IActionResult GetUserNames()
+		{
+			IEnumerable<String>? results = null;
+			Int32 numResults = 0;
+			DateTime lastModified = ServerConstants.INVALID_DATE;
+			try
+			{
+				// キャッシュチェック
+				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
+				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					return NotModified();
+				}
+
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSongs == null)
+				{
+					throw new Exception();
+				}
+
+				results = requestSongContext.RequestSongs.Select(x => x.User).GroupBy(y => y).Select(z => z.Key).ToArray();
+				numResults = results.Count();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("予約者名一覧取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			if (results == null)
+			{
+				results = new String[0];
+			}
+
+			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
+		}
+
 
 	}
 }
