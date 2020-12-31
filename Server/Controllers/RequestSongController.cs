@@ -5,28 +5,64 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// 予約は頻繁に更新されるため ShortCache 属性を付与
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
+
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
+	[ShortCache]
 	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS)]
-	public class RequestSongController : Controller
+	public class RequestSongController : ApiController
 	{
 		// ====================================================================
-		// API
+		// API（ApiController）
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		public override String ControllerStatus()
+		{
+			String status;
+			try
+			{
+				using RequestSongContext requestSongContext = new();
+				if (requestSongContext.RequestSongs == null)
+				{
+					throw new Exception("データベースにアクセスできません。");
+				}
+
+				// Where を使用すると列の不足を検出できる
+				requestSongContext.RequestSongs.Where(x => x.RequestSongId == 0).FirstOrDefault();
+
+				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
+			}
+			catch (Exception excep)
+			{
+				status = "エラー / " + excep.Message;
+				Debug.WriteLine("予約 API 状態取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return status;
+		}
+
+		// ====================================================================
+		// API（一般）
 		// ====================================================================
 
 		// --------------------------------------------------------------------
@@ -116,6 +152,13 @@ namespace YukariBlazorDemo.Server.Controllers
 			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
+				// キャッシュチェック
+				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
+				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					return NotModified();
+				}
+
 				using RequestSongContext requestSongContext = new();
 				if (requestSongContext.RequestSongs == null)
 				{
@@ -125,10 +168,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(query);
 				Int32 page = YbdCommon.GetPageFromQueryParameters(parameters);
 				numResults = requestSongContext.RequestSongs.Count();
-
 				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).Skip(YbdConstants.PAGE_SIZE * page).Take(YbdConstants.PAGE_SIZE).ToArray();
-				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
-				//Debug.WriteLine("GetRequestSongs() lastModified: " + lastModified.ToString("yyyy/MM/dd HH:mm:ss"));
 			}
 			catch (Exception excep)
 			{
@@ -140,37 +180,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				results = new RequestSong[0];
 			}
 
-			EntityTagHeaderValue eTag = ServerCommon.GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
-		}
-
-		// --------------------------------------------------------------------
-		// 状態を返す
-		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_STATUS)]
-		public String RequestSongControllerStatus()
-		{
-			String status;
-			try
-			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception("データベースにアクセスできません。");
-				}
-
-				// Where を使用すると列の不足を検出できる
-				requestSongContext.RequestSongs.Where(x => x.RequestSongId == 0).FirstOrDefault();
-
-				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
-			}
-			catch (Exception excep)
-			{
-				status = "エラー / " + excep.Message;
-				Debug.WriteLine("予約 API 状態取得サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-			}
-			return status;
 		}
 
 

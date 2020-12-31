@@ -13,7 +13,7 @@
 			</tr>
 			<tr>
 				<td class="input-td">スタックトレース：</td>
-				<td class="input-td">@stackTrace</td>
+				<td class="input-td">@((MarkupString)(stackTrace ?? String.Empty))</td>
 			</tr>
 		</table>
 
@@ -42,10 +42,24 @@
 	{
 		try
 		{
+			if (String.IsNullOrEmpty(Query))
+			{
+				return;
+			}
+
+			// エラーメッセージ
 			Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(Query);
 			parameters.TryGetValue(ClientConstants.ERROR_PARAM_NAME_MESSAGE, out errorMessage);
-			parameters.TryGetValue(ClientConstants.ERROR_PARAM_NAME_TRACE, out stackTrace);
-			stackTrace = stackTrace?.Replace("\n", "<br>");
+
+			// スタックトレースに "&" が含まれる場合があるため、YbdCommon.AnalyzeQuery は使えない
+			Int32 beginPos = Query.IndexOf(ClientConstants.ERROR_PARAM_NAME_TRACE + "=");
+			if (beginPos >= 0)
+			{
+				stackTrace = Query.Substring(beginPos + ClientConstants.ERROR_PARAM_NAME_TRACE.Length + 1);
+				stackTrace = stackTrace?.Replace("<", "&lt;");
+				stackTrace = stackTrace?.Replace(">", "&gt;");
+				stackTrace = stackTrace?.Replace("\n", "<br>");
+			}
 		}
 		catch (Exception)
 		{

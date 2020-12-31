@@ -5,7 +5,7 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// 検索結果は頻繁に更新されるため ShortCache 属性を付与
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
@@ -24,43 +24,19 @@ using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
+	[ShortCache]
 	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_SEARCH)]
-	public class SearchController : Controller
+	public class SearchController : ApiController
 	{
 		// ====================================================================
-		// API
+		// API（ApiController）
 		// ====================================================================
-
-		// --------------------------------------------------------------------
-		// AvailableSong.Id で曲を検索
-		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_ID + "{id}")]
-		public AvailableSong? SearchById(String? id)
-		{
-			AvailableSong? result = null;
-			try
-			{
-				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSongs == null)
-				{
-					throw new Exception();
-				}
-				result = availableSongContext.AvailableSongs.FirstOrDefault(x => x.Id == id);
-			}
-			catch (Exception excep)
-			{
-				Debug.WriteLine("曲取得サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-			}
-			return result;
-		}
 
 		// --------------------------------------------------------------------
 		// 状態を返す
 		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_STATUS)]
-		public String SearchControllerStatus()
+		public override String ControllerStatus()
 		{
 			String status;
 			try
@@ -86,6 +62,34 @@ namespace YukariBlazorDemo.Server.Controllers
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 			}
 			return status;
+		}
+
+		// ====================================================================
+		// API（一般）
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// AvailableSong.Id で曲を検索
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_ID + "{id}")]
+		public AvailableSong? SearchById(String? id)
+		{
+			AvailableSong? result = null;
+			try
+			{
+				using AvailableSongContext availableSongContext = new();
+				if (availableSongContext.AvailableSongs == null)
+				{
+					throw new Exception();
+				}
+				result = availableSongContext.AvailableSongs.FirstOrDefault(x => x.Id == id);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("曲取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return result;
 		}
 
 		// --------------------------------------------------------------------
@@ -180,7 +184,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				results = new AvailableSong[0];
 			}
-			EntityTagHeaderValue eTag = ServerCommon.GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
 

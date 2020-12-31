@@ -58,8 +58,5 @@ namespace YukariBlazorDemo.Server.Misc
 		// 日付が指定されていない場合の修正ユリウス日
 		public static readonly Double INVALID_MJD = ServerCommon.DateTimeToModifiedJulianDate(INVALID_DATE);
 
-		// 日付が指定されていない場合の ETAG
-		public static readonly EntityTagHeaderValue INVALID_ETAG = ServerCommon.GenerateEntityTag(INVALID_MJD);
-
 	}
 }

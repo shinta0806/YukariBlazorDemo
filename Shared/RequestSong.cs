@@ -20,6 +20,7 @@ namespace YukariBlazorDemo.Shared
 		// ====================================================================
 
 		// RequestSong ID
+		// 有効な曲の ID は 1 から始まる（0 は未初期化）
 		public Int32 RequestSongId { get; set; }
 
 		// AvailableSong ID

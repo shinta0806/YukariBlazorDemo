@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using YukariBlazorDemo.Client.Models.Misc;
@@ -67,6 +68,14 @@ namespace YukariBlazorDemo.Client.Models.Services
 			RequestSong[]? songs = null;
 			Int32 numResults = 0;
 			using HttpResponseMessage response = await HttpClient.GetAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_LIST + query);
+#if DEBUGz
+			CacheControlHeaderValue? cacheControl= response.Headers.CacheControl;
+			if (cacheControl != null)
+			{
+				TimeSpan? age = cacheControl.MaxAge;
+				TimeSpan? minFresh = cacheControl.MinFresh;
+			}
+#endif
 			Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
 			songs = await response.Content.ReadFromJsonAsync<RequestSong[]>();
 			if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))

@@ -5,11 +5,12 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// サムネイルはめったに更新されないため ShortCache 属性は付与しない
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -22,7 +23,7 @@ using YukariBlazorDemo.Shared;
 namespace YukariBlazorDemo.Server.Controllers
 {
 	[Route(YbdConstants.URL_API + YbdConstants.URL_THUMBNAIL)]
-	public class ThumbnailController : Controller
+	public class ThumbnailController : ApiController
 	{
 		// ====================================================================
 		// public static プロパティー
@@ -32,7 +33,43 @@ namespace YukariBlazorDemo.Server.Controllers
 		public static Thumbnail? DefaultThumbnail { get; set; }
 
 		// ====================================================================
-		// API
+		// API（ApiController）
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		public override String ControllerStatus()
+		{
+			String status;
+			try
+			{
+				if (DefaultThumbnail == null)
+				{
+					throw new Exception("デフォルトサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
+				}
+				using ThumbnailContext thumbnailContext = new();
+				if (thumbnailContext.Thumbnails == null)
+				{
+					throw new Exception();
+				}
+
+				// Where を使用すると列の不足を検出できる
+				thumbnailContext.Thumbnails.Where(x => x.Id == 0).FirstOrDefault();
+
+				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();
+			}
+			catch (Exception excep)
+			{
+				status = "エラー / " + excep.Message;
+				Debug.WriteLine("サムネイル API 状態取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return status;
+		}
+
+		// ====================================================================
+		// API（一般）
 		// ====================================================================
 
 		// --------------------------------------------------------------------
@@ -70,7 +107,7 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == availableSong.Path);
 				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
-				EntityTagHeaderValue eTag = ServerCommon.GenerateEntityTag(thumbnail.LastModified);
+				EntityTagHeaderValue eTag = GenerateEntityTag(thumbnail.LastModified);
 				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
 			}
 			catch (Exception excep)
@@ -78,7 +115,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				if (DefaultThumbnail != null)
 				{
 					// サムネイルが無いのでデフォルトサムネイル（NoImage）を返す
-					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, ServerConstants.INVALID_ETAG);
+					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
 				}
 
 				Debug.WriteLine("サムネイル取得サーバーエラー：\n" + excep.Message);
@@ -86,41 +123,6 @@ namespace YukariBlazorDemo.Server.Controllers
 				return BadRequest();
 			}
 		}
-
-		// --------------------------------------------------------------------
-		// 状態を返す
-		// --------------------------------------------------------------------
-		[Produces(ServerConstants.MIME_TYPE_JSON)]
-		[HttpGet, Route(YbdConstants.URL_STATUS)]
-		public String ThumbnailControllerStatus()
-		{
-			String status;
-			try
-			{
-				if (DefaultThumbnail == null)
-				{
-					throw new Exception("デフォルトサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
-				}
-				using ThumbnailContext thumbnailContext = new();
-				if (thumbnailContext.Thumbnails == null)
-				{
-					throw new Exception();
-				}
-
-				// Where を使用すると列の不足を検出できる
-				thumbnailContext.Thumbnails.Where(x => x.Id == 0).FirstOrDefault();
-
-				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();
-			}
-			catch (Exception excep)
-			{
-				status = "エラー / " + excep.Message;
-				Debug.WriteLine("サムネイル API 状態取得サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-			}
-			return status;
-		}
-
 
 	}
 }

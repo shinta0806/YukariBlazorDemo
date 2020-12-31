@@ -5,7 +5,7 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// 再生状態は頻繁に更新されるため ShortCache 属性を付与
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +20,25 @@ using YukariBlazorDemo.Shared;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
+	[ShortCache]
 	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_PLAYER)]
-	public class PlayerController : Controller
+	public class PlayerController : ApiController
 	{
 		// ====================================================================
-		// API
+		// API（ApiController）
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 状態を返す
+		// --------------------------------------------------------------------
+		public override String ControllerStatus()
+		{
+			return "正常";
+		}
+
+		// ====================================================================
+		// API（一般）
 		// ====================================================================
 
 		// --------------------------------------------------------------------
@@ -34,7 +47,6 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_PLAYING)]
 		public RequestSong? GetPlayingSong()
 		{
-			RequestSong? result = null;
 			try
 			{
 				using RequestSongContext requestSongContext = new();
@@ -42,23 +54,20 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
-				result = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).First();
+				RequestSong? result = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).FirstOrDefault();
+				if (result == null)
+				{
+					// 再生中の曲が無い
+					result = new();
+				}
+				return result;
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("再生曲取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return null;
 			}
-			return result;
-		}
-
-		// --------------------------------------------------------------------
-		// 状態を返す
-		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_STATUS)]
-		public String PlayerControllerStatus()
-		{
-			return "正常";
 		}
 
 		// --------------------------------------------------------------------
