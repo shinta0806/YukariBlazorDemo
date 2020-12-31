@@ -65,22 +65,24 @@ namespace YukariBlazorDemo.Server.Controllers
 				else
 				{
 					// すこし時間をかける
-					Thread.Sleep(random.Next(100, 300));
+					Thread.Sleep(random.Next(500, 1000));
 				}
 
 				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == availableSong.Path);
 				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
-				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, ServerCommon.GenerateEntityTag(thumbnail.LastModified));
+				EntityTagHeaderValue eTag = ServerCommon.GenerateEntityTag(thumbnail.LastModified);
+				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("サムネイル取得サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-
 				if (DefaultThumbnail != null)
 				{
-					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime);
+					// サムネイルが無いのでデフォルトサムネイル（NoImage）を返す
+					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, ServerConstants.INVALID_ETAG);
 				}
+
+				Debug.WriteLine("サムネイル取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return BadRequest();
 			}
 		}
@@ -97,7 +99,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (DefaultThumbnail == null)
 				{
-					throw new Exception("デフォルトサムネイルが作成できませんでした。SampleDataImages フォルダーがあるか確認してください。");
+					throw new Exception("デフォルトサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
 				}
 				using ThumbnailContext thumbnailContext = new();
 				if (thumbnailContext.Thumbnails == null)

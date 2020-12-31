@@ -11,7 +11,9 @@
 using Microsoft.Net.Http.Headers;
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace YukariBlazorDemo.Server.Misc
 {
@@ -46,7 +48,7 @@ namespace YukariBlazorDemo.Server.Misc
 		}
 
 		// --------------------------------------------------------------------
-		// ファイルの更新日時
+		// ファイルの更新日時（UTC）
 		// --------------------------------------------------------------------
 		public static DateTime LastModified(String path)
 		{
@@ -86,6 +88,10 @@ namespace YukariBlazorDemo.Server.Misc
 		// private メンバー定数
 		// ====================================================================
 
+		// --------------------------------------------------------------------
+		// ユリウス日
+		// --------------------------------------------------------------------
+
 		// 1 日を Ticks（100 ナノ秒）で表した数値
 		private const Int64 TICKS_PER_DAY = 24L * 60 * 60 * 1000 * 1000 * 10;
 
@@ -94,6 +100,8 @@ namespace YukariBlazorDemo.Server.Misc
 
 		// 修正ユリウス日 = ユリウス通日 - MJD_DELTA
 		private const Double MJD_DELTA = 2400000.5;
+
+
 
 	}
 }

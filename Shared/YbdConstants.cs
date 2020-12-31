@@ -35,7 +35,7 @@ namespace YukariBlazorDemo.Shared
 		SongName,
 		TieUpName,
 		ArtistName,
-		Maker,
+		MakerName,
 		Worker,
 		Path,
 		__End__,

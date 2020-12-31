@@ -54,7 +54,7 @@ namespace YukariBlazorDemo.Client.Models.Misc
 			dest.SongName = source.SongName;
 			dest.TieUpName = source.TieUpName;
 			dest.ArtistName = source.ArtistName;
-			dest.Maker = source.Maker;
+			dest.MakerName = source.MakerName;
 			dest.Worker = source.Worker;
 			dest.Path = source.Path;
 		}
@@ -87,7 +87,7 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// --------------------------------------------------------------------
 		public static String GeneratePageNavigation(Int32 numPages, Int32 currentPage, String baseUrl)
 		{
-			if (numPages < 1)
+			if (numPages <= 1)
 			{
 				return String.Empty;
 			}

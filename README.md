@@ -2,6 +2,11 @@
 
 カラオケ動画をブラウザ上でリクエストをするためツール「[ゆかり](https://github.com/bee7813993/KaraokeRequestorWeb)」が Blazor WebAssembly 化したらこんな感じになるのではないか、なったらいいな、という妄想デモです。
 
+<img src="Server/Documents/Images/SearchForm_AnyWord.png" width="256" align="right">
+なるべく多くの処理をブラウザ側で行うことにより、サーバーとの通信を低減させ、キビキビと動作します。例えば、検索ページの表示時は一切サーバーと通信しません。検索ボタンをクリックして結果を取得する際に初めて通信します。ただし、初回アクセス時は時間がかかります。
+
+UI は以前から検討事項となっている「シンプルモード」を採用しているため、現行のゆかりの UI とは異なります。言い方を変えれば、シンプルモードの妄想デモにもなっています。
+
 # 動かし方
 
 「ASP.NET と Web 開発」ワークロードをインストールしてある Visual Studio 2019 でソリューションを開き、F5 キーでデバッグ実行すると、ブラウザでデモが動きます。
@@ -10,7 +15,7 @@
 
 Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッグ実行していると、ブラウザが立ち上がらない現象が発生することがあります。その場合は Visual Studio をいったん閉じた後、タスクマネージャーでゾンビになっている Visual Studio を終了してから、再度 Visual Studio を起動すると治ります。
 
-リリースして IIS 下で実行したい場合は YukariBlazorDemo.Server プロジェクトを publish フォルダーに発行します。その後、SampleDataImage フォルダーを publish フォルダー直下にコピーします。
+リリースして IIS 下で実行したい場合は YukariBlazorDemo.Server プロジェクトを publish フォルダーに発行します。その後、IIS で publish フォルダーをサイトとして登録します。
 
 #### 参考リンク
 - [Visual Studio で Blazor](https://shinta0806be.ldblog.jp/archives/10326652.html)
@@ -90,7 +95,7 @@ Player ページでは、予約した曲を再生します。
 <img src="Server/Documents/Images/Admin.png" width="256" align="right">
 管理ページでは、デモの状態が表示されます。
 
-ここにエラーと表示されている場合は、何らかの障害が発生しています。
+ここにエラーと表示されている場合は、何らかの障害が発生しています。バージョン更新時にエラーが発生した場合は、Server フォルダー（発行した場合は publish フォルダー）直下に生成されている各種 .sqlite3 ファイルを削除して再起動すると解消されるのではないかと思います。
 
 「予約をすべて削除」ボタンをクリックすると、予約をすべて削除できます。
 <br clear="right">

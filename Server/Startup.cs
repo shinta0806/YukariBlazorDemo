@@ -76,6 +76,136 @@ namespace YukariBlazorDemo.Server
 			}
 		}
 
+		// ====================================================================
+		// private メンバー定数
+		// ====================================================================
+
+		// サムネイルサイズ
+		private const Int32 THUMB_WIDTH_MAX = 160;
+		private const Int32 THUMB_HEIGHT_MAX = 90;
+
+		// 動画ファイル名（メイン）
+		private const String FILE_NAME_TULIP = @"D:\Song\チューリップ.mp4";
+		private const String FILE_NAME_SUNFLOWER = @"D:\Song\ひまわり.mp4";
+		private const String FILE_NAME_ROSE = @"D:\Song\薔薇.mp4";
+		private const String FILE_NAME_POINSETTIA = @"D:\Song\ポインセチア.mp4";
+		private const String FILE_NAME_TOY_POODLE = @"D:\Song\トイプードル.mp4";
+		private const String FILE_NAME_CHIHUAHUA = @"D:\Song\チワワ.mp4";
+		private const String FILE_NAME_SHIBA = @"D:\Song\柴犬.mp4";
+		private const String FILE_NAME_POMERANIAN = @"D:\Song\ポメラニアン.mp4";
+
+		// 動画ファイル名（AddSong）
+		private const String FILE_NAME_ANTHURIUM = @"E:\AddSong\Beni.mp4";
+		private const String FILE_NAME_IRIS = @"E:\AddSong\Ayame.mp4";
+		private const String FILE_NAME_TEMPLE = @"E:\AddSong\Temple.mp4";
+		private const String FILE_NAME_REMOTE = @"E:\AddSong\Remote.mp4";
+		private const String FILE_NAME_HANA = @"E:\AddSong\Hana.mp4";
+
+		// 動画ファイル名（AddSong2）
+		private const String FILE_NAME_FRENCH_BULLDOG = @"E:\AddSong2\FB.mp4";
+		private const String FILE_NAME_SHIH_TZU = @"E:\AddSong2\ST.mp4";
+		private const String FILE_NAME_MAMESHIBA = @"E:\AddSong2\Mame.mp4";
+		private const String FILE_NAME_YORKSHIRE_TERRIER = @"E:\AddSong2\York.mp4";
+		private const String FILE_NAME_CORGI = @"E:\AddSong2\Corgi.mp4";
+		private const String FILE_NAME_GOLDEN_RETRIEVER = @"E:\AddSong2\GR.mp4";
+		private const String FILE_NAME_IRIS2 = @"E:\AddSong2\Kaki.mp4";
+		private const String FILE_NAME_COMMON_SNAPDRAGON = @"E:\AddSong2\CSD.mp4";
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 歌唱花子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistKHanako()
+		{
+			return new NameAndRuby("歌唱花子", "カショウハナコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 歌唱川子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistKKawako()
+		{
+			return new NameAndRuby("歌唱川子", "カショウカワコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 歌唱空子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistKSorako()
+		{
+			return new NameAndRuby("歌唱空子", "カショウソラコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 歌唱谷子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistKTaniko()
+		{
+			return new NameAndRuby("歌唱谷子", "カショウタニコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 歌唱海子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistKUmiko()
+		{
+			return new NameAndRuby("歌唱海子", "カショウウミコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 歌唱山子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistKYamako()
+		{
+			return new NameAndRuby("歌唱山子", "カショウヤマコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 中声出子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistNDasuko()
+		{
+			return new NameAndRuby("中声出子", "ナカゴエダスコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 中声出男
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistNDasuo()
+		{
+			return new NameAndRuby("中声出男", "ナカゴエダスオ");
+		}
+
+		// --------------------------------------------------------------------
+		// 大声出子
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistODasuko()
+		{
+			return new NameAndRuby("大声出子", "オオゴエダスコ");
+		}
+
+		// --------------------------------------------------------------------
+		// 大声出男
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistODasuo()
+		{
+			return new NameAndRuby("大声出男", "オオゴエダスオ");
+		}
+
+		// --------------------------------------------------------------------
+		// 唱和坊主
+		// --------------------------------------------------------------------
+		private NameAndRuby ArtistSBouzu()
+		{
+			return new NameAndRuby("唱和坊主", "ショウワボウズ");
+		}
+
+		// --------------------------------------------------------------------
+		// 必要に応じてデータベースを生成
+		// --------------------------------------------------------------------
 		private void CreateDatabaseIfNeeded()
 		{
 			// 予約可能な曲の一覧
@@ -93,49 +223,54 @@ namespace YukariBlazorDemo.Server
 				// 予約可能な曲のサンプルデータ作成
 				AvailableSong[] availableSongs =
 				{
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_TULIP, SongName = "チューリップ", TieUpName = "花花花花",
-								ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作太郎", LastModified = 58970.0, FileSize = 110 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_SUNFLOWER, SongName = "ひまわり", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作太郎",
-								LastModified = 58969.0, FileSize = 120 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_ROSE, SongName = "薔薇", TieUpName = "花花花花", ArtistName="歌唱谷子", Maker="アニメスタジオA", Worker="製作二郎",
-								LastModified = 58971.0, FileSize = 115 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_POINSETTIA, SongName = "ポインセチア", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作二郎",
-								LastModified = 58960.0, FileSize = 118 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_TOY_POODLE, SongName = "トイプードル", TieUpName = "犬がいっぱい", ArtistName="歌唱空子", Maker="ゲームスタジオB", Worker="製作三郎",
-								LastModified = 58965.0, FileSize = 95 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_CHIHUAHUA, SongName = "チワワ", TieUpName = "犬がいっぱい", ArtistName="歌唱花子", Maker="ゲームスタジオB", Worker="製作三郎",
-								LastModified = 58976.0, FileSize = 205 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_SHIBA, SongName = "柴犬", TieUpName = "犬がいっぱい", ArtistName="歌唱山子", Maker="ゲームスタジオB", Worker="製作四郎",
-								LastModified = 58970.0, FileSize = 110 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_POMERANIAN, SongName = "ポメラニアン", TieUpName = "犬がいっぱい", ArtistName="歌唱川子", Maker="ゲームスタジオB", Worker="製作四郎",
-								LastModified = 58980.0, FileSize = 119 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_ANTHURIUM, SongName = "ベニウチワ", TieUpName = "花花花花", ArtistName="歌唱海子", Maker="アニメスタジオA", Worker="製作五郎",
-								LastModified = 58950.0, FileSize = 103 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_IRIS, SongName = "アヤメ", TieUpName = "花花花花", ArtistName="歌唱山子", Maker="アニメスタジオA", Worker="製作五郎",
-								LastModified = 58945.0, FileSize = 110 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_TEMPLE, SongName = "寺", TieUpName = String.Empty, ArtistName = "唱和坊主", Maker = String.Empty, Worker="製作五郎",
-								LastModified = 58944.0, FileSize = 102 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_REMOTE, SongName = "リモコン", TieUpName = "家電", ArtistName = String.Empty, Maker = "アニメスタジオC", Worker="製作五郎",
-								LastModified = 58943.0, FileSize = 104 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_HANA, SongName = "花と鼻", TieUpName = String.Empty, ArtistName = String.Empty, Maker = String.Empty, Worker="製作五郎",
-								LastModified = 58942.0, FileSize = 101 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_FRENCH_BULLDOG, SongName = "フレンチブルドッグ", TieUpName = "犬がたくさん", ArtistName = "大声出子", Maker = "たくさんスタジオA", Worker="製作太郎",
-								LastModified = 58930.0, FileSize = 115 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_SHIH_TZU, SongName = "シーズー", TieUpName = "犬がたくさん", ArtistName = "大声出男", Maker = "たくさんスタジオA", Worker="つくっ太郎",
-								LastModified = 58931.0, FileSize = 118 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_MAMESHIBA, SongName = "豆柴", TieUpName = "犬がたくさん", ArtistName = "中声出男", Maker = "たくさんスタジオA", Worker="つく二郎",
-								LastModified = 58931.0, FileSize = 119 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_YORKSHIRE_TERRIER, SongName = "ヨークシャーテリア", TieUpName = "犬がたくさん", ArtistName = "中声出子", Maker = "たくさんスタジオA", Worker="つく三郎",
-								LastModified = 58931.0, FileSize = 120 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_CORGI, SongName = "コーギー", TieUpName = "犬がたくさん", ArtistName = "大声出子", Maker = "たくさんスタジオA", Worker="つく三郎",
-								LastModified = 58932.0, FileSize = 121 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_GOLDEN_RETRIEVER, SongName = "ゴールデンレトリバー", TieUpName = "犬がたくさん", ArtistName = "大声出男", Maker = "たくさんスタジオA", Worker="つく三郎",
-								LastModified = 58933.0, FileSize = 122 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_IRIS2, SongName = "燕子花", TieUpName = "花がたくさん", ArtistName = "大声出男", Maker = "たくさんスタジオB", Worker="つくっ太郎",
-								LastModified = 58934.0, FileSize = 123 * 1024 * 1024 },
-						new AvailableSong { Id = idPrefix + (idSuffix++).ToString(), Path = FILE_NAME_COMMON_SNAPDRAGON, SongName = "金魚草", TieUpName = "花がたくさん", ArtistName = "中声出男", Maker = "たくさんスタジオB", Worker="つく二郎",
-								LastModified = 58971.0, FileSize = 101 * 1024 * 1024 },
-					};
+					// メイン
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("チューリップ"), TieUpHanaHana(), ArtistKUmiko(), MakerAnimeA(), "製作太郎",
+							FILE_NAME_TULIP, 58970.0, 110 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("ひまわり"), TieUpHanaHana(), ArtistKYamako(), MakerAnimeA(), "製作太郎",
+							FILE_NAME_SUNFLOWER, 58969.0, 120 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("薔薇", "バラ"), TieUpHanaHana(), ArtistKTaniko(), MakerAnimeA(), "製作太郎",
+							FILE_NAME_ROSE, 58969.0, 120 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("ポインセチア"), TieUpHanaHana(), ArtistKUmiko(), MakerAnimeA(), "製作二郎",
+							FILE_NAME_POINSETTIA, 58960.0, 118 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("トイプードル"), TieUpInugaIppai(), ArtistKSorako(), MakerGameB(), "製作三郎",
+							FILE_NAME_TOY_POODLE, 58965.0, 95 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("チワワ"), TieUpInugaIppai(), ArtistKHanako(), MakerGameB(), "製作三郎",
+							FILE_NAME_CHIHUAHUA, 58976.0, 205 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("柴犬", "シバイヌ"), TieUpInugaIppai(), ArtistKYamako(), MakerGameB(), "製作四郎",
+							FILE_NAME_SHIBA, 58970.0, 110 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("ポメラニアン"), TieUpInugaIppai(), ArtistKKawako(), MakerGameB(), "製作四郎",
+							FILE_NAME_POMERANIAN, 58980.0, 119 * 1024 * 1024),
+
+					// AddSong
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("ベニウチワ"), TieUpHanaHana(), ArtistKUmiko(), MakerGameB(), "製作五郎",
+							FILE_NAME_ANTHURIUM, 58950.0, 103 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("アヤメ"), TieUpHanaHana(), ArtistKYamako(), MakerGameB(), "製作五郎",
+							FILE_NAME_IRIS, 58945.0, 110 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("寺", "テラ"), new NameAndRuby(String.Empty), ArtistSBouzu(), new NameAndRuby(String.Empty), "製作五郎",
+							FILE_NAME_TEMPLE, 58944.0, 102 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("リモコン"), TieUpKaden(), new NameAndRuby(String.Empty), MakerAnimeC(), "製作五郎",
+							FILE_NAME_REMOTE, 58943.0, 104 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("花と鼻", "はなとはな"), new NameAndRuby(String.Empty), new NameAndRuby(String.Empty), new NameAndRuby(String.Empty), "製作五郎",
+							FILE_NAME_HANA, 58942.0, 101 * 1024 * 1024),
+
+					// AddSong2
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("フレンチブルドッグ"), TieUpInugaTakusan(), ArtistODasuko(), MakerTakusanA(), "製作太郎",
+							FILE_NAME_FRENCH_BULLDOG, 58930.0, 115 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("シーズー"), TieUpInugaTakusan(), ArtistODasuo(), MakerTakusanA(), "つくっ太郎",
+							FILE_NAME_SHIH_TZU, 58931.0, 118 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("豆柴", "マメシバ"), TieUpInugaTakusan(), ArtistNDasuo(), MakerTakusanA(), "つく二郎",
+							FILE_NAME_MAMESHIBA, 58971.0, 92 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("ヨークシャーテリア"), TieUpInugaTakusan(), ArtistNDasuko(), MakerTakusanA(), "つく三郎",
+							FILE_NAME_YORKSHIRE_TERRIER, 58931.0, 120 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("コーギー"), TieUpInugaTakusan(), ArtistODasuko(), MakerTakusanA(), "つく三郎",
+							FILE_NAME_CORGI, 58932.0, 121 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("ゴールデンレトリバー"), TieUpInugaTakusan(), ArtistODasuo(), MakerTakusanA(), "つく三郎",
+							FILE_NAME_GOLDEN_RETRIEVER, 58933.0, 151 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("燕子花", "カキツバタ"), TieUpHanagaTakusan(), ArtistODasuo(), MakerTakusanA(), "つくっ太郎",
+							FILE_NAME_IRIS2, 58934.0, 123 * 1024 * 1024),
+					new AvailableSong(idPrefix + (idSuffix++).ToString(), new NameAndRuby("金魚草", "キンギョソウ"), TieUpHanagaTakusan(), ArtistNDasuo(), MakerTakusanC(), "つく二郎",
+							FILE_NAME_COMMON_SNAPDRAGON, 58971.0, 101 * 1024 * 1024),
+				};
 				availableSongContext.AvailableSongs.AddRange(availableSongs);
 				availableSongContext.SaveChanges();
 			}
@@ -164,8 +299,11 @@ namespace YukariBlazorDemo.Server
 						CreateThumbnail(FILE_NAME_SHIBA, "Shiba.png"),
 						CreateThumbnail(FILE_NAME_POMERANIAN, "Pomeranian.png"),
 						CreateThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
+						CreateThumbnail(FILE_NAME_IRIS, "Iris.png"),
 						CreateThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
+						CreateThumbnail(FILE_NAME_REMOTE, "Remote.png"),
 						CreateThumbnail(FILE_NAME_SHIH_TZU, "ShihTzu.png"),
+						CreateThumbnail(FILE_NAME_YORKSHIRE_TERRIER, "YorkshireTerrier.png"),
 						CreateThumbnail(FILE_NAME_CORGI, "Corgi.png"),
 						CreateThumbnail(FILE_NAME_GOLDEN_RETRIEVER, "GoldenRetriever.png"),
 					};
@@ -184,12 +322,15 @@ namespace YukariBlazorDemo.Server
 			requestSongContext.Database.EnsureCreated();
 		}
 
+		// --------------------------------------------------------------------
+		// サムネイル生成
+		// --------------------------------------------------------------------
 		private Thumbnail CreateThumbnail(String songPath, String imageFileName)
 		{
-			using Image sourceImage = Image.FromFile("SampleDataImages\\" + imageFileName);
+			using Image sourceImage = Image.FromFile(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName);
 
 			// サムネイルサイズ
-			Single scale = Math.Min((Single)SCALE_WIDTH / sourceImage.Width, (Single)SCALE_HEIGHT / (float)sourceImage.Height);
+			Single scale = Math.Min((Single)THUMB_WIDTH_MAX / sourceImage.Width, (Single)THUMB_HEIGHT_MAX / (float)sourceImage.Height);
 			Int32 scaledWidth = (Int32)(sourceImage.Width * scale);
 			Int32 scaledHeight = (Int32)(sourceImage.Height * scale);
 
@@ -209,34 +350,89 @@ namespace YukariBlazorDemo.Server
 			{
 				Path = songPath,
 				Bitmap = stream.ToArray(),
-				Mime = "image/png",
-				LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow),
+				Mime = ServerConstants.MIME_TYPE_PNG,
+				LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName)),
 			};
 		}
 
-		private const Int32 SCALE_WIDTH = 160;
-		private const Int32 SCALE_HEIGHT = 90;
+		// --------------------------------------------------------------------
+		// アニメスタジオ A
+		// --------------------------------------------------------------------
+		private NameAndRuby MakerAnimeA()
+		{
+			return new NameAndRuby("アニメスタジオA", "アニメスタジオエー");
+		}
 
-		private const String FILE_NAME_TULIP = @"D:\Song\チューリップ.mp4";
-		private const String FILE_NAME_SUNFLOWER = @"D:\Song\ひまわり.mp4";
-		private const String FILE_NAME_ROSE = @"D:\Song\薔薇.mp4";
-		private const String FILE_NAME_POINSETTIA = @"D:\Song\ポインセチア.mp4";
-		private const String FILE_NAME_TOY_POODLE = @"D:\Song\トイプードル.mp4";
-		private const String FILE_NAME_CHIHUAHUA = @"D:\Song\チワワ.mp4";
-		private const String FILE_NAME_SHIBA = @"D:\Song\柴犬.mp4";
-		private const String FILE_NAME_POMERANIAN = @"D:\Song\ポメラニアン.mp4";
-		private const String FILE_NAME_ANTHURIUM = @"E:\AddSong\Beni.mp4";
-		private const String FILE_NAME_IRIS = @"E:\AddSong\Ayame.mp4";
-		private const String FILE_NAME_TEMPLE = @"E:\AddSong\Temple.mp4";
-		private const String FILE_NAME_REMOTE = @"E:\AddSong\Remote.mp4";
-		private const String FILE_NAME_HANA = @"E:\AddSong\Hana.mp4";
-		private const String FILE_NAME_FRENCH_BULLDOG = @"E:\AddSong2\FB.mp4";
-		private const String FILE_NAME_SHIH_TZU = @"E:\AddSong2\ST.mp4";
-		private const String FILE_NAME_MAMESHIBA = @"E:\AddSong2\Mame.mp4";
-		private const String FILE_NAME_YORKSHIRE_TERRIER = @"E:\AddSong2\York.mp4";
-		private const String FILE_NAME_CORGI = @"E:\AddSong2\Corgi.mp4";
-		private const String FILE_NAME_GOLDEN_RETRIEVER = @"E:\AddSong2\GR.mp4";
-		private const String FILE_NAME_IRIS2 = @"E:\AddSong2\Kaki.mp4";
-		private const String FILE_NAME_COMMON_SNAPDRAGON = @"E:\AddSong2\CSD.mp4";
+		// --------------------------------------------------------------------
+		// アニメスタジオ C
+		// --------------------------------------------------------------------
+		private NameAndRuby MakerAnimeC()
+		{
+			return new NameAndRuby("アニメスタジオC", "アニメスタジオシー");
+		}
+
+		// --------------------------------------------------------------------
+		// ゲームスタジオ B
+		// --------------------------------------------------------------------
+		private NameAndRuby MakerGameB()
+		{
+			return new NameAndRuby("ゲームスタジオB", "ゲームスタジオビー");
+		}
+
+		// --------------------------------------------------------------------
+		// たくさんスタジオ A
+		// --------------------------------------------------------------------
+		private NameAndRuby MakerTakusanA()
+		{
+			return new NameAndRuby("たくさんスタジオA", "タクサンスタジオエー");
+		}
+
+		// --------------------------------------------------------------------
+		// たくさんゲーム C
+		// --------------------------------------------------------------------
+		private NameAndRuby MakerTakusanC()
+		{
+			return new NameAndRuby("たくさんゲームC", "たくさんゲームシー");
+		}
+
+		// --------------------------------------------------------------------
+		// 花がたくさん
+		// --------------------------------------------------------------------
+		private NameAndRuby TieUpHanagaTakusan()
+		{
+			return new NameAndRuby("花がたくさん", "ハナガタクサン");
+		}
+
+		// --------------------------------------------------------------------
+		// 花花花花
+		// --------------------------------------------------------------------
+		private NameAndRuby TieUpHanaHana()
+		{
+			return new NameAndRuby("花花花花", "ハナハナハナハナ");
+		}
+
+		// --------------------------------------------------------------------
+		// 犬がいっぱい
+		// --------------------------------------------------------------------
+		private NameAndRuby TieUpInugaIppai()
+		{
+			return new NameAndRuby("犬がいっぱい", "イヌガイッパイ");
+		}
+
+		// --------------------------------------------------------------------
+		// 犬がたくさん
+		// --------------------------------------------------------------------
+		private NameAndRuby TieUpInugaTakusan()
+		{
+			return new NameAndRuby("犬がたくさん", "イヌガタクサン");
+		}
+
+		// --------------------------------------------------------------------
+		// 家電
+		// --------------------------------------------------------------------
+		private NameAndRuby TieUpKaden()
+		{
+			return new NameAndRuby("家電", "カデン");
+		}
 	}
 }

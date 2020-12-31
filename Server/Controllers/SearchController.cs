@@ -145,7 +145,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					}
 
 					// 制作会社
-					String[] makers = SplitKeyword(searchWord.Maker);
+					String[] makers = SplitKeyword(searchWord.MakerName);
 					for (Int32 i = 0; i < makers.Length; i++)
 					{
 						searchResults = SearchByMaker(searchResults, makers[i]);
@@ -166,6 +166,8 @@ namespace YukariBlazorDemo.Server.Controllers
 					}
 				}
 				numResults = searchResults.Count();
+
+				// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
 				results = SortSearchResult(searchResults, searchWord.Sort).Skip(YbdConstants.PAGE_SIZE * searchWord.Page).Take(YbdConstants.PAGE_SIZE).ToArray();
 				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
 			}
@@ -202,12 +204,16 @@ namespace YukariBlazorDemo.Server.Controllers
 		private IQueryable<AvailableSong> SearchByAnyWord(IQueryable<AvailableSong> records, String word)
 		{
 			// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
-			// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
+			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
 			return records.Where(x => EF.Functions.Like(x.Path, $"%{word}%")
 					|| EF.Functions.Like(x.SongName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.SongRuby, $"%{ruby}%")
 					|| EF.Functions.Like(x.TieUpName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.TieUpRuby, $"%{ruby}%")
 					|| EF.Functions.Like(x.ArtistName, $"%{word}%")
-					|| EF.Functions.Like(x.Maker, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.ArtistRuby, $"%{ruby}%")
+					|| EF.Functions.Like(x.MakerName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.MakerRuby, $"%{ruby}%")
 					|| EF.Functions.Like(x.Worker, $"%{word}%"));
 		}
 
@@ -216,7 +222,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SearchByArtistName(IQueryable<AvailableSong> records, String word)
 		{
-			return records.Where(x => EF.Functions.Like(x.ArtistName, $"%{word}%"));
+			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
+			return records.Where(x => EF.Functions.Like(x.ArtistName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.ArtistRuby, $"%{ruby}%"));
 		}
 
 		// --------------------------------------------------------------------
@@ -224,7 +232,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SearchByMaker(IQueryable<AvailableSong> records, String word)
 		{
-			return records.Where(x => EF.Functions.Like(x.Maker, $"%{word}%"));
+			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
+			return records.Where(x => EF.Functions.Like(x.MakerName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.MakerRuby, $"%{ruby}%"));
 		}
 
 		// --------------------------------------------------------------------
@@ -240,7 +250,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SearchBySongName(IQueryable<AvailableSong> records, String word)
 		{
-			return records.Where(x => EF.Functions.Like(x.SongName, $"%{word}%"));
+			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
+			return records.Where(x => EF.Functions.Like(x.SongName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.SongRuby, $"%{ruby}%"));
 		}
 
 		// --------------------------------------------------------------------
@@ -248,7 +260,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SearchByTieUpName(IQueryable<AvailableSong> records, String word)
 		{
-			return records.Where(x => EF.Functions.Like(x.TieUpName, $"%{word}%"));
+			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
+			return records.Where(x => EF.Functions.Like(x.TieUpName, $"%{word}%")
+					|| isRuby && EF.Functions.Like(x.TieUpRuby, $"%{ruby}%"));
 		}
 
 		// --------------------------------------------------------------------

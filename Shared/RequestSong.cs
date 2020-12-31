@@ -53,7 +53,7 @@ namespace YukariBlazorDemo.Shared
 		public String ArtistName { get; set; } = String.Empty;
 
 		// 制作会社
-		public String Maker { get; set; } = String.Empty;
+		public String MakerName { get; set; } = String.Empty;
 
 		// 動画制作者
 		public String Worker { get; set; } = String.Empty;

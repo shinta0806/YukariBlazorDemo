@@ -28,7 +28,7 @@ namespace YukariBlazorDemo.Shared
 		String ArtistName { get; set; }
 
 		// 制作会社
-		String Maker { get; set; }
+		String MakerName { get; set; }
 
 		// 動画制作者
 		String Worker { get; set; }

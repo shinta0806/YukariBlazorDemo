@@ -108,10 +108,10 @@ namespace YukariBlazorDemo.Shared
 		}
 
 		// 詳細条件：制作会社
-		public String Maker
+		public String MakerName
 		{
-			get => DetailValues[(Int32)SearchDetailCondition.Maker];
-			set => DetailValues[(Int32)SearchDetailCondition.Maker] = value;
+			get => DetailValues[(Int32)SearchDetailCondition.MakerName];
+			set => DetailValues[(Int32)SearchDetailCondition.MakerName] = value;
 		}
 
 		// 詳細条件：動画制作者
@@ -189,7 +189,7 @@ namespace YukariBlazorDemo.Shared
 					break;
 				case SearchWordType.Detail:
 					if (String.IsNullOrEmpty(Path) && String.IsNullOrEmpty(SongName) && String.IsNullOrEmpty(TieUpName) && String.IsNullOrEmpty(ArtistName)
-							&& String.IsNullOrEmpty(Maker) && String.IsNullOrEmpty(Worker))
+							&& String.IsNullOrEmpty(MakerName) && String.IsNullOrEmpty(Worker))
 					{
 						valid = false;
 						errorMessage = "詳細検索の条件を入力してください。";
