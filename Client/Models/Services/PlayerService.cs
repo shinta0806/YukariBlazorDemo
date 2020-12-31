@@ -48,15 +48,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<RequestSong?> GetPlayingSongAsync()
 		{
-			RequestSong? playingSong = null;
-			try
-			{
-				playingSong = await HttpClient.GetFromJsonAsync<RequestSong?>(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAYING);
-			}
-			catch (Exception)
-			{
-			}
-			return playingSong;
+			return await HttpClient.GetFromJsonAsync<RequestSong?>(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAYING);
 		}
 
 		// --------------------------------------------------------------------

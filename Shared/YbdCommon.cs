@@ -42,6 +42,18 @@ namespace YukariBlazorDemo.Shared
 		}
 
 		// --------------------------------------------------------------------
+		// クエリパラメーターからページを取得する
+		// クエリパラメーターでは 1 ベースだが、取得時は 0 ベースとなる
+		// 例）page=2 からは 1 が取得される
+		// --------------------------------------------------------------------
+		public static Int32 GetPageFromQueryParameters(Dictionary<String, String> parameters)
+		{
+			parameters.TryGetValue(YbdConstants.SEARCH_PARAM_NAME_PAGE, out String? paramValue);
+			Int32.TryParse(paramValue, out Int32 paramValueNum);
+			return Math.Max(paramValueNum - 1, 0);
+		}
+
+		// --------------------------------------------------------------------
 		// フリガナのみの文字列かどうか
 		// 返値が true の場合、ruby には正規化されたルビが格納される
 		// --------------------------------------------------------------------

@@ -178,7 +178,7 @@ else
 	{
 		try
 		{
-			if (!String.IsNullOrEmpty(prevQuery) && prevQuery != Query)
+			if (initialized && prevQuery != Query)
 			{
 				// 疑似タブクリックにより検索条件が変更されたため再度検索
 				await SearchAsync();

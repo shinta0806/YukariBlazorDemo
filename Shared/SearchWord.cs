@@ -45,6 +45,7 @@ namespace YukariBlazorDemo.Shared
 			}
 
 			Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(query);
+			Page = YbdCommon.GetPageFromQueryParameters(parameters);
 			foreach (KeyValuePair<String, String> param in parameters)
 			{
 				String paramName = param.Key;
@@ -57,11 +58,6 @@ namespace YukariBlazorDemo.Shared
 				{
 					Int32.TryParse(paramValue, out Int32 paramValueNum);
 					Sort = (SearchResultSort)Math.Clamp(paramValueNum, 0, (Int32)(SearchResultSort.__End__) - 1);
-				}
-				else if (paramName == YbdConstants.SEARCH_PARAM_NAME_PAGE)
-				{
-					Int32.TryParse(paramValue, out Int32 paramValueNum);
-					Page = Math.Max(paramValueNum - 1, 0);
 				}
 				else
 				{

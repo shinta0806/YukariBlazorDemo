@@ -32,6 +32,9 @@ namespace YukariBlazorDemo.Server.Misc
 		// 予約可能曲データベース
 		public const String FILE_NAME_AVAILABLE_SONGS = "AvailableSongs.sqlite3";
 
+		// 予約された曲データベース
+		public const String FILE_NAME_REQUEST_SONGS = "RequestSongs.sqlite3";
+
 		// --------------------------------------------------------------------
 		// MimeType
 		// --------------------------------------------------------------------

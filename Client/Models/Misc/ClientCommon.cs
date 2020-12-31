@@ -154,15 +154,14 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// --------------------------------------------------------------------
 		private static String AddPageParameter(String baseUrl, Int32 page)
 		{
-			if (baseUrl.IndexOf('?') >= 0 || baseUrl.IndexOf('=') >= 0)
+			if (page != 0)
 			{
-				baseUrl += '&';
+				if (baseUrl.IndexOf('?') >= 0 || baseUrl.IndexOf('=') >= 0)
+				{
+					baseUrl += '&';
+				}
+				baseUrl += YbdConstants.SEARCH_PARAM_NAME_PAGE + "=" + (page + 1).ToString();
 			}
-			else
-			{
-				baseUrl += '?';
-			}
-			baseUrl += YbdConstants.SEARCH_PARAM_NAME_PAGE + "=" + (page + 1).ToString();
 			return baseUrl;
 		}
 

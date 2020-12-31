@@ -62,21 +62,26 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// 予約一覧を取得
 		// --------------------------------------------------------------------
-		public async Task<IEnumerable<RequestSong>> GetRequestSongsAsync()
+		public async Task<(IEnumerable<RequestSong>, Int32)> GetRequestSongsAsync(String? query)
 		{
 			RequestSong[]? songs = null;
-			try
+			Int32 numResults = 0;
+			using HttpResponseMessage response = await HttpClient.GetAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_LIST + query);
+			Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
+			songs = await response.Content.ReadFromJsonAsync<RequestSong[]>();
+			if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
 			{
-				songs = await HttpClient.GetFromJsonAsync<RequestSong[]>(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS);
+				Int32.TryParse(value, out numResults);
 			}
-			catch (Exception)
+			else
 			{
+				numResults = songs?.Length ?? 0;
 			}
 			if (songs == null)
 			{
-				return new RequestSong[0];
+				return (new RequestSong[0], 0);
 			}
-			return songs;
+			return (songs, numResults);
 		}
 
 		// --------------------------------------------------------------------

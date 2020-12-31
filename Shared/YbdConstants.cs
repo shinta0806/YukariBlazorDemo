@@ -75,6 +75,7 @@ namespace YukariBlazorDemo.Shared
 		public const String URL_API = "api/";
 		public const String URL_DELETE_ALL = "deleteall/";
 		public const String URL_ID = "id/";
+		public const String URL_LIST = "list/";
 		public const String URL_NEXT = "next/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
 		public const String URL_PLAYER = "player/";

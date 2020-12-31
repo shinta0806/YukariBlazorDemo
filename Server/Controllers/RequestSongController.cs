@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using System.Text.Json;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
@@ -108,10 +108,12 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 予約一覧を返す
 		// --------------------------------------------------------------------
-		[HttpGet]
-		public IEnumerable<RequestSong> GetRequestSongs()
+		[HttpGet, Route(YbdConstants.URL_LIST + "{query?}")]
+		public IActionResult GetRequestSongs(String? query)
 		{
 			IEnumerable<RequestSong>? results = null;
+			Int32 numResults = 0;
+			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
 				using RequestSongContext requestSongContext = new();
@@ -119,7 +121,14 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
-				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).ToArray();
+
+				Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(query);
+				Int32 page = YbdCommon.GetPageFromQueryParameters(parameters);
+				numResults = requestSongContext.RequestSongs.Count();
+
+				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).Skip(YbdConstants.PAGE_SIZE * page).Take(YbdConstants.PAGE_SIZE).ToArray();
+				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
+				//Debug.WriteLine("GetRequestSongs() lastModified: " + lastModified.ToString("yyyy/MM/dd HH:mm:ss"));
 			}
 			catch (Exception excep)
 			{
@@ -128,9 +137,11 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			if (results == null)
 			{
-				return new RequestSong[0];
+				results = new RequestSong[0];
 			}
-			return results;
+
+			EntityTagHeaderValue eTag = ServerCommon.GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
 
 		// --------------------------------------------------------------------

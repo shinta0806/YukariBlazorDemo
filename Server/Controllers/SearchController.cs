@@ -278,7 +278,6 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private IQueryable<AvailableSong> SortSearchResult(IQueryable<AvailableSong> result, SearchResultSort sort)
 		{
-			Debug.WriteLine("SortSearchResult() " + result.Count());
 			switch (sort)
 			{
 				case SearchResultSort.SongName:
