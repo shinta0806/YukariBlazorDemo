@@ -6,71 +6,92 @@
 
 <h1>予約</h1>
 
-<div class="content">
+@if (initialized)
+{
+	<div class="content">
 
-	<div class="requestform">
-		<EditForm Model="requestSong" OnValidSubmit="OnOK">
+		@if (availableSong != null)
+		{
+			<div class="requestform">
+				<EditForm Model="requestSong" OnValidSubmit="OnOK">
 
-			<DataAnnotationsValidator />
+					<DataAnnotationsValidator />
 
-			<div class="tab-content">
+					<div class="tab-content">
 
-				<table class="input-table">
-					<tr>
-						<td class="input-td">サムネイル</td>
-						<td class="input-td"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.AvailableSongId)" /></td>
-					</tr>
-					<tr>
-						<td class="input-td">曲名</td>
-						<td class="input-td"><div class="req-list-song">@requestSong.SongName</div></td>
-					</tr>
-					<tr>
-						<td class="input-td">タイアップ名</td>
-						<td class="input-td">@requestSong.TieUpName</td>
-					</tr>
-					<tr>
-						<td class="input-td">歌手名</td>
-						<td class="input-td">@requestSong.ArtistName</td>
-					</tr>
-					<tr>
-						<td class="input-td">制作会社</td>
-						<td class="input-td">@requestSong.MakerName</td>
-					</tr>
-					<tr>
-						<td class="input-td">カラオケ動画制作者</td>
-						<td class="input-td">@requestSong.Worker</td>
-					</tr>
-					<tr>
-						<td class="input-td">ファイル名</td>
-						<td class="input-td"><div class="req-list-path">@requestSong.Path</div></td>
-					</tr>
-					<tr>
-						<td class="input-td">予約者</td>
-						<td class="input-td"><input class="input-general" id="user" type="text" @bind="requestSong.User" @ref="inputUser" /></td>
-					</tr>
-					<tr>
-						<td class="input-td">コメント</td>
-						<td class="input-td"><input class="input-general" type="text" @bind="requestSong.Comment" /></td>
-					</tr>
-				</table>
+						<table class="input-table">
+							<tr>
+								<td class="input-td">サムネイル</td>
+								<td class="input-td"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.AvailableSongId)" /></td>
+							</tr>
+							<tr>
+								<td class="input-td">曲名</td>
+								<td class="input-td"><div class="req-list-song">@requestSong.SongName</div></td>
+							</tr>
+							<tr>
+								<td class="input-td">タイアップ名</td>
+								<td class="input-td">@requestSong.TieUpName</td>
+							</tr>
+							<tr>
+								<td class="input-td">歌手名</td>
+								<td class="input-td">@requestSong.ArtistName</td>
+							</tr>
+							<tr>
+								<td class="input-td">制作会社</td>
+								<td class="input-td">@requestSong.MakerName</td>
+							</tr>
+							<tr>
+								<td class="input-td">カラオケ動画制作者</td>
+								<td class="input-td">@requestSong.Worker</td>
+							</tr>
+							<tr>
+								<td class="input-td">ファイル名</td>
+								<td class="input-td"><div class="req-list-path">@requestSong.Path</div></td>
+							</tr>
+							<tr>
+								<td class="input-td">予約者</td>
+								<td class="input-td">
+									<select class="title_list" id="Title" name="Title" @bind="requestSong.User">
+										<option value="">選択してください</option>
+										<option value="a">a</option>
+										<option value="b">b</option>
+										<option value="c">c</option>
+									</select>
+									<input id="user" type="text" @bind="requestSong.User" @ref="inputUser" />
+								</td>
+							</tr>
+							<tr>
+								<td class="input-td">コメント</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="requestSong.Comment" /></td>
+							</tr>
+						</table>
+
+					</div>
+
+					<div class="actions">
+						<button class="default-button">予約</button>
+					</div>
+
+					<div class="error-message">
+						<ValidationSummary></ValidationSummary>
+					</div>
+
+				</EditForm>
+
+				<div>@requestResult</div>
 
 			</div>
-
-			<div class="actions">
-				<button class="default-button">予約</button>
-			</div>
-
-			<div class="error-message">
-				<ValidationSummary></ValidationSummary>
-			</div>
-
-		</EditForm>
-
-		<div>@requestResult</div>
-
+		}
+		else
+		{
+			<div>予約対象の曲がありません。予約をやり直してください。</div>
+		}
 	</div>
-
-</div>
+}
+else
+{
+	<div class="loading">Loading...</div>
+}
 
 @code {
 
@@ -93,9 +114,10 @@
 	{
 		try
 		{
-			if (firstRender)
+			if (initialized && availableSong != null && !focused)
 			{
 				await inputUser.FocusAsync();
+				focused = true;
 			}
 		}
 		catch (Exception excep)
@@ -112,6 +134,8 @@
 		try
 		{
 			availableSong = await SearchService.SearchByIdAsync(AvailableSongId);
+			initialized = true;
+
 			if (availableSong == null)
 			{
 				return;
@@ -129,6 +153,10 @@
 	// private 変数
 	// ====================================================================
 
+	// OnInitializedAsync() 完了前にも描画されるため、後続で検索結果が来る場合でも少しの間「検索結果 0 件」が表示されてしまう
+	// それを防止するためのフラグ
+	private Boolean initialized;
+
 	// 予約対象の曲の情報（URL パラメーターで指定された元の情報）
 	private AvailableSong? availableSong;
 
@@ -140,6 +168,9 @@
 
 	// 要素参照用
 	private ElementReference inputUser;
+
+	// 多重フォーカス防止用
+	private Boolean focused;
 
 	// ====================================================================
 	// private 関数
