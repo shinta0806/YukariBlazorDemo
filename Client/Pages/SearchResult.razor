@@ -38,58 +38,18 @@
 				<div>予約したい曲をクリックしてください。</div>
 			}
 
-			// 検索方法のアクティブタブ
-			String typeActiveTab = TAB_LABEL_ALL;
-			String typeActiveKeyword = String.Empty;
-			if (searchWord.IsValid(out String? errorMessage))
-			{
-				if (searchWord.Type == SearchWordType.AnyWord)
-				{
-					typeActiveKeyword = searchWord.AnyWord;
-				}
-				else
-				{
-					Int32 numConditions = searchWord.DetailValues.Where(x => x != String.Empty).Count();
-					if (numConditions == 1)
-					{
-						if (!String.IsNullOrEmpty(searchWord.SongName))
-						{
-							typeActiveTab = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName];
-							typeActiveKeyword = searchWord.SongName;
-						}
-						else if (!String.IsNullOrEmpty(searchWord.TieUpName))
-						{
-							typeActiveTab = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName];
-							typeActiveKeyword = searchWord.TieUpName;
-						}
-						else if (!String.IsNullOrEmpty(searchWord.ArtistName))
-						{
-							typeActiveTab = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.ArtistName];
-							typeActiveKeyword = searchWord.ArtistName;
-						}
-						else
-						{
-							typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
-						}
-					}
-					else
-					{
-						typeActiveKeyword = searchWord.DetailValues.Where(x => x != String.Empty).First();
-					}
-				}
-			}
-
 			// 検索方法疑似タブ
+			String typeActiveTab;
 			TabItem[] typeTabItems =
 			{
-				new TabItem(TAB_LABEL_ALL,
-						"/searchresult/" + YbdConstants.SEARCH_PARAM_NAME_ANY_WORD + "=" + Uri.EscapeDataString(typeActiveKeyword)),
-				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName],
-						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.SongName] + "=" + Uri.EscapeDataString(typeActiveKeyword)),
+				new TabItem(YbdConstants.SEARCH_ANY_WORD_CONDITION_NAME, 
+						"/searchresult/" + searchWord.ChangeType(SearchWordType.AnyWord, 0, out typeActiveTab)),
+				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName], 
+						"/searchresult/" + searchWord.ChangeType(SearchWordType.Detail, SearchDetailCondition.SongName, out typeActiveTab)),
 				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName],
-						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.TieUpName] + "=" + Uri.EscapeDataString(typeActiveKeyword)),
+						"/searchresult/" + searchWord.ChangeType(SearchWordType.Detail, SearchDetailCondition.TieUpName, out typeActiveTab)),
 				new TabItem(YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.ArtistName],
-						"/searchresult/" + YbdConstants.SEARCH_DETAIL_PARAM_NAMES[(Int32)SearchDetailCondition.ArtistName] + "=" + Uri.EscapeDataString(typeActiveKeyword)),
+						"/searchresult/" + searchWord.ChangeType(SearchWordType.Detail, SearchDetailCondition.ArtistName, out typeActiveTab)),
 			};
 			@((MarkupString)ClientCommon.GenerateTabHeader(typeTabItems, typeActiveTab))
 
@@ -194,9 +154,6 @@ else
 	// ====================================================================
 	// private 定数
 	// ====================================================================
-
-	// 検索方法疑似タブのラベル
-	private const String TAB_LABEL_ALL = "すべて";
 
 	// ====================================================================
 	// private 変数

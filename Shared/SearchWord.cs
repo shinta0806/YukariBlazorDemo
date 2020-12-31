@@ -149,6 +149,64 @@ namespace YukariBlazorDemo.Shared
 		}
 
 		// --------------------------------------------------------------------
+		// 検索方法を変更したインスタンスを返す
+		// --------------------------------------------------------------------
+		public SearchWord ChangeType(SearchWordType type, SearchDetailCondition detailCondition, out String activeCondition)
+		{
+			activeCondition = YbdConstants.SEARCH_ANY_WORD_CONDITION_NAME;
+
+			// 既存の検索キーワードを確認
+			String activeKeyword;
+			if (Type == SearchWordType.AnyWord)
+			{
+				activeKeyword = AnyWord;
+			}
+			else
+			{
+				Int32 numConditions = DetailValues.Where(x => x != String.Empty).Count();
+				if (numConditions == 1)
+				{
+					if (!String.IsNullOrEmpty(SongName))
+					{
+						activeCondition = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.SongName];
+						activeKeyword = SongName;
+					}
+					else if (!String.IsNullOrEmpty(TieUpName))
+					{
+						activeCondition = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.TieUpName];
+						activeKeyword = TieUpName;
+					}
+					else if (!String.IsNullOrEmpty(ArtistName))
+					{
+						activeCondition = YbdConstants.SEARCH_DETAIL_CONDITION_NAMES[(Int32)SearchDetailCondition.ArtistName];
+						activeKeyword = ArtistName;
+					}
+					else
+					{
+						activeKeyword = DetailValues.Where(x => x != String.Empty).First();
+					}
+				}
+				else
+				{
+					activeKeyword = DetailValues.Where(x => x != String.Empty).First();
+				}
+			}
+
+			SearchWord change = this.DeepCopy();
+			change.Type = type;
+			change.InitDetailValues();
+			if (change.Type == SearchWordType.AnyWord)
+			{
+				change.AnyWord = activeKeyword;
+			}
+			else
+			{
+				change.DetailValues[(Int32)detailCondition] = activeKeyword;
+			}
+			return change;
+		}
+
+		// --------------------------------------------------------------------
 		// 詳細コピー
 		// --------------------------------------------------------------------
 		public SearchWord DeepCopy()

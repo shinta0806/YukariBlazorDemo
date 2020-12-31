@@ -92,6 +92,9 @@ namespace YukariBlazorDemo.Shared
 		// 検索関連
 		// --------------------------------------------------------------------
 
+		// AnyWord に対応する名称
+		public const String SEARCH_ANY_WORD_CONDITION_NAME = "すべて";
+
 		// SearchDetailCondition に対応する名称
 		public static readonly String[] SEARCH_DETAIL_CONDITION_NAMES = { "曲名", "タイアップ名", "歌手名", "制作会社", "カラオケ動画制作者", "ファイル名" };
 
