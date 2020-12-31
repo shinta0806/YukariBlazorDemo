@@ -99,7 +99,15 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		protected StatusCodeResult NotModified()
 		{
-			return StatusCode(304);
+			return StatusCode(STATUS_CODE_NOT_MODIFIED);
 		}
+
+		// ====================================================================
+		// private メンバー定数
+		// ====================================================================
+
+		// Not Modified
+		private const Int32 STATUS_CODE_NOT_MODIFIED = 304;
+
 	}
 }

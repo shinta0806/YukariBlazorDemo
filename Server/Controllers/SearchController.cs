@@ -10,6 +10,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -103,6 +104,13 @@ namespace YukariBlazorDemo.Server.Controllers
 			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
+				// キャッシュチェック
+				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
+				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					return NotModified();
+				}
+
 				SearchWord searchWord = new SearchWord(query);
 				if (!searchWord.IsValid(out String? errorMessage))
 				{
@@ -173,7 +181,6 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
 				results = SortSearchResult(searchResults, searchWord.Sort).Skip(YbdConstants.PAGE_SIZE * searchWord.Page).Take(YbdConstants.PAGE_SIZE).ToArray();
-				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
 			}
 			catch (Exception excep)
 			{
