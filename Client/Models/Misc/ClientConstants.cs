@@ -21,10 +21,6 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// public 定数
 		// ====================================================================
 
-		// API 状態取得
-		public const String API_STATUS_ERROR_CANNOT_GET = "状態を取得できません。";
-		public const String API_STATUS_ERROR_CANNOT_CONNECT = "サーバーと通信できません。";
-
 		// インライン Loading の div タグ（"|" は砂時計を上下中央に配置するため）
 		public const String DIV_MINI_LOADING = "<div class='miniloading'>|</div>";
 

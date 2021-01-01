@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using YukariBlazorDemo.Client.Models.Misc;
@@ -47,9 +48,18 @@ namespace YukariBlazorDemo.Client.Models.Services
 			{
 				result = await HttpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
 			}
-			catch (Exception)
+			catch (JsonException)
 			{
+				// 存在しない ID が指定された場合（ユーザーが URL を書き換えた場合など）はサーバー側で null を返し、JSON 化できないため JsonException 例外となる
+				// クライアント側には null を返す
 			}
+#if DEBUG
+			Test++;
+			if (result != null)
+			{
+				result.SongName += "DEBUG " + Test;
+			}
+#endif
 			return result;
 		}
 
@@ -60,6 +70,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			return await GetArrayAsync<AvailableSong>(YbdConstants.URL_WORD, query);
 		}
+
+#if DEBUG
+		public Int32 Test { get; set; }
+#endif
 
 	}
 }

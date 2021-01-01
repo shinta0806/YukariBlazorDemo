@@ -59,12 +59,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + BaseUrl + YbdConstants.URL_STATUS);
 				if (status == null)
 				{
-					status = ClientConstants.API_STATUS_ERROR_CANNOT_GET;
+					status = API_STATUS_ERROR_CANNOT_GET;
 				}
 			}
 			catch (Exception)
 			{
-				status = ClientConstants.API_STATUS_ERROR_CANNOT_CONNECT;
+				status = API_STATUS_ERROR_CANNOT_CONNECT;
 			}
 			return status;
 		}
@@ -97,6 +97,15 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			return (results, numResults);
 		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// API 状態取得
+		private const String API_STATUS_ERROR_CANNOT_GET = "状態を取得できません。";
+		private const String API_STATUS_ERROR_CANNOT_CONNECT = "サーバーと通信できません。";
+
 
 	}
 }
