@@ -11,7 +11,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using YukariBlazorDemo.Shared;
+
+using YukariBlazorDemo.Shared.Authorization;
 
 namespace YukariBlazorDemo.Server.Database
 {

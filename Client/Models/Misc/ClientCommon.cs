@@ -16,7 +16,8 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Database;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Client.Models.Misc
 {

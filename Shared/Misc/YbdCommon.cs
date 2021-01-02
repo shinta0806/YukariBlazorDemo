@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace YukariBlazorDemo.Shared
+namespace YukariBlazorDemo.Shared.Misc
 {
 	public class YbdCommon
 	{

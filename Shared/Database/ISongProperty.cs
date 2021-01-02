@@ -10,7 +10,7 @@
 
 using System;
 
-namespace YukariBlazorDemo.Shared
+namespace YukariBlazorDemo.Shared.Database
 {
 	public interface ISongProperty
 	{

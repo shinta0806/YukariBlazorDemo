@@ -9,14 +9,16 @@
 // ----------------------------------------------------------------------------
 
 using Blazored.LocalStorage;
+
 using Microsoft.AspNetCore.Components.Authorization;
+
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using YukariBlazorDemo.Client.Models.Services;
-using YukariBlazorDemo.Shared;
+
+using YukariBlazorDemo.Shared.Authorization;
 
 namespace YukariBlazorDemo.Client.Models.Authorization
 {

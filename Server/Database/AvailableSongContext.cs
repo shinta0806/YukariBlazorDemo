@@ -12,7 +12,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 using YukariBlazorDemo.Server.Misc;
-using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Database;
 
 namespace YukariBlazorDemo.Server.Database
 {

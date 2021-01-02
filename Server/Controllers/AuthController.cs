@@ -13,17 +13,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
+
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
-using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Authorization;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {

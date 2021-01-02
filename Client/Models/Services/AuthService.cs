@@ -17,7 +17,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using YukariBlazorDemo.Client.Models.Authorization;
-using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Authorization;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Client.Models.Services
 {

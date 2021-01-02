@@ -16,7 +16,8 @@ using System.Linq;
 
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
-using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Database;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {

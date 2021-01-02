@@ -10,7 +10,7 @@
 
 using System;
 
-namespace YukariBlazorDemo.Shared
+namespace YukariBlazorDemo.Shared.Misc
 {
 	// ====================================================================
 	// public 列挙子

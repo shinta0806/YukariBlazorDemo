@@ -11,7 +11,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace YukariBlazorDemo.Shared
+namespace YukariBlazorDemo.Shared.Authorization
 {
 	public class LoginInfo
 	{

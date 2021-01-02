@@ -13,10 +13,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using System.Web;
 
-namespace YukariBlazorDemo.Shared
+using YukariBlazorDemo.Shared.Database;
+
+namespace YukariBlazorDemo.Shared.Misc
 {
 	public class SearchWord : ISongProperty
 	{

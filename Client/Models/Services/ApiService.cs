@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Client.Models.Services
 {

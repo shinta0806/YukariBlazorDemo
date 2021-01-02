@@ -11,8 +11,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using YukariBlazorDemo.Shared.Misc;
 
-namespace YukariBlazorDemo.Shared
+namespace YukariBlazorDemo.Shared.Database
 {
 	[Table("t_request_song")]
 	public class RequestSong : ISongProperty

@@ -1,23 +1,24 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
+
 using YukariBlazorDemo.Server.Controllers;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
-using YukariBlazorDemo.Shared;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using YukariBlazorDemo.Shared.Database;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server
 {
@@ -68,8 +69,6 @@ namespace YukariBlazorDemo.Server
 				app.UseHsts();
 			}
 
-			app.UseAuthentication();
-
 			app.UseHttpsRedirection();
 			app.UseBlazorFrameworkFiles();
 			app.UseStaticFiles();
@@ -78,6 +77,7 @@ namespace YukariBlazorDemo.Server
 
 			// UseAuthorization() ‚Í UseRouting() ‚Æ UseEndpoints() ‚ÌŠÔ‚É‚¢‚È‚¢‚Æ‚¢‚¯‚È‚¢‚ç‚µ‚¢
 			app.UseAuthorization();
+			app.UseAuthentication();
 
 			app.UseEndpoints(endpoints =>
 			{

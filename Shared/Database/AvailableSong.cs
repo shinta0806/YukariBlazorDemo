@@ -12,7 +12,9 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace YukariBlazorDemo.Shared
+using YukariBlazorDemo.Shared.Misc;
+
+namespace YukariBlazorDemo.Shared.Database
 {
 	[Table("t_available_song")]
 	public class AvailableSong : ISongProperty

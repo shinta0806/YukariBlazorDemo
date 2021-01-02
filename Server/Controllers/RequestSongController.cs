@@ -9,7 +9,6 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 using System;
@@ -20,7 +19,8 @@ using System.Text.Json;
 
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
-using YukariBlazorDemo.Shared;
+using YukariBlazorDemo.Shared.Database;
+using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
