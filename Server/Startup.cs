@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -15,6 +16,8 @@ using YukariBlazorDemo.Server.Controllers;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace YukariBlazorDemo.Server
 {
@@ -31,9 +34,23 @@ namespace YukariBlazorDemo.Server
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			services.AddControllersWithViews();
 			services.AddRazorPages();
+
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuer = true,
+					ValidateAudience = false,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = "MyIssuer",
+					//ValidAudience = "MyIssuer",
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_KEY))
+				};
+			});
+			//services.AddScoped<IAuthService, JwtAuthService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,11 +68,16 @@ namespace YukariBlazorDemo.Server
 				app.UseHsts();
 			}
 
+			app.UseAuthentication();
+
 			app.UseHttpsRedirection();
 			app.UseBlazorFrameworkFiles();
 			app.UseStaticFiles();
 
 			app.UseRouting();
+
+			// UseAuthorization() ÇÕ UseRouting() Ç∆ UseEndpoints() ÇÃä‘Ç…Ç¢Ç»Ç¢Ç∆Ç¢ÇØÇ»Ç¢ÇÁÇµÇ¢
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{
@@ -320,6 +342,10 @@ namespace YukariBlazorDemo.Server
 			// ó\ñÒàÍóó
 			using RequestSongContext requestSongContext = new();
 			requestSongContext.Database.EnsureCreated();
+
+			// ìoò^ÉÜÅ[ÉUÅ[
+			using RegisteredUserContext registeredUserContext = new();
+			registeredUserContext.Database.EnsureCreated();
 		}
 
 		// --------------------------------------------------------------------

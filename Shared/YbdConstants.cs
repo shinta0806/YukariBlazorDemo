@@ -72,15 +72,20 @@ namespace YukariBlazorDemo.Shared
 		// API URL
 		// --------------------------------------------------------------------
 
+		public const String URL_ADD = "add/";
 		public const String URL_API = "api/";
+		public const String URL_AUTH = "auth/";
 		public const String URL_DELETE_ALL = "deleteall/";
 		public const String URL_ID = "id/";
+		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";
 		public const String URL_LIST = "list/";
+		public const String URL_LOGIN_INFO = "logininfo";
 		public const String URL_NEXT = "next/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
 		public const String URL_PLAYER = "player/";
 		public const String URL_PLAYING = "playing/";
 		public const String URL_PREV = "prev/";
+		public const String URL_PUBLIC_USER_INFO = "publicuserinfo";
 		public const String URL_REQUEST = "request/";
 		public const String URL_REQUEST_SONGS = "requestsongs/";
 		public const String URL_SEARCH = "search/";
@@ -119,5 +124,16 @@ namespace YukariBlazorDemo.Shared
 
 		// 結果の数パラメーター
 		public const String RESULT_PARAM_NAME_COUNT = "count";
+
+		// --------------------------------------------------------------------
+		// 認証関連
+		// --------------------------------------------------------------------
+
+		// 管理者の名前
+		public const String ADMIN_NAME = "admin";
+
+		// ID とトークンの区切り（Base64URL とピリオド以外の文字）
+		public const String TOKEN_DELIM = ",";
+
 	}
 }

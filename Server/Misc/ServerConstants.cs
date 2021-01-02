@@ -23,6 +23,8 @@ namespace YukariBlazorDemo.Server.Misc
 		// --------------------------------------------------------------------
 		// フォルダー名
 		// --------------------------------------------------------------------
+
+		// サムネイル画像
 		public const String FOLDER_NAME_SAMPLE_DATA_IMAGES = "SampleDataImages\\";
 
 		// --------------------------------------------------------------------
@@ -30,10 +32,20 @@ namespace YukariBlazorDemo.Server.Misc
 		// --------------------------------------------------------------------
 
 		// 予約可能曲データベース
-		public const String FILE_NAME_AVAILABLE_SONGS = "AvailableSongs.sqlite3";
+		public const String FILE_NAME_AVAILABLE_SONGS = "AvailableSongs" + FILE_EXT_SQLITE3;
 
 		// 予約された曲データベース
-		public const String FILE_NAME_REQUEST_SONGS = "RequestSongs.sqlite3";
+		public const String FILE_NAME_REQUEST_SONGS = "RequestSongs" + FILE_EXT_SQLITE3;
+
+		// 登録ユーザーデータベース
+		public const String FILE_NAME_REGISTERED_USERS = "RegisteredUsers" + FILE_EXT_SQLITE3;
+
+		// --------------------------------------------------------------------
+		// ファイル拡張子
+		// --------------------------------------------------------------------
+
+		// SQLite3
+		public const String FILE_EXT_SQLITE3 = ".sqlite3";
 
 		// --------------------------------------------------------------------
 		// MimeType
@@ -58,5 +70,14 @@ namespace YukariBlazorDemo.Server.Misc
 		// 日付が指定されていない場合の修正ユリウス日
 		public static readonly Double INVALID_MJD = ServerCommon.DateTimeToModifiedJulianDate(INVALID_DATE);
 
+		// --------------------------------------------------------------------
+		// 認証
+		// --------------------------------------------------------------------
+
+		// トークン生成用の秘密鍵
+		public const String TOKEN_KEY = "MySecretKey12345678901234567890123456789012";
+
+		// 発行者名
+		public const String TOKEN_ISSUER = "MyIssuer";
 	}
 }

@@ -1,6 +1,6 @@
 ﻿@page "/admin"
+@inject AuthService AuthService
 @inject IJSRuntime JSRuntime
-@inject NavigationManager NavigationManager
 @inject PlayerService PlayerService
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
@@ -24,6 +24,10 @@
 			<tr>
 				<td class="input-td">予約一覧データベース：</td>
 				<td class="input-td">@((MarkupString)requestStatus)</td>
+			</tr>
+			<tr>
+				<td class="input-td">登録ユーザーデータベース：</td>
+				<td class="input-td">@((MarkupString)userStatus)</td>
 			</tr>
 			<tr>
 				<td class="input-td">Player：</td>
@@ -76,6 +80,7 @@
 			searchStatus = await SearchService.StatusAsync();
 			thumbnailStatus = await ThumbnailService.StatusAsync();
 			requestStatus = await RequestSongService.StatusAsync();
+			userStatus = await AuthService.StatusAsync();
 			playerStatus = await PlayerService.StatusAsync();
 		}
 		catch (Exception)
@@ -95,6 +100,7 @@
 	private String searchStatus = ClientConstants.DIV_MINI_LOADING;
 	private String thumbnailStatus = ClientConstants.DIV_MINI_LOADING;
 	private String requestStatus = ClientConstants.DIV_MINI_LOADING;
+	private String userStatus = ClientConstants.DIV_MINI_LOADING;
 	private String playerStatus = ClientConstants.DIV_MINI_LOADING;
 
 	// 管理作業結果メッセージ

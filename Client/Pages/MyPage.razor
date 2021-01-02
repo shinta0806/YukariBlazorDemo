@@ -1,0 +1,72 @@
+﻿@page "/mypage"
+@inject HttpClient HttpClient
+
+<h3>MyPage</h3>
+
+<div>[status] @status</div>
+<div>[test1] @test</div>
+<div>[test2] @test2</div>
+
+<AuthorizeView>
+	<Authorized>
+		<div>ここはおーそらいずど</div>
+	</Authorized>
+</AuthorizeView>
+
+@code {
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			try
+			{
+				//status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API +YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_STATUS);
+				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_STATUS);
+				if (status == null)
+				{
+					status = "cannot get";
+				}
+			}
+			catch (Exception)
+			{
+				status = "cannot connect";
+			}
+			try
+			{
+				test = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + "test/");
+			}
+			catch (Exception)
+			{
+				test = "cannot connect";
+			}
+			try
+			{
+				test2 = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + "test2/");
+			}
+			catch (Exception)
+			{
+				test2 = "cannot connect";
+			}
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+
+	private LoginInfo? userInfo;
+
+	private String? status;
+
+	private String? test;
+
+	private String? test2;
+
+}

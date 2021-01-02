@@ -10,9 +10,11 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace YukariBlazorDemo.Shared
 {
+	[Table("t_request_song")]
 	public class RequestSong : ISongProperty
 	{
 		// ====================================================================

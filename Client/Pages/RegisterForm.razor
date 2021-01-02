@@ -1,0 +1,135 @@
+﻿@page "/registerform"
+@inject AuthService AuthService
+
+<h1>ユーザー登録</h1>
+
+@if (initialized)
+{
+	<div class="content">
+
+		<div class="requestform">
+
+			<EditForm Model="registerInfo" OnValidSubmit="OnOK">
+
+				<DataAnnotationsValidator />
+
+				<div class="tab-content">
+
+					@if (!isAdminRegistered)
+					{
+						<div>管理者が登録されていないため、管理者を登録します。</div>
+					}
+
+					<table class="input-table">
+						<tr>
+							<td class="input-td">お名前</td>
+							<td class="input-td">
+								@if (isAdminRegistered)
+								{
+									<input class="input-general" type="text" @bind="registerInfo.Name" />
+								}
+								else
+								{
+									<div>@YbdConstants.ADMIN_NAME<span class="supplement">（管理者の名前は @YbdConstants.ADMIN_NAME で固定です）</span></div>
+								}
+							</td>
+						</tr>
+						<tr>
+							<td class="input-td">パスワード</td>
+							<td class="input-td"><input class="input-general" type="text" @bind="registerInfo.Password" /></td>
+						</tr>
+					</table>
+
+				</div>
+
+				<div class="actions">
+					<button class="default-button">登録</button>
+				</div>
+
+				<div class="error-message">
+					<ValidationSummary></ValidationSummary>
+				</div>
+
+			</EditForm>
+
+			<div>@registerResult</div>
+
+		</div>
+
+	</div>
+
+}
+else
+{
+	<div class="loading">Loading...</div>
+}
+
+@code {
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			isAdminRegistered = await AuthService.IsAdminRegistered();
+			if (!isAdminRegistered)
+			{
+				registerInfo.Name = YbdConstants.ADMIN_NAME;
+			}
+			initialized = true;
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// OnInitializedAsync() 完了前にも描画されるため、後続で予約一覧が来る場合でも少しの間「予約がありません」が表示されてしまう
+	// それを防止するためのフラグ
+	private Boolean initialized;
+
+	// 管理者が登録されているか
+	private Boolean isAdminRegistered;
+
+	// 登録情報
+	private LoginInfo registerInfo = new();
+
+	// 登録結果
+	private String? registerResult;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 有効な状態で登録ボタンクリック
+	// --------------------------------------------------------------------
+	private async Task OnOK()
+	{
+		try
+		{
+			HttpResponseMessage message = await AuthService.AddUserAsync(registerInfo);
+			if (!message.IsSuccessStatusCode)
+			{
+				registerResult = "登録できませんでした。やり直してください。";
+				StateHasChanged();
+				return;
+			}
+			NavigationManager.NavigateTo("/mypage");
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+}
