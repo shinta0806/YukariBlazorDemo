@@ -40,6 +40,12 @@
 
 		</EditForm>
 
+		<form>
+			<div class="actions">
+				<button class="general-button" type="button" @onclick="OnClickLogout">ログアウト</button>
+			</div>
+		</form>
+
 	</div>
 
 </div>
@@ -53,9 +59,34 @@
 	// ログインのために入力するユーザー情報
 	private LoginInfo loginInfo = new();
 
+	// 操作結果
+	private String? result;
+
 	// ====================================================================
 	// private 関数
 	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// ログアウトボタンクリック
+	// --------------------------------------------------------------------
+	private async void OnClickLogout()
+	{
+		try
+		{
+			HttpResponseMessage message = await AuthService.LogoutAsync();
+			if (!message.IsSuccessStatusCode)
+			{
+				result = "ログアウトできませんでした。やり直してください。";
+				StateHasChanged();
+				return;
+			}
+			NavigationManager.NavigateTo("/");
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
 
 	// --------------------------------------------------------------------
 	// 有効な状態で検索ボタンクリック

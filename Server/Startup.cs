@@ -75,9 +75,11 @@ namespace YukariBlazorDemo.Server
 
 			app.UseRouting();
 
-			// UseAuthorization() は UseRouting() と UseEndpoints() の間にいないといけないらしい
-			app.UseAuthorization();
+			// UseAuthentication() は UseAuthorization() より先に呼ばないといけないらしい（後で呼ぶと API コール時に 401 になる）
 			app.UseAuthentication();
+
+			// UseAuthorization() は UseRouting() と UseEndpoints() の間にいないといけない（範囲外だとコンソールにサジェストが出る）
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

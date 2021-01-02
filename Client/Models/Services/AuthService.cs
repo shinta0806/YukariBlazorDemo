@@ -67,16 +67,16 @@ namespace YukariBlazorDemo.Client.Models.Services
 			return response;
 		}
 
-#if false
 		// --------------------------------------------------------------------
-		// 認証状態のユーザーのログイン情報を取得
-		// ただしパスワードは取得できない
+		// ログアウト
+		// 返却される HttpResponseMessage は呼びだし元で Dispose() が必要
 		// --------------------------------------------------------------------
-		public async Task<LoginInfo?> GetLoginInfoAsync()
+		public async Task<HttpResponseMessage> LogoutAsync()
 		{
-			return await HttpClient.GetFromJsonAsync<LoginInfo>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGIN_INFO);
+			HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGOUT, 0);
+			await SetStateLogoutAsync();
+			return response;
 		}
-#endif
 
 		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得
@@ -145,6 +145,20 @@ namespace YukariBlazorDemo.Client.Models.Services
 			return true;
 		}
 
+		// --------------------------------------------------------------------
+		// ログアウト状態にする
+		// --------------------------------------------------------------------
+		private async Task<Boolean> SetStateLogoutAsync()
+		{
+			// 状態設定
+			YbdAuthenticationStateProvider? stateProvider = AuthenticationStateProvider as YbdAuthenticationStateProvider;
+			if (stateProvider == null)
+			{
+				return false;
+			}
+			await stateProvider.SetStateLogoutAsync();
+			return true;
+		}
 
 
 
@@ -160,10 +174,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			return "DummyToken";
 		}
 
-		public async Task LogoutAsync()
-		{
-			await Task.Delay(500);
-		}
+
 
 	}
 }

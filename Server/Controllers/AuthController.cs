@@ -185,6 +185,25 @@ namespace YukariBlazorDemo.Server.Controllers
 		// API（一般）【要認証】
 		// ====================================================================
 
+		// --------------------------------------------------------------------
+		// ログアウト時のサーバー側の処理
+		// --------------------------------------------------------------------
+		[HttpPut, Route(YbdConstants.URL_LOGOUT)]
+		public IActionResult Logout([FromBody] Int32 dummy)
+		{
+			try
+			{
+				// 現状はサーバー側の処理は特に無い
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("ログアウトサーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return BadRequest();
+			}
+		}
+
 #if false
 		// --------------------------------------------------------------------
 		// 認証状態のユーザーのログイン情報を返す

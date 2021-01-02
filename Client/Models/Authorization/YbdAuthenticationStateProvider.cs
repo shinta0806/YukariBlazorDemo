@@ -47,9 +47,9 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// ローカルストレージ
 		public ILocalStorageService LocalStorage { get; set; }
 
-		public PublicUserInfo? LoginUserInfo { get; set; }
+		//public PublicUserInfo? LoginUserInfo { get; set; }
 
-		public String? Token { get; set; }
+		//public String? Token { get; set; }
 
 		// ====================================================================
 		// public メンバー関数
@@ -60,67 +60,63 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// --------------------------------------------------------------------
 		public override async Task<AuthenticationState> GetAuthenticationStateAsync()
 		{
-			if (LoginUserInfo == null)
+			// ローカルストレージから認証状態を読み込む
+			// GetItemAsync() の返値は定義上 nullable になっていないが実際には nullable
+			String? token = await LocalStorage.GetItemAsync<String>(ITEM_NAME_TOKEN);
+			PublicUserInfo? loginUserInfo = await LocalStorage.GetItemAsync<PublicUserInfo>(ITEM_NAME_LOGIN_INFO);
+
+			if (token == null || loginUserInfo == null)
 			{
-				// 未認証
+				// 認証ヘッダーをクリア
 				HttpClient.DefaultRequestHeaders.Authorization = null;
+
+				// 未認証
 				return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 			}
 			else
 			{
-				// 認証
-				AuthenticationHeaderValue authenticationHeader = new AuthenticationHeaderValue("Bearer", Token);
+				// 認証ヘッダーを設定
+				AuthenticationHeaderValue authenticationHeader = new AuthenticationHeaderValue("Bearer", token);
 				HttpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
-				ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, LoginUserInfo.Name) }, "apiauth");
+
+				// 認証
+				ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, loginUserInfo.Name) }, "apiauth");
 				return new AuthenticationState(new ClaimsPrincipal(claimsIdentity));
 			}
-#if false
-			// 未認証
-			return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-#endif
-#if false
-			// 認証
-			ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "id") }, "apiauth");
-			return new AuthenticationState(new ClaimsPrincipal(claimsIdentity));
-#endif
 		}
 
+		// --------------------------------------------------------------------
+		// 認証済にする
+		// --------------------------------------------------------------------
 		public async Task SetStateLoginAsync(String token, PublicUserInfo loginUserInfo)
 		{
-			Token = token;
-			LoginUserInfo = loginUserInfo;
+			// ローカルストレージに認証状態を保存
+			await LocalStorage.SetItemAsync(ITEM_NAME_TOKEN, token);
+			await LocalStorage.SetItemAsync(ITEM_NAME_LOGIN_INFO, loginUserInfo);
 
 			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 		}
 
-#if false
 		// --------------------------------------------------------------------
-		// サーバーからのトークンを使ってログイン状態にする
+		// 未認証にする
 		// --------------------------------------------------------------------
-		public async Task<Boolean> SetStateLoginAsync(HttpResponseMessage response)
+		public async Task SetStateLogoutAsync()
 		{
-			if (!response.IsSuccessStatusCode)
-			{
-				return false;
-			}
+			// ローカルストレージから認証状態を削除
+			await LocalStorage.RemoveItemAsync(ITEM_NAME_TOKEN);
+			await LocalStorage.RemoveItemAsync(ITEM_NAME_LOGIN_INFO);
 
-			String? token = await response.Content.ReadAsStringAsync();
-			if (String.IsNullOrEmpty(token))
-			{
-				return false;
-			}
-
-			// 要求ヘッダーに常にトークンを付与（サーバーからのトークンは '"' で囲まれているので除去する）
-			AuthenticationHeaderValue authenticationHeader = new AuthenticationHeaderValue("Bearer", token.Trim('"'));
-			HttpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
-
-			LoginInfo loginInfo = await AuthService.GetLoginInfoAsync();
-			
-			
-			
-			
-			return false;
+			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 		}
-#endif
+
+		// ====================================================================
+		// public メンバー関数
+		// ====================================================================
+
+		// トークン保存用
+		private const String ITEM_NAME_TOKEN = "token";
+
+		// ログイン情報用
+		private const String ITEM_NAME_LOGIN_INFO = "logininfo";
 	}
 }
