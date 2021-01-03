@@ -1,0 +1,38 @@
+﻿@page "/logout"
+@inject AuthService AuthService
+
+<h1>ログアウト</h1>
+
+<div class="content">
+	<div>@result</div>
+</div>
+
+@code {
+
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await AuthService.LogoutAsync();
+			result = "ログアウトしました。";
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// 結果
+	private String? result;
+}
