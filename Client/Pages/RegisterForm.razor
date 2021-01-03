@@ -1,21 +1,39 @@
-﻿@page "/registerform"
+﻿@page "/registerform/{Login?}"
 @inject AuthService AuthService
-
-<h1>ユーザー登録</h1>
 
 @if (initialized)
 {
+	if (IsRegister())
+	{
+		activeTabLabel = TAB_LABEL_REGISTER;
+	}
+	else
+	{
+		activeTabLabel = TAB_LABEL_LOGIN;
+	}
+	<h1>@activeTabLabel</h1>
+
 	<div class="content">
 
 		<div class="requestform">
 
-			<EditForm Model="registerInfo" OnValidSubmit="OnOK">
+			<EditForm Model="loginInfo" OnValidSubmit="OnOK">
 
 				<DataAnnotationsValidator />
 
+				@{
+					// 疑似タブ
+					TabItem[] tabItems =
+					{
+						new TabItem(TAB_LABEL_REGISTER, "/registerform"),
+						new TabItem(TAB_LABEL_LOGIN, "/registerform/login"),
+					};
+					@((MarkupString)ClientCommon.GenerateTabHeader(tabItems, activeTabLabel))
+				}
+
 				<div class="tab-content">
 
-					@if (!isAdminRegistered)
+					@if (IsRegister() && !isAdminRegistered)
 					{
 						<div>管理者が登録されていないため、管理者を登録します。</div>
 					}
@@ -24,26 +42,33 @@
 						<tr>
 							<td class="input-td">お名前</td>
 							<td class="input-td">
-								@if (isAdminRegistered)
+								@if (IsRegister() && !isAdminRegistered)
 								{
-									<input class="input-general" type="text" @bind="registerInfo.Name" />
+									<div>@YbdConstants.ADMIN_NAME<span class="supplement">（管理者の名前は @YbdConstants.ADMIN_NAME で固定です）</span></div>
 								}
 								else
 								{
-									<div>@YbdConstants.ADMIN_NAME<span class="supplement">（管理者の名前は @YbdConstants.ADMIN_NAME で固定です）</span></div>
+									<input class="input-general" type="text" @bind="loginInfo.Name" @ref="inputName" />
 								}
 							</td>
 						</tr>
 						<tr>
 							<td class="input-td">パスワード</td>
-							<td class="input-td"><input class="input-general" type="text" @bind="registerInfo.Password" /></td>
+							<td class="input-td"><input class="input-general" type="text" @bind="loginInfo.Password" @ref="inputPassword" /></td>
 						</tr>
+						@if (IsRegister())
+						{
+							<tr>
+								<td class="input-td">確認のためパスワードを再度入力</td>
+								<td class="input-td"><input class="input-general" type="text" @bind="confirmPassword" /></td>
+							</tr>
+						}
 					</table>
 
 				</div>
 
 				<div class="actions">
-					<button class="default-button">登録</button>
+					<button class="default-button">@activeTabLabel</button>
 				</div>
 
 				<div class="error-message">
@@ -52,7 +77,7 @@
 
 			</EditForm>
 
-			<div>@registerResult</div>
+			<div>@result</div>
 
 		</div>
 
@@ -65,9 +90,47 @@ else
 }
 
 @code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// ログインかどうか
+	[Parameter]
+	public String? Login { get; set; }
+
 	// ====================================================================
 	// protected 関数
 	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 描画が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnAfterRenderAsync(Boolean firstRender)
+	{
+		try
+		{
+			if (!initialized || prevLogin == Login)
+			{
+				return;
+			}
+
+			// アクティブな疑似タブ内の要素にフォーカスを当てる
+			if (IsRegister() && !isAdminRegistered)
+			{
+				await inputPassword.FocusAsync();
+			}
+			else
+			{
+				await inputName.FocusAsync();
+			}
+			prevLogin = Login;
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
 
 	// --------------------------------------------------------------------
 	// 初期化が完了した
@@ -77,9 +140,9 @@ else
 		try
 		{
 			isAdminRegistered = await AuthService.IsAdminRegisteredAsync();
-			if (!isAdminRegistered)
+			if (IsRegister() && !isAdminRegistered)
 			{
-				registerInfo.Name = YbdConstants.ADMIN_NAME;
+				loginInfo.Name = YbdConstants.ADMIN_NAME;
 			}
 			initialized = true;
 		}
@@ -90,25 +153,75 @@ else
 	}
 
 	// ====================================================================
+	// private 定数
+	// ====================================================================
+
+	// 疑似タブのラベル
+	private const String TAB_LABEL_REGISTER = "新規ユーザー登録";
+	private const String TAB_LABEL_LOGIN = "ログイン";
+
+	// ====================================================================
 	// private 変数
 	// ====================================================================
 
-	// OnInitializedAsync() 完了前にも描画されるため、後続で予約一覧が来る場合でも少しの間「予約がありません」が表示されてしまう
-	// それを防止するためのフラグ
+	// OnInitializedAsync() 完了前にも描画されるのを防止するためのフラグ
 	private Boolean initialized;
+
+	// 多重描画防止用
+	private String? prevLogin = "__Init__";
+
+	// 要素参照用
+	private ElementReference inputName;
+	private ElementReference inputPassword;
+
+	// アクティブタブ
+	private String activeTabLabel = String.Empty;
 
 	// 管理者が登録されているか
 	private Boolean isAdminRegistered;
 
-	// 登録情報
-	private LoginInfo registerInfo = new();
+	// 登録・ログイン情報
+	private LoginInfo loginInfo = new();
 
-	// 登録結果
-	private String? registerResult;
+	// パスワード再入力
+	private String? confirmPassword;
+
+	// 結果
+	private String? result;
 
 	// ====================================================================
 	// private 関数
 	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 登録フォームかどうか
+	// --------------------------------------------------------------------
+	private Boolean IsRegister()
+	{
+		return String.IsNullOrEmpty(Login);
+	}
+
+	// --------------------------------------------------------------------
+	// ログイン
+	// --------------------------------------------------------------------
+	private async Task<Boolean> LoginAsync()
+	{
+		try
+		{
+			String message = await AuthService.LoginAsync(loginInfo);
+			if (!String.IsNullOrEmpty(message))
+			{
+				throw new Exception("ログインできませんでした。" + message + "やり直してください。");
+			}
+			return true;
+		}
+		catch (Exception excep)
+		{
+			result = excep.Message;
+			StateHasChanged();
+			return false;
+		}
+	}
 
 	// --------------------------------------------------------------------
 	// 有効な状態で登録ボタンクリック
@@ -117,11 +230,17 @@ else
 	{
 		try
 		{
-			HttpResponseMessage message = await AuthService.AddUserAsync(registerInfo);
-			if (!message.IsSuccessStatusCode)
+			Boolean result;
+			if (IsRegister())
 			{
-				registerResult = "登録できませんでした。やり直してください。";
-				StateHasChanged();
+				result = await RegisterAsync();
+			}
+			else
+			{
+				result = await LoginAsync();
+			}
+			if (!result)
+			{
 				return;
 			}
 			NavigationManager.NavigateTo("/mypage");
@@ -129,6 +248,38 @@ else
 		catch (Exception excep)
 		{
 			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 新規ユーザー登録
+	// --------------------------------------------------------------------
+	private async Task<Boolean> RegisterAsync()
+	{
+		try
+		{
+			// 追加の確認
+			if (String.IsNullOrEmpty(confirmPassword))
+			{
+				throw new Exception("確認のためパスワードを再度入力してください。");
+			}
+			if (loginInfo.Password != confirmPassword)
+			{
+				throw new Exception("確認のためパスワードがパスワードと異なっています。");
+			}
+
+			String message = await AuthService.AddUserAsync(loginInfo);
+			if (!String.IsNullOrEmpty(message))
+			{
+				throw new Exception("新規ユーザー登録できませんでした。" + message + "やり直してください。");
+			}
+			return true;
+		}
+		catch (Exception excep)
+		{
+			result = excep.Message;
+			StateHasChanged();
+			return false;
 		}
 	}
 

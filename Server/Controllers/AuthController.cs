@@ -159,6 +159,41 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// ログイン
+		// --------------------------------------------------------------------
+		[AllowAnonymous]
+		[HttpPost, Route(YbdConstants.URL_LOGIN)]
+		public IActionResult Login([FromBody] LoginInfo loginInfo)
+		{
+			try
+			{
+				if (!loginInfo.IsValid())
+				{
+					throw new Exception();
+				}
+
+				using RegisteredUserContext registeredUserContext = new();
+				if (registeredUserContext.RegisteredUsers == null)
+				{
+					throw new Exception();
+				}
+				RegisteredUser loginUser = registeredUserContext.RegisteredUsers.Single(x => x.Name == loginInfo.Name && x.Password == loginInfo.Password);
+
+				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
+				Debug.WriteLine("Login() " + idAndToken);
+
+				// ID とログイン用トークンを返す
+				return Ok(idAndToken);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("ログインサーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return BadRequest();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// 公開ユーザー情報を返す
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
@@ -355,21 +390,6 @@ namespace YukariBlazorDemo.Server.Controllers
 
 
 
-		[AllowAnonymous]
-		[HttpPost, Route("login/")]
-		public IActionResult CreateToken([FromBody] LoginInfo userInfo)
-		{
-			IActionResult response = Unauthorized();
-
-			// ToDo: 適当
-			userInfo.Id = 1;
-
-			String tokenString = BuildToken(userInfo);
-			Debug.WriteLine("CreateToken() " + tokenString);
-			response = Ok(tokenString);
-
-			return response;
-		}
 
 		//[Authorize]
 		[AllowAnonymous]
@@ -427,12 +447,5 @@ namespace YukariBlazorDemo.Server.Controllers
 			return "Test 2 " + Environment.TickCount.ToString("#,0");
 		}
 
-		private string BuildToken(LoginInfo userInfo)
-		{
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY));
-			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-			var token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, null, null, DateTime.Now.AddDays(7), creds);
-			return new JwtSecurityTokenHandler().WriteToken(token);
-		}
 	}
 }

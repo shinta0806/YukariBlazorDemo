@@ -51,13 +51,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// ユーザー登録
-		// 返却される HttpResponseMessage は呼びだし元で Dispose() が必要
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<HttpResponseMessage> AddUserAsync(LoginInfo registerInfo)
+		public async Task<String> AddUserAsync(LoginInfo registerInfo)
 		{
-			HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_ADD, registerInfo);
-			await SetStateLoginAsync(response);
-			return response;
+			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_ADD, registerInfo);
+			return await SetStateLoginAsync(response);
 		}
 
 		// --------------------------------------------------------------------
@@ -66,7 +65,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<T?> GetFromJsonAsync<T>(String uri)
 		{
-			if(AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			if (AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
 			{
 				await stateProvider.AddAuthorizationHeaderIfCanAsync();
 			}
@@ -117,6 +116,16 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// ログイン
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> LoginAsync(LoginInfo registerInfo)
+		{
+			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_ADD, registerInfo);
+			return await SetStateLoginAsync(response);
+		}
+
+		// --------------------------------------------------------------------
 		// ログアウト
 		// --------------------------------------------------------------------
 		public async Task<Boolean> LogoutAsync()
@@ -143,18 +152,23 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// サーバーからのトークンを使ってログイン状態にする
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		private async Task<Boolean> SetStateLoginAsync(HttpResponseMessage response)
+		private async Task<String> SetStateLoginAsync(HttpResponseMessage response)
 		{
 			if (!response.IsSuccessStatusCode)
 			{
-				return false;
+				if (response.StatusCode == HttpStatusCode.Unauthorized)
+				{
+					return "お名前またはパスワードが違います。";
+				}
+				return "サーバーに接続できませんでした。";
 			}
 
 			String? idAndToken = await response.Content.ReadAsStringAsync();
 			if (String.IsNullOrEmpty(idAndToken))
 			{
-				return false;
+				return "サーバーから認証情報を取得できませんでした。";
 			}
 
 			// サーバーからのトークンは '"' で囲まれているので除去する
@@ -164,7 +178,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			String[] split = idAndToken.Split(YbdConstants.TOKEN_DELIM);
 			if (split.Length != 2)
 			{
-				return false;
+				return "サーバーから認証情報を取得できませんでした。";
 			}
 			Int32.TryParse(split[0], out Int32 id);
 			String token = split[1];
@@ -173,17 +187,17 @@ namespace YukariBlazorDemo.Client.Models.Services
 			PublicUserInfo? userInfo = await GetPublicUserInfoAsync(id);
 			if (userInfo == null)
 			{
-				return false;
+				return "サーバーからユーザー情報を取得できませんでした。";
 			}
 
 			// 状態設定
 			YbdAuthenticationStateProvider? stateProvider = AuthenticationStateProvider as YbdAuthenticationStateProvider;
 			if (stateProvider == null)
 			{
-				return false;
+				return "内部エラー。";
 			}
 			await stateProvider.SetStateLoginAsync(token, userInfo);
-			return true;
+			return String.Empty;
 		}
 
 		// --------------------------------------------------------------------
@@ -200,22 +214,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 			await stateProvider.SetStateLogoutAsync();
 			return true;
 		}
-
-
-
-
-
-
-
-
-
-		public async Task<String> LoginAsync(LoginInfo userInfo)
-		{
-			await Task.Delay(1000);
-			return "DummyToken";
-		}
-
-
 
 	}
 }

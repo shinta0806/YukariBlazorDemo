@@ -120,7 +120,7 @@ header {
     position: relative;
 }
 
-header a {
+.header-link {
     margin-left: 20px;
     padding: 7px;
     border-radius: 7px;
@@ -129,12 +129,12 @@ header a {
     transition: all 0.2s ease;
 }
 
-    header a:hover {
+    .header-link:hover {
         background-color: #555555;
     }
 
     /* NavLink 用なので :active ではなく .active */
-    header a.active {
+    .header-link.active {
         background-color: #eeeeee;
         color: black;
     }
@@ -172,8 +172,8 @@ img {
 .dropdown-button {
     display: block;
     margin-right: 20px;
-    padding: 1rem;
     background: none;
+    padding: 0;
     border-width: 0;
 }
 
@@ -198,17 +198,26 @@ img {
     overflow: hidden;
     position: absolute;
     background-color: #222222;
-    border-radius: 7px;
     top: 3rem;
     right: 0;
     width: 200px;
     margin: 0 20px 0 0;
-    padding: 0;
+    border-radius: 4px;
+    padding: 4px;
 }
 
 .dropdown-item {
     display: block;
+    width: 100%;
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
+
+    .dropdown-item:hover {
+        background-color: #555555;
+    }
 
 /*
     タブ

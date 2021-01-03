@@ -80,6 +80,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";
 		public const String URL_IS_LOGGED_IN = "isloggedin/";
 		public const String URL_LIST = "list/";
+		public const String URL_LOGIN = "login/";
 		public const String URL_LOGIN_INFO = "logininfo/";
 		public const String URL_LOGOUT = "logout/";
 		public const String URL_MOVIE_THUMBNAIL = "moviethumbnail/";

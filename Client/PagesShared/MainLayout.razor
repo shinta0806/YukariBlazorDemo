@@ -7,31 +7,31 @@
 @inject IJSRuntime JSRuntime
 
 <header>
-	<div class="header-item"><NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">予約一覧</NavLink></div>
-	<div class="header-item"><NavLink href="searchform">検索</NavLink></div>
-	<div class="header-item"><NavLink href="player">Player</NavLink></div>
-	<div class="header-item"><NavLink href="admin">管理</NavLink></div>
-	<div class="header-item"><NavLink href="registerform">登録</NavLink></div>
-	<div class="header-item"><NavLink href="loginform">ログイン</NavLink></div>
-	<div class="header-item"><NavLink href="mypage">マイページ</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" ActiveClass="active" href="/" Match="NavLinkMatch.All">予約一覧</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="searchform">検索</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="player">Player</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="admin">管理</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="registerform">登録</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="loginform">ログイン</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="mypage">マイページ</NavLink></div>
 	<div class="header-item">
 	</div>
 	<div class="header-item-dropdown">
 		<button class="dropdown-button" id="login-button" onclick="OnClickDropdown(this)">
 			<img src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + id)" />
 		</button>
-		<ul class="dropdown-menu">
+		<div class="dropdown-menu">
 			<AuthorizeView>
 				<NotAuthorized>
-					<li class="dropdown-item"><a @onclick="@(x => OnClickLoginDropdownLink("/registerform"))" class="header-item">新規ユーザー登録</a></li>
-					<li class="dropdown-item"><a @onclick="@(x => OnClickLoginDropdownLink("/registerform/login"))" class="header-item">ログイン</a></li>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/registerform"))">新規ユーザー登録</div>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/registerform/login"))">ログイン</div>
 				</NotAuthorized>
 				<Authorized>
-					<li class="dropdown-item"><a @onclick="@(x => OnClickLoginDropdownLink("/mypage"))" class="header-item">マイページ</a></li>
-					<li class="dropdown-item"><a @onclick="@(x => OnClickLoginDropdownLink("/logout"))" class="header-item">ログアウト</a></li>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/mypage"))">マイページ</div>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/logout"))">ログアウト</div>
 				</Authorized>
 			</AuthorizeView>
-		</ul>
+		</div>
 	</div>
 </header>
 
