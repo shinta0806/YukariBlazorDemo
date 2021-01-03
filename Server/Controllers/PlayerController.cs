@@ -55,7 +55,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
-				RequestSong? result = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).FirstOrDefault();
+				RequestSong? result = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (result == null)
 				{
 					// 再生中の曲が無い
@@ -86,7 +86,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				RequestSong? requestSong;
 
-				requestSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing).FirstOrDefault();
+				requestSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing);
 				if (requestSong != null)
 				{
 					// 再生中の曲を一時停止する
@@ -95,7 +95,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					return Ok();
 				}
 
-				requestSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Pause).FirstOrDefault();
+				requestSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Pause);
 				if (requestSong != null)
 				{
 					// 一時停止中の曲を再生する
@@ -135,7 +135,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception();
 				}
 
-				RequestSong? currentSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).FirstOrDefault();
+				RequestSong? currentSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (currentSong != null)
 				{
 					// 再生中・一時停止中の曲を再生済みにする
@@ -167,7 +167,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception();
 				}
 
-				RequestSong? currentSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause).FirstOrDefault();
+				RequestSong? currentSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (currentSong != null)
 				{
 					// 再生中・一時停止中の曲を未再生にする

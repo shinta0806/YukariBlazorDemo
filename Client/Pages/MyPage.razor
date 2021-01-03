@@ -1,4 +1,5 @@
 ﻿@page "/mypage"
+@inject AuthService AuthService
 @inject HttpClient HttpClient
 
 <h3>MyPage</h3>
@@ -8,6 +9,9 @@
 <div>[test2] @test2</div>
 
 <AuthorizeView>
+	<NotAuthorized>
+		<div>オーソライズサレテナイヨ</div>
+	</NotAuthorized>
 	<Authorized>
 		<div>ここはおーそらいずど</div>
 	</Authorized>
@@ -43,6 +47,7 @@
 			}
 			catch (Exception)
 			{
+				await AuthService.LogoutAsync();
 				test = "cannot connect";
 			}
 			try

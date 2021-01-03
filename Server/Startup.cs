@@ -46,9 +46,9 @@ namespace YukariBlazorDemo.Server
 					ValidateAudience = false,
 					ValidateLifetime = true,
 					ValidateIssuerSigningKey = true,
-					ValidIssuer = "MyIssuer",
+					ValidIssuer = ServerConstants.TOKEN_ISSUER,
 					//ValidAudience = "MyIssuer",
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_KEY))
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
 				};
 			});
 			//services.AddScoped<IAuthService, JwtAuthService>();
@@ -91,7 +91,9 @@ namespace YukariBlazorDemo.Server
 			try
 			{
 				CreateDatabaseIfNeeded();
-				ThumbnailController.DefaultThumbnail = CreateThumbnail(String.Empty, "NoImage.png");
+				ThumbnailController.DefaultThumbnail = CreateMovieThumbnail(String.Empty, "DefaultThumbnail.png");
+				AuthController.DefaultGuestUserThumbnail = CreateUserThumbnail("DefaultGuestUser.png");
+				AuthController.DefaultRegisteredUserThumbnail = CreateUserThumbnail("DefaultRegisteredUser.png");
 			}
 			catch (Exception excep)
 			{
@@ -104,9 +106,13 @@ namespace YukariBlazorDemo.Server
 		// private メンバー定数
 		// ====================================================================
 
-		// サムネイルサイズ
-		private const Int32 THUMB_WIDTH_MAX = 160;
-		private const Int32 THUMB_HEIGHT_MAX = 90;
+		// 動画サムネイルサイズ
+		private const Int32 MOVIE_THUMB_WIDTH_MAX = 160;
+		private const Int32 MOVIE_THUMB_HEIGHT_MAX = 90;
+
+		// ユーザー画像サムネイルサイズ
+		private const Int32 USER_THUMB_WIDTH_MAX = 400;
+		private const Int32 USER_THUMB_HEIGHT_MAX = 400;
 
 		// 動画ファイル名（メイン）
 		private const String FILE_NAME_TULIP = @"D:\Song\チューリップ.mp4";
@@ -308,37 +314,29 @@ namespace YukariBlazorDemo.Server
 			}
 			if (thumbnailContext.Thumbnails.Count() == 0)
 			{
-				try
+				// サムネイルのサンプルデータ作成
+				// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
+				Thumbnail?[] thumbnails =
 				{
-					// サムネイルのサンプルデータ作成
-					// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
-					Thumbnail[] thumbnails =
-					{
-						CreateThumbnail(FILE_NAME_TULIP, "Tulip.png"),
-						CreateThumbnail(FILE_NAME_SUNFLOWER, "Sunflower.png"),
-						CreateThumbnail(FILE_NAME_ROSE, "Rose.png"),
-						CreateThumbnail(FILE_NAME_POINSETTIA, "Poinsettia.png"),
-						CreateThumbnail(FILE_NAME_TOY_POODLE, "ToyPoodle.png"),
-						CreateThumbnail(FILE_NAME_CHIHUAHUA, "Chihuahua.png"),
-						CreateThumbnail(FILE_NAME_SHIBA, "Shiba.png"),
-						CreateThumbnail(FILE_NAME_POMERANIAN, "Pomeranian.png"),
-						CreateThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
-						CreateThumbnail(FILE_NAME_IRIS, "Iris.png"),
-						CreateThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
-						CreateThumbnail(FILE_NAME_REMOTE, "Remote.png"),
-						CreateThumbnail(FILE_NAME_SHIH_TZU, "ShihTzu.png"),
-						CreateThumbnail(FILE_NAME_YORKSHIRE_TERRIER, "YorkshireTerrier.png"),
-						CreateThumbnail(FILE_NAME_CORGI, "Corgi.png"),
-						CreateThumbnail(FILE_NAME_GOLDEN_RETRIEVER, "GoldenRetriever.png"),
-					};
-					thumbnailContext.Thumbnails.AddRange(thumbnails);
-					thumbnailContext.SaveChanges();
-				}
-				catch (Exception excep)
-				{
-					Debug.WriteLine("サムネイル作成エラー：\n" + excep.Message);
-					Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				}
+					CreateMovieThumbnail(FILE_NAME_TULIP, "Tulip.png"),
+					CreateMovieThumbnail(FILE_NAME_SUNFLOWER, "Sunflower.png"),
+					CreateMovieThumbnail(FILE_NAME_ROSE, "Rose.png"),
+					CreateMovieThumbnail(FILE_NAME_POINSETTIA, "Poinsettia.png"),
+					CreateMovieThumbnail(FILE_NAME_TOY_POODLE, "ToyPoodle.png"),
+					CreateMovieThumbnail(FILE_NAME_CHIHUAHUA, "Chihuahua.png"),
+					CreateMovieThumbnail(FILE_NAME_SHIBA, "Shiba.png"),
+					CreateMovieThumbnail(FILE_NAME_POMERANIAN, "Pomeranian.png"),
+					CreateMovieThumbnail(FILE_NAME_ANTHURIUM, "Anthurium.png"),
+					CreateMovieThumbnail(FILE_NAME_IRIS, "Iris.png"),
+					CreateMovieThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
+					CreateMovieThumbnail(FILE_NAME_REMOTE, "Remote.png"),
+					CreateMovieThumbnail(FILE_NAME_SHIH_TZU, "ShihTzu.png"),
+					CreateMovieThumbnail(FILE_NAME_YORKSHIRE_TERRIER, "YorkshireTerrier.png"),
+					CreateMovieThumbnail(FILE_NAME_CORGI, "Corgi.png"),
+					CreateMovieThumbnail(FILE_NAME_GOLDEN_RETRIEVER, "GoldenRetriever.png"),
+				};
+				thumbnailContext.Thumbnails.AddRange(thumbnails.Where(x => x != null)!);
+				thumbnailContext.SaveChanges();
 			}
 
 			// 予約一覧
@@ -351,36 +349,68 @@ namespace YukariBlazorDemo.Server
 		}
 
 		// --------------------------------------------------------------------
+		// 動画サムネイル生成
+		// --------------------------------------------------------------------
+		private Thumbnail? CreateMovieThumbnail(String songPath, String imageFileName)
+		{
+			return CreateThumbnail(songPath, ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX);
+		}
+
+		// --------------------------------------------------------------------
 		// サムネイル生成
 		// --------------------------------------------------------------------
-		private Thumbnail CreateThumbnail(String songPath, String imageFileName)
+		private Thumbnail? CreateThumbnail(String moviePath, String imageFileName, Int32 maxWidth, Int32 maxHeight)
 		{
-			using Image sourceImage = Image.FromFile(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName);
-
-			// サムネイルサイズ
-			Single scale = Math.Min((Single)THUMB_WIDTH_MAX / sourceImage.Width, (Single)THUMB_HEIGHT_MAX / (float)sourceImage.Height);
-			Int32 scaledWidth = (Int32)(sourceImage.Width * scale);
-			Int32 scaledHeight = (Int32)(sourceImage.Height * scale);
-
-			// サムネイル生成
-			using Bitmap scaledImage = new Bitmap(scaledWidth, scaledHeight);
-			using Graphics graphics = Graphics.FromImage(scaledImage);
-			graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-			graphics.DrawImage(sourceImage, 0, 0, scaledWidth, scaledHeight);
-
-			// シリアル化
-			using MemoryStream stream = new();
-			scaledImage.Save(stream, ImageFormat.Png);
-			stream.Position = 0;
-
-			// レコード生成
-			return new Thumbnail
+			try
 			{
-				Path = songPath,
-				Bitmap = stream.ToArray(),
-				Mime = ServerConstants.MIME_TYPE_PNG,
-				LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName)),
-			};
+				using Image sourceImage = Image.FromFile(imageFileName);
+
+				using MemoryStream stream = new();
+				if (sourceImage.Width <= maxWidth && sourceImage.Height <= maxHeight)
+				{
+					// 縮小の必要無し
+					sourceImage.Save(stream, ImageFormat.Png);
+				}
+				else
+				{
+					// サムネイルサイズ
+					Single scale = Math.Min((Single)maxWidth / sourceImage.Width, (Single)maxHeight / (float)sourceImage.Height);
+					Int32 scaledWidth = (Int32)(sourceImage.Width * scale);
+					Int32 scaledHeight = (Int32)(sourceImage.Height * scale);
+
+					// サムネイル生成
+					using Bitmap scaledImage = new Bitmap(scaledWidth, scaledHeight);
+					using Graphics graphics = Graphics.FromImage(scaledImage);
+					graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+					graphics.DrawImage(sourceImage, 0, 0, scaledWidth, scaledHeight);
+
+					// シリアル化
+					scaledImage.Save(stream, ImageFormat.Png);
+				}
+				stream.Position = 0;
+
+				return new Thumbnail
+				{
+					Path = moviePath,
+					Bitmap = stream.ToArray(),
+					Mime = ServerConstants.MIME_TYPE_PNG,
+					LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName)),
+				};
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("サムネイル作成エラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return null;
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// ユーザー画像サムネイル生成
+		// --------------------------------------------------------------------
+		private Thumbnail? CreateUserThumbnail(String imageFileName)
+		{
+			return CreateThumbnail(String.Empty, ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName, USER_THUMB_WIDTH_MAX, USER_THUMB_HEIGHT_MAX);
 		}
 
 		// --------------------------------------------------------------------

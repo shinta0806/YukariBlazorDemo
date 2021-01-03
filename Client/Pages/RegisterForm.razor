@@ -76,7 +76,7 @@ else
 	{
 		try
 		{
-			isAdminRegistered = await AuthService.IsAdminRegistered();
+			isAdminRegistered = await AuthService.IsAdminRegisteredAsync();
 			if (!isAdminRegistered)
 			{
 				registerInfo.Name = YbdConstants.ADMIN_NAME;

@@ -11,6 +11,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -49,14 +50,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// 管理者が登録されているか
-		// --------------------------------------------------------------------
-		public async Task<Boolean> IsAdminRegistered()
-		{
-			return await HttpClient.GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_ADMIN_REGISTERED);
-		}
-
-		// --------------------------------------------------------------------
 		// ユーザー登録
 		// 返却される HttpResponseMessage は呼びだし元で Dispose() が必要
 		// --------------------------------------------------------------------
@@ -68,14 +61,25 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// ログアウト
-		// 返却される HttpResponseMessage は呼びだし元で Dispose() が必要
+		// 認証が必要な API からデータを取得
+		// 401 が返ってきたらログアウトする
 		// --------------------------------------------------------------------
-		public async Task<HttpResponseMessage> LogoutAsync()
+		public async Task<T?> GetFromJsonAsync<T>(String uri)
 		{
-			HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGOUT, 0);
-			await SetStateLogoutAsync();
-			return response;
+			if(AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			{
+				await stateProvider.AddAuthorizationHeaderIfCanAsync();
+			}
+			using HttpResponseMessage response = await HttpClient.GetAsync(uri);
+			if (!response.IsSuccessStatusCode)
+			{
+				if (response.StatusCode == HttpStatusCode.Unauthorized)
+				{
+					await SetStateLogoutAsync();
+				}
+				return default(T);
+			}
+			return await response.Content.ReadFromJsonAsync<T>();
 		}
 
 		// --------------------------------------------------------------------
@@ -92,6 +96,43 @@ namespace YukariBlazorDemo.Client.Models.Services
 			{
 				// 存在しない ID が指定された場合（ユーザーが URL を書き換えた場合など）はサーバー側で null を返し、JSON 化できないため JsonException 例外となる
 				// クライアント側には null を返す
+			}
+			return result;
+		}
+
+		// --------------------------------------------------------------------
+		// 管理者が登録されているか
+		// --------------------------------------------------------------------
+		public async Task<Boolean> IsAdminRegisteredAsync()
+		{
+			return await HttpClient.GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_ADMIN_REGISTERED);
+		}
+
+		// --------------------------------------------------------------------
+		// 現在ログインしているか
+		// --------------------------------------------------------------------
+		public async Task<Boolean> IsLoggedInAsync()
+		{
+			return await GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
+		}
+
+		// --------------------------------------------------------------------
+		// ログアウト
+		// --------------------------------------------------------------------
+		public async Task<Boolean> LogoutAsync()
+		{
+			Boolean result = true;
+			try
+			{
+				using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGOUT, 0);
+			}
+			catch (Exception)
+			{
+				result = false;
+			}
+			if (!await SetStateLogoutAsync())
+			{
+				result = false;
 			}
 			return result;
 		}

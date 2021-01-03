@@ -23,7 +23,7 @@ using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
-	[Route(YbdConstants.URL_API + YbdConstants.URL_THUMBNAIL)]
+	[Route(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL)]
 	public class ThumbnailController : ApiController
 	{
 		// ====================================================================
@@ -56,7 +56,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// Where を使用すると列の不足を検出できる
-				thumbnailContext.Thumbnails.Where(x => x.Id == 0).FirstOrDefault();
+				thumbnailContext.Thumbnails.FirstOrDefault(x => x.Id == 0);
 
 				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();
 			}

@@ -100,19 +100,24 @@
 */
 
 body {
-    margin: 0px;
+    margin: 0;
 }
 
 header {
     display: flex;
     align-items: center;
     background-color: #222222;
-    margin: 0px 0px 10px 0px;
+    margin: 0 0 10px 0;
     font-size: 1.2rem;
     height: 3rem;
 }
 
 .header-item {
+}
+
+.header-item-dropdown {
+    margin-left: auto;
+    position: relative;
 }
 
 header a {
@@ -133,6 +138,11 @@ header a {
         background-color: #eeeeee;
         color: black;
     }
+
+header img {
+    width: 3rem;
+    height: 3rem;
+}
 
 h1 {
     background-color: #D00010;
@@ -156,9 +166,53 @@ img {
 }
 
 /*
-    タブ
+    ドロップダウン
 */
 
+.dropdown-button {
+    display: block;
+    margin-right: 20px;
+    padding: 1rem;
+    background: none;
+    border-width: 0;
+}
+
+    .dropdown-button.is-open::after {
+        content: '';
+        width: 100%;
+        height: 100%;
+        cursor: default;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 7;
+    }
+
+    .dropdown-button.is-open + .dropdown-menu {
+        display: block;
+        z-index: 8;
+    }
+
+.dropdown-menu {
+    display: none;
+    overflow: hidden;
+    position: absolute;
+    background-color: #222222;
+    border-radius: 7px;
+    top: 3rem;
+    right: 0;
+    width: 200px;
+    margin: 0 20px 0 0;
+    padding: 0;
+}
+
+.dropdown-item {
+    display: block;
+}
+
+/*
+    タブ
+*/
 .tab-header {
     display: flex;
     margin-top: 20px;
@@ -167,7 +221,7 @@ img {
 
 .tab-item-active, .tab-item {
     flex-grow: 1;
-    margin: 0px 5px 0px 0px;
+    margin: 0 5px 0 0;
     max-width: 200px;
     height: 1.8rem;
     text-align: center;
@@ -207,7 +261,7 @@ img {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    margin: 20px 0px 0px 0px;
+    margin: 20px 0 0 0;
 }
 
 .page-navi-item {
@@ -221,7 +275,7 @@ img {
 }
 
 .page-navi-item, .page-navi-current-item {
-    margin: 0px 20px 20px 0px;
+    margin: 0 20px 20px 0;
 }
 
 /* 
@@ -232,7 +286,7 @@ img {
 }
 
 .input-td {
-    padding: 5px 10px 5px 0px;
+    padding: 5px 10px 5px 0;
 }
 
     .input-td:first-child {
@@ -262,7 +316,7 @@ img {
     }
 
 .actions {
-    margin: 20px 0px 0px 0px;
+    margin: 20px 0 0 0;
 }
 
 .default-button {
@@ -279,7 +333,7 @@ img {
 
 .default-button, .general-button, .page-navi-item, .page-navi-current-item {
     border-radius: 4px;
-    border-width: 0px;
+    border-width: 0;
     outline: none;
     font-size: 1rem;
     padding: 5px 20px 5px 20px;
@@ -300,7 +354,7 @@ img {
 */
 
 .req-list-table {
-    margin: 10px 0px 0px 0px;
+    margin: 10px 0 0 0;
     border-collapse: collapse;
     border-spacing: 0;
     box-shadow: 0 0 10px var(--shadow-color);
@@ -374,7 +428,7 @@ img {
 }
 
 .search-result-table {
-    margin: 0px;
+    margin: 0;
     border-collapse: collapse;
     border-spacing: 0;
 }

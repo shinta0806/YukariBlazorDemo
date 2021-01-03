@@ -183,12 +183,12 @@ namespace YukariBlazorDemo.Shared.Misc
 					}
 					else
 					{
-						activeKeyword = DetailValues.Where(x => x != String.Empty).First();
+						activeKeyword = DetailValues.First(x => x != String.Empty);
 					}
 				}
 				else
 				{
-					activeKeyword = DetailValues.Where(x => x != String.Empty).First();
+					activeKeyword = DetailValues.First(x => x != String.Empty);
 				}
 			}
 

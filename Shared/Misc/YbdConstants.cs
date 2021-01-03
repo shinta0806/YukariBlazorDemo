@@ -78,20 +78,22 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_DELETE_ALL = "deleteall/";
 		public const String URL_ID = "id/";
 		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";
+		public const String URL_IS_LOGGED_IN = "isloggedin/";
 		public const String URL_LIST = "list/";
 		public const String URL_LOGIN_INFO = "logininfo/";
 		public const String URL_LOGOUT = "logout/";
+		public const String URL_MOVIE_THUMBNAIL = "moviethumbnail/";
 		public const String URL_NEXT = "next/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
 		public const String URL_PLAYER = "player/";
 		public const String URL_PLAYING = "playing/";
 		public const String URL_PREV = "prev/";
 		public const String URL_PUBLIC_USER_INFO = "publicuserinfo/";
+		public const String URL_PUBLIC_USER_THUMBNAIL = "publicuserthumbnail/";
 		public const String URL_REQUEST = "request/";
 		public const String URL_REQUEST_SONGS = "requestsongs/";
 		public const String URL_SEARCH = "search/";
 		public const String URL_STATUS = "status/";
-		public const String URL_THUMBNAIL = "thumbnail/";
 		public const String URL_USER_NAMES = "usernames/";
 		public const String URL_WORD = "word/";
 

@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@using System.IO
+@using System.Net.Http.Headers
+@using System.Security.Claims
+@inject AuthService AuthService
+@inject HttpClient HttpClient
 
 <header>
 	<div class="header-item"><NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">予約一覧</NavLink></div>
@@ -8,7 +13,97 @@
 	<div class="header-item"><NavLink href="registerform">登録</NavLink></div>
 	<div class="header-item"><NavLink href="loginform">ログイン</NavLink></div>
 	<div class="header-item"><NavLink href="mypage">マイページ</NavLink></div>
+	<div class="header-item">
+	</div>
+	<div class="header-item-dropdown">
+		<button class="dropdown-button" onclick="buttonDropdownClick(this)">
+			<img src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + id)" />
+		</button>
+		<ul class="dropdown-menu">
+			<AuthorizeView>
+				<NotAuthorized>
+					<li class="dropdown-item"><a onclick="" href="/registerform" class="header-item">新規ユーザー登録</a></li>
+					<li class="dropdown-item"><a href="/registerform/login" class="header-item">ログイン</a></li>
+				</NotAuthorized>
+				<Authorized>
+					<li class="dropdown-item"><a href="/mypage" class="header-item">マイページ</a></li>
+					<li class="dropdown-item"><a href="/logout" class="header-item">ログアウト</a></li>
+				</Authorized>
+			</AuthorizeView>
+		</ul>
+	</div>
 </header>
 
 @Body
 
+@code{
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 認証状態
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			// ログイン状態を確認することにより authenticationStateTask に反映させる
+			await AuthService.IsLoggedInAsync();
+			await UpdateIdAsync();
+		}
+		catch (Exception)
+		{
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 描画すべきかどうか
+	// --------------------------------------------------------------------
+	protected override Boolean ShouldRender()
+	{
+		if (HttpClient.DefaultRequestHeaders.Authorization != prevHeader)
+		{
+			// ヘッダーが変更されている場合は ID が変更されている可能性があるので確認する
+			UpdateIdAsync().Wait();
+			prevHeader = HttpClient.DefaultRequestHeaders.Authorization;
+		}
+		return base.ShouldRender();
+	}
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// ユーザー ID
+	private String? id;
+
+	// 以前に確認したヘッダー
+	private AuthenticationHeaderValue? prevHeader;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// ログイン ID を最新の状態に更新
+	// --------------------------------------------------------------------
+	private async Task UpdateIdAsync()
+	{
+		if (AuthenticationStateTask != null)
+		{
+			ClaimsPrincipal user = (await AuthenticationStateTask).User;
+			id = user.Identities.FirstOrDefault()?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+		}
+
+	}
+
+}

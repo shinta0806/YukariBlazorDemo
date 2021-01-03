@@ -73,13 +73,7 @@
 	{
 		try
 		{
-			HttpResponseMessage message = await AuthService.LogoutAsync();
-			if (!message.IsSuccessStatusCode)
-			{
-				result = "ログアウトできませんでした。やり直してください。";
-				StateHasChanged();
-				return;
-			}
+			await AuthService.LogoutAsync();
 			NavigationManager.NavigateTo("/");
 		}
 		catch (Exception excep)

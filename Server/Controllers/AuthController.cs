@@ -34,6 +34,16 @@ namespace YukariBlazorDemo.Server.Controllers
 	public class AuthController : ApiController
 	{
 		// ====================================================================
+		// public static プロパティー
+		// ====================================================================
+
+		// ゲストのユーザー画像
+		public static Thumbnail? DefaultGuestUserThumbnail { get; set; }
+
+		// 登録ユーザーのデフォルトユーザー画像
+		public static Thumbnail? DefaultRegisteredUserThumbnail { get; set; }
+
+		// ====================================================================
 		// API（ApiController）【認証不要】
 		// ====================================================================
 
@@ -169,7 +179,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception();
 				}
 
-				RegisteredUser registeredUser = registeredUserContext.RegisteredUsers.Where(x => x.Id == idNum).First();
+				RegisteredUser registeredUser = registeredUserContext.RegisteredUsers.Single(x => x.Id == idNum);
 				userInfo = new PublicUserInfo();
 				registeredUser.CopyPublicInfo(userInfo);
 			}
@@ -181,9 +191,58 @@ namespace YukariBlazorDemo.Server.Controllers
 			return userInfo;
 		}
 
+		// --------------------------------------------------------------------
+		// 公開されているユーザーのサムネイルを返す
+		// --------------------------------------------------------------------
+		[AllowAnonymous]
+		[HttpGet, Route(YbdConstants.URL_PUBLIC_USER_THUMBNAIL + "{*id}")]
+		public IActionResult GetThumbnail(String? id)
+		{
+			try
+			{
+				if (!Int32.TryParse(id, out Int32 idNum))
+				{
+					throw new Exception();
+				}
+				using RegisteredUserContext registeredUserContext = new();
+				if (registeredUserContext.RegisteredUsers == null)
+				{
+					throw new Exception();
+				}
+				RegisteredUser registeredUser = registeredUserContext.RegisteredUsers.Single(x => x.Id == idNum);
+				if (DefaultRegisteredUserThumbnail == null)
+				{
+					throw new Exception();
+				}
+				return File(DefaultRegisteredUserThumbnail.Bitmap, DefaultRegisteredUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
+			}
+			catch (Exception excep)
+			{
+				if (DefaultGuestUserThumbnail != null)
+				{
+					return File(DefaultGuestUserThumbnail.Bitmap, DefaultGuestUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
+				}
+
+				Debug.WriteLine("ユーザーサムネイル取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return BadRequest();
+			}
+		}
+
 		// ====================================================================
 		// API（一般）【要認証】
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ログインしているか
+		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認できる
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_IS_LOGGED_IN)]
+		public Boolean IsLoggedIn()
+		{
+			// ここに到達できているということはログインしているということ
+			return true;
+		}
 
 		// --------------------------------------------------------------------
 		// ログアウト時のサーバー側の処理
@@ -237,7 +296,12 @@ namespace YukariBlazorDemo.Server.Controllers
 			return "Test " + Environment.TickCount.ToString("#,0");
 		}
 
+		// ====================================================================
+		// private メンバー定数
+		// ====================================================================
 
+		// トークンの有効期間 [h]
+		private const Int32 TOKEN_AVAILABLE_HOURS = 12;
 
 		// ====================================================================
 		// private メンバー関数
@@ -256,13 +320,13 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private String GenerateToken(Int32 id)
 		{
-			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_KEY));
+			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY));
 			SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 			Claim[] claims = new Claim[]
 			{
 				new Claim(ClaimTypes.NameIdentifier, id.ToString()),
 			};
-			JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.Now.AddDays(7), creds);
+			JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.Now.AddHours(TOKEN_AVAILABLE_HOURS), creds);
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 
@@ -345,7 +409,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				ValidateIssuerSigningKey = true,
 				//ValidIssuer = "MyIssuer",
 				//ValidAudience = "MyIssuer",
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_KEY))
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
 			};
 
 			JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
@@ -365,9 +429,9 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		private string BuildToken(LoginInfo userInfo)
 		{
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_KEY));
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY));
 			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-			var token = new JwtSecurityToken("MyIssuer", null, null, null, DateTime.Now.AddDays(7), creds);
+			var token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, null, null, DateTime.Now.AddDays(7), creds);
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 	}
