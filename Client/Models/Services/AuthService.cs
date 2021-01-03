@@ -82,6 +82,18 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// ログインしているユーザーの情報を取得
+		// --------------------------------------------------------------------
+		public PublicUserInfo? GetLoginUserInfo()
+		{
+			if (AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			{
+				return stateProvider.LoginUserInfo;
+			}
+			return null;
+		}
+
+		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得
 		// --------------------------------------------------------------------
 		public async Task<PublicUserInfo?> GetPublicUserInfoAsync(Int32 id)

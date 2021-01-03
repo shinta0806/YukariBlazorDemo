@@ -76,6 +76,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_API = "api/";
 		public const String URL_AUTH = "auth/";
 		public const String URL_DELETE_ALL = "deleteall/";
+		public const String URL_GUEST_USER_NAMES = "guestusernames/";
 		public const String URL_ID = "id/";
 		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";
 		public const String URL_IS_LOGGED_IN = "isloggedin/";
@@ -95,7 +96,6 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_REQUEST_SONGS = "requestsongs/";
 		public const String URL_SEARCH = "search/";
 		public const String URL_STATUS = "status/";
-		public const String URL_USER_NAMES = "usernames/";
 		public const String URL_WORD = "word/";
 
 		// --------------------------------------------------------------------

@@ -50,7 +50,7 @@
 
 					<tr class="@trClassName" @key="requestSong.RequestSongId">
 						<td class="req-list-td"><div class="req-list-no">@((MarkupString)playIcon)@requestSong.Sort</div></td>
-						<td class="req-list-td"><div class="req-list-thumb"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.AvailableSongId)" /></div></td>
+						<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL + @Uri.EscapeDataString(requestSong.AvailableSongId))" /></div></td>
 						<td class="req-list-td">
 							<div class="req-list-song">@requestSong.SongName</div>
 							@{
@@ -63,7 +63,7 @@
 							<div class="req-list-misc">@misc</div>
 							<div class="req-list-path">@Path.GetFileName(requestSong.Path.Replace('\\', '/'))</div>
 						</td>
-						<td class="req-list-td">@requestSong.User</td>
+						<td class="req-list-td">@requestSong.UserName</td>
 						<td class="req-list-td">@requestSong.Comment</td>
 					</tr>
 				}

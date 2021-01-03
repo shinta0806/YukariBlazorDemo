@@ -47,7 +47,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception("データベースにアクセスできません。");
 				}
 
-				// Where を使用すると列の不足を検出できる
+				// FirstOrDefault を使用すると列の不足を検出できる
 				requestSongContext.RequestSongs.FirstOrDefault(x => x.RequestSongId == 0);
 
 				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
@@ -93,7 +93,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					// 最後の予約との重複チェック
 					RequestSong lastRequestSong = requestSongContext.RequestSongs.OrderBy(x => x.Sort).Last();
-					if (requestSong.Path == lastRequestSong.Path && requestSong.User == lastRequestSong.User)
+					if (requestSong.Path == lastRequestSong.Path && requestSong.UserName == lastRequestSong.UserName)
 					{
 						// 重複している場合は既に登録されているので OK とする
 						return Ok();
@@ -185,9 +185,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// 予約者名一覧を返す
+		// 予約者名一覧を返す（ゲストユーザーのみ）
 		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_USER_NAMES)]
+		[HttpGet, Route(YbdConstants.URL_GUEST_USER_NAMES)]
 		public IActionResult GetUserNames()
 		{
 			IEnumerable<String>? results = null;
@@ -208,7 +208,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception();
 				}
 
-				results = requestSongContext.RequestSongs.Select(x => x.User).GroupBy(y => y).Select(z => z.Key).ToArray();
+				results = requestSongContext.RequestSongs.Where(x => x.UserId == 0).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
 				numResults = results.Count();
 			}
 			catch (Exception excep)

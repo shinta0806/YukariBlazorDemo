@@ -55,7 +55,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception();
 				}
 
-				// Where を使用すると列の不足を検出できる
+				// FirstOrDefault を使用すると列の不足を検出できる
 				thumbnailContext.Thumbnails.FirstOrDefault(x => x.Id == 0);
 
 				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();

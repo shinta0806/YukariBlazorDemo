@@ -1,4 +1,5 @@
 ﻿@page "/requestform/{AvailableSongId?}"
+@inject AuthService AuthService
 @inject IJSRuntime JSRuntime
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
@@ -21,7 +22,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">サムネイル</td>
-								<td class="input-td"><img src="/api/thumbnail/@Uri.EscapeDataString(requestSong.AvailableSongId)" /></td>
+								<td class="input-td"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL + @Uri.EscapeDataString(requestSong.AvailableSongId))" /></td>
 							</tr>
 							<tr>
 								<td class="input-td">曲名</td>
@@ -49,20 +50,28 @@
 							</tr>
 							<tr>
 								<td class="input-td">予約者</td>
-								<td class="input-td">
-									<select class="input-narrow" @bind="requestSong.User">
-										<option value="">新規（入力→）</option>
-										@foreach (String userName in userNames)
-										{
-											<option value="@userName">@userName</option>
-										}
-									</select>
-									<input class="input-narrow" id="user" type="text" @bind="requestSong.User" @ref="inputUser" />
-								</td>
+								<AuthorizeView>
+									<NotAuthorized Context="AuthorizeView">
+										<td class="input-td">
+											<select class="input-narrow" @bind="requestSong.UserName">
+												<option value="">新規（入力→）</option>
+												@foreach (String userName in userNames)
+												{
+													<option value="@userName">@userName</option>
+												}
+											</select>
+											<input class="input-narrow" id="user" type="text" @bind="requestSong.UserName" @ref="inputUser" />
+											<span class="supplement">（ゲスト）</span>
+										</td>
+									</NotAuthorized>
+									<Authorized Context="AuthorizeView">
+										<td class="input-td">@requestSong.UserName　<span class="supplement">（ログイン済ユーザー）</span></td>
+									</Authorized>
+								</AuthorizeView>
 							</tr>
 							<tr>
 								<td class="input-td">コメント</td>
-								<td class="input-td"><input class="input-general" type="text" @bind="requestSong.Comment" /></td>
+								<td class="input-td"><input class="input-general" type="text" @bind="requestSong.Comment" @ref="inputComment" /></td>
 							</tr>
 						</table>
 
@@ -99,6 +108,10 @@ else
 	// public パラメーター
 	// ====================================================================
 
+	// 認証状態
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
 	// 予約する曲の ID
 	[Parameter]
 	public String? AvailableSongId { get; set; }
@@ -116,7 +129,14 @@ else
 		{
 			if (initialized && availableSong != null && !focused)
 			{
-				await inputUser.FocusAsync();
+				if (loginUserInfo == null)
+				{
+					await inputUser.FocusAsync();
+				}
+				else
+				{
+					await inputComment.FocusAsync();
+				}
 				focused = true;
 			}
 		}
@@ -134,8 +154,17 @@ else
 		try
 		{
 			availableSong = await SearchService.SearchByIdAsync(AvailableSongId);
-			Int32 temp;
-			(userNames, temp) = await RequestSongService.GetUserNamesAsync();
+			loginUserInfo = AuthService.GetLoginUserInfo();
+			if (loginUserInfo == null)
+			{
+				Int32 temp;
+				(userNames, temp) = await RequestSongService.GetUserNamesAsync();
+			}
+			else
+			{
+				requestSong.UserId = loginUserInfo.Id;
+				requestSong.UserName = loginUserInfo.Name;
+			}
 			initialized = true;
 
 			if (availableSong == null)
@@ -162,6 +191,9 @@ else
 	// 予約対象の曲の情報（URL パラメーターで指定された元の情報）
 	private AvailableSong? availableSong;
 
+	// ログインしているユーザーの情報
+	private PublicUserInfo? loginUserInfo;
+
 	// 予約情報（送信する情報）
 	private RequestSong requestSong = new();
 
@@ -173,6 +205,7 @@ else
 
 	// 要素参照用
 	private ElementReference inputUser;
+	private ElementReference inputComment;
 
 	// 多重フォーカス防止用
 	private Boolean focused;

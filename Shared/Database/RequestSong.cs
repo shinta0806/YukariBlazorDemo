@@ -33,9 +33,12 @@ namespace YukariBlazorDemo.Shared.Database
 		// ソート方法
 		public Int32 Sort { get; set; }
 
+		// 予約者のユーザー ID（ログインユーザーの場合のみ）
+		public Int32 UserId { get; set; }
+
 		// 予約者
 		[Required(ErrorMessage = "予約者を入力してください。")]
-		public String User { get; set; } = String.Empty;
+		public String UserName { get; set; } = String.Empty;
 
 		// 予約コメント
 		public String? Comment { get; set; }
@@ -74,7 +77,7 @@ namespace YukariBlazorDemo.Shared.Database
 		// --------------------------------------------------------------------
 		public Boolean IsValid()
 		{
-			return !String.IsNullOrEmpty(Path) && !String.IsNullOrEmpty(User);
+			return !String.IsNullOrEmpty(Path) && !String.IsNullOrEmpty(UserName);
 		}
 	}
 }

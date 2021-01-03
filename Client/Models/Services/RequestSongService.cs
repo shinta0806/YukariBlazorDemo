@@ -65,7 +65,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<(String[], Int32)> GetUserNamesAsync()
 		{
-			return await GetArrayAsync<String>(YbdConstants.URL_USER_NAMES);
+			return await GetArrayAsync<String>(YbdConstants.URL_GUEST_USER_NAMES);
 		}
 
 

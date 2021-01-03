@@ -56,14 +56,23 @@ namespace YukariBlazorDemo.Server.Controllers
 			String status;
 			try
 			{
+				if (DefaultGuestUserThumbnail == null)
+				{
+					throw new Exception("デフォルトゲストサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
+				}
+				if (DefaultRegisteredUserThumbnail == null)
+				{
+					throw new Exception("デフォルト登録ユーザーサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
+				}
+
 				using RegisteredUserContext registeredUserContext = new();
 				if (registeredUserContext.RegisteredUsers == null)
 				{
 					throw new Exception("データベースにアクセスできません。");
 				}
 
-				// Where を使用すると列の不足を検出できる
-				registeredUserContext.RegisteredUsers.Where(x => x.Id == 0).FirstOrDefault();
+				// FirstOrDefault を使用すると列の不足を検出できる
+				registeredUserContext.RegisteredUsers.FirstOrDefault(x => x.Id == 0);
 
 				status = "正常 / ユーザー数：" + registeredUserContext.RegisteredUsers.Count();
 			}

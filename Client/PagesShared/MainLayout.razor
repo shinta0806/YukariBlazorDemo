@@ -56,7 +56,7 @@
 		{
 			// ログイン状態を確認することにより authenticationStateTask に反映させる
 			await AuthService.IsLoggedInAsync();
-			await UpdateIdAsync();
+			UpdateId();
 		}
 		catch (Exception)
 		{
@@ -71,7 +71,7 @@
 		if (HttpClient.DefaultRequestHeaders.Authorization != prevHeader)
 		{
 			// ヘッダーが変更されている場合は ID が変更されている可能性があるので確認する
-			UpdateIdAsync().Wait();
+			UpdateId();
 		}
 		return base.ShouldRender();
 	}
@@ -93,15 +93,10 @@
 	// --------------------------------------------------------------------
 	// ログイン ID を最新の状態に更新
 	// --------------------------------------------------------------------
-	private async Task UpdateIdAsync()
+	private void UpdateId()
 	{
-		if (AuthenticationStateTask != null)
-		{
-			ClaimsPrincipal user = (await AuthenticationStateTask).User;
-			id = user.Identities.FirstOrDefault()?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-			prevHeader = HttpClient.DefaultRequestHeaders.Authorization;
-		}
-
+		id = AuthService.GetLoginUserInfo()?.Id.ToString();
+		prevHeader = HttpClient.DefaultRequestHeaders.Authorization;
 	}
 
 	// --------------------------------------------------------------------

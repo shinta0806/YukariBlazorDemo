@@ -52,7 +52,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				Thread.Sleep(1000);
 #endif
 
-				// Where を使用すると列の不足を検出できる
+				// FirstOrDefault を使用すると列の不足を検出できる
 				availableSongContext.AvailableSongs.FirstOrDefault(x => x.Id == String.Empty);
 
 				status = "正常 / 曲数：" + availableSongContext.AvailableSongs.Count();
