@@ -149,6 +149,12 @@ namespace YukariBlazorDemo.Server.Controllers
 					newUser.IsAdmin = true;
 				}
 
+				// 同じ名前のユーザーが既に存在している場合は登録できない
+				if (registeredUserContext.RegisteredUsers.FirstOrDefault(x => x.Name == newUser.Name) != null)
+				{
+					return Conflict();
+				}
+
 				// 登録
 				registeredUserContext.RegisteredUsers.Add(newUser);
 				registeredUserContext.SaveChanges();

@@ -133,7 +133,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> LoginAsync(LoginInfo registerInfo)
 		{
-			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_ADD, registerInfo);
+			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGIN, registerInfo);
 			return await SetStateLoginAsync(response);
 		}
 
@@ -170,9 +170,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			if (!response.IsSuccessStatusCode)
 			{
-				if (response.StatusCode == HttpStatusCode.Unauthorized)
+				switch (response.StatusCode)
 				{
-					return "お名前またはパスワードが違います。";
+					case HttpStatusCode.Conflict:
+						return "既に登録されています。";
+					case HttpStatusCode.Unauthorized:
+						return "お名前またはパスワードが違います。";
 				}
 				return "サーバーに接続できませんでした。";
 			}

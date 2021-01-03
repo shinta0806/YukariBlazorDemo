@@ -43,5 +43,13 @@ namespace YukariBlazorDemo.Server.Database
 			optionsBuilder.UseSqlite(new SqliteConnection(stringBuilder.ToString()));
 		}
 
+		// --------------------------------------------------------------------
+		// データベース作成
+		// --------------------------------------------------------------------
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<RegisteredUser>().HasIndex(x => x.Name).IsUnique();
+		}
+
 	}
 }

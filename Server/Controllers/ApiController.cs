@@ -13,7 +13,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 using System;
-
+using System.Net;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Misc;
 
@@ -98,15 +98,13 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		protected StatusCodeResult NotModified()
 		{
-			return StatusCode(STATUS_CODE_NOT_MODIFIED);
+			return StatusCode((Int32)HttpStatusCode.NotModified);
 		}
 
 		// ====================================================================
 		// private メンバー定数
 		// ====================================================================
 
-		// Not Modified
-		private const Int32 STATUS_CODE_NOT_MODIFIED = 304;
 
 	}
 }
