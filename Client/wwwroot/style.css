@@ -14,37 +14,6 @@
     砂時計
 */
 
-.loading {
-    font-family: 'Franklin Gothic Medium','Arial Narrow',Arial,sans-serif;
-    color: #8888aa;
-    font-size: 18px;
-    text-align: center;
-    width: 150px;
-    height: 150px;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-}
-
-    .loading::after {
-        content: '';
-        border: solid 10px;
-        border-color: #8888aa #eeeeee #eeeeee;
-        border-radius: 60px;
-        position: absolute;
-        width: 60px;
-        height: 60px;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        animation: rotation 1.5s linear 0s infinite;
-    }
-
 .miniloading {
     color: transparent;
 }
@@ -71,29 +40,6 @@
         transform: rotate(405deg);
     }
 }
-
-/*
-    Blazor エラー
-*/
-
-#blazor-error-ui {
-    background-color: #ffffe0;
-    bottom: 0;
-    box-shadow: 0 -1px 2px var(--shadow-color);
-    display: none;
-    left: 0;
-    padding: .6rem 1.25rem .7rem 1.25rem;
-    position: fixed;
-    right: 0;
-    z-index: 1000;
-}
-
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: .75rem;
-        top: .5rem;
-    }
 
 /*
     全体

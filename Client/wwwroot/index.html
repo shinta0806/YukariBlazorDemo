@@ -2,26 +2,79 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ゆかり Blazor WebAssembly デモ</title>
-    <base href="/" />
-    <link href="style.css" rel="stylesheet" />
-    <link href="favicon.ico" rel="icon" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>ゆかり Blazor WebAssembly デモ</title>
+	<base href="/" />
+	<link rel="preload" href="style.css" as="style" />
+	<link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+	<link rel="icon" href="favicon.ico" />
+	<script src="_framework/blazor.webassembly.js" defer></script>
+	<script src="functions.js" defer></script>
+	<style type="text/css">
+
+		.loading {
+			font-family: 'Franklin Gothic Medium','Arial Narrow',Arial,sans-serif;
+			color: #8888aa;
+			font-size: 18px;
+			text-align: center;
+			width: 150px;
+			height: 150px;
+			position: fixed;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			margin: auto;
+		}
+
+			.loading::after {
+				content: '';
+				border: solid 10px;
+				border-color: #8888aa #eeeeee #eeeeee;
+				border-radius: 60px;
+				position: absolute;
+				width: 60px;
+				height: 60px;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				margin: auto;
+				animation: rotation 1.5s linear 0s infinite;
+			}
+
+		#blazor-error-ui {
+			background-color: #ffffe0;
+			bottom: 0;
+			box-shadow: 0 -1px 2px var(--shadow-color);
+			display: none;
+			left: 0;
+			padding: .6rem 1.25rem .7rem 1.25rem;
+			position: fixed;
+			right: 0;
+			z-index: 1000;
+		}
+
+			#blazor-error-ui .dismiss {
+				cursor: pointer;
+				position: absolute;
+				right: .75rem;
+				top: .5rem;
+			}
+	</style>
 </head>
 
 <body>
-    <div id="app">
-        <div class="loading">Loading...</div>
-    </div>
+	<div id="app">
+		<div class="loading">Loading...</div>
+	</div>
 
-    <div id="blazor-error-ui">
-        予期しないエラーが発生しました。
-        <a href="" class="reload">再読み込み</a>
-        <a class="dismiss">🗙</a>
-    </div>
-    <script src="_framework/blazor.webassembly.js"></script>
-    <script src="functions.js"></script>
+	<div id="blazor-error-ui">
+		予期しないエラーが発生しました。
+		<a href="" class="reload">再読み込み</a>
+		<a class="dismiss">🗙</a>
+	</div>
 </body>
 
 </html>
