@@ -72,12 +72,13 @@
 				</div>
 
 				<div class="error-message">
-					<ValidationSummary></ValidationSummary>
+					<ValidationSummary displaymode="SingleParagraph"></ValidationSummary>
+					<div>@result</div>
 				</div>
 
 			</EditForm>
 
-			<div>@result</div>
+			<div></div>
 
 		</div>
 
@@ -168,7 +169,7 @@ else
 	private Boolean initialized;
 
 	// 多重描画防止用
-	private String? prevLogin = "__Init__";
+	private String? prevLogin = ClientConstants.INIT_STRING;
 
 	// 要素参照用
 	private ElementReference inputName;
@@ -265,7 +266,7 @@ else
 			}
 			if (loginInfo.Password != confirmPassword)
 			{
-				throw new Exception("確認のためパスワードがパスワードと異なっています。");
+				throw new Exception("確認のためパスワードが最初のパスワードと異なっています。");
 			}
 
 			String message = await AuthService.AddUserAsync(loginInfo);

@@ -126,7 +126,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (!registerInfo.IsValid())
 				{
-					throw new Exception();
+					return BadRequest();
 				}
 
 				using RegisteredUserContext registeredUserContext = new();
@@ -144,7 +144,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					// 管理者未登録の場合は管理者登録でなければならない
 					if (newUser.Name != YbdConstants.ADMIN_NAME)
 					{
-						throw new Exception();
+						return BadRequest();
 					}
 					newUser.IsAdmin = true;
 				}
@@ -169,7 +169,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("ユーザー登録サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
 
@@ -184,7 +184,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (!loginInfo.IsValid())
 				{
-					throw new Exception();
+					return BadRequest();
 				}
 
 				using RegisteredUserContext registeredUserContext = new();
@@ -192,7 +192,11 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception();
 				}
-				RegisteredUser loginUser = registeredUserContext.RegisteredUsers.Single(x => x.Name == loginInfo.Name && x.Password == loginInfo.Password);
+				RegisteredUser? loginUser = registeredUserContext.RegisteredUsers.SingleOrDefault(x => x.Name == loginInfo.Name && x.Password == loginInfo.Password);
+				if (loginUser == null)
+				{
+					return NotAcceptable();
+				}
 
 				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
 				Debug.WriteLine("Login() " + idAndToken);
@@ -204,7 +208,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("ログインサーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
 
@@ -242,7 +246,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// 公開されているユーザーのサムネイルを返す
+		// 公開されているユーザーの画像を返す
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
 		[HttpGet, Route(YbdConstants.URL_PUBLIC_USER_THUMBNAIL + "{*id}")]
@@ -250,16 +254,32 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
+				if (String.IsNullOrEmpty(id))
+				{
+					// 引数が空の場合は、ゲストのユーザー画像を返す
+					if (DefaultGuestUserThumbnail == null)
+					{
+						throw new Exception();
+					}
+					return File(DefaultGuestUserThumbnail.Bitmap, DefaultGuestUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
+				}
+
 				if (!Int32.TryParse(id, out Int32 idNum))
 				{
-					throw new Exception();
+					return BadRequest();
 				}
 				using RegisteredUserContext registeredUserContext = new();
 				if (registeredUserContext.RegisteredUsers == null)
 				{
 					throw new Exception();
 				}
-				RegisteredUser registeredUser = registeredUserContext.RegisteredUsers.Single(x => x.Id == idNum);
+				RegisteredUser? registeredUser = registeredUserContext.RegisteredUsers.SingleOrDefault(x => x.Id == idNum);
+				if (registeredUser == null)
+				{
+					return BadRequest();
+				}
+
+				// 指定されたユーザーが見つかった
 				if (DefaultRegisteredUserThumbnail == null)
 				{
 					throw new Exception();
@@ -268,14 +288,10 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			catch (Exception excep)
 			{
-				if (DefaultGuestUserThumbnail != null)
-				{
-					return File(DefaultGuestUserThumbnail.Bitmap, DefaultGuestUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
-				}
 
-				Debug.WriteLine("ユーザーサムネイル取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("ユーザー画像取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
 
@@ -309,33 +325,9 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("ログアウトサーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
-
-#if false
-		// --------------------------------------------------------------------
-		// 認証状態のユーザーのログイン情報を返す
-		// ただしパスワードは返さない
-		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_LOGIN_INFO)]
-		public LoginInfo? GetLoginInfo()
-		{
-			HttpContext.Request.Headers.TryGetValue("authorization", out StringValues authValues);
-			if (authValues.Count == 0)
-			{
-				return null;
-			}
-#if false
-			String[] authParams = authValues[0].Split(' ');
-			if (split.Length > 1)
-			{
-				token = split[1];
-			}
-#endif
-			return null;
-		}
-#endif
 
 		// --------------------------------------------------------------------
 		// テスト用

@@ -72,6 +72,14 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// サーバー側で処理方法がわからない事態が発生した
+		// --------------------------------------------------------------------
+		protected StatusCodeResult InternalServerError()
+		{
+			return StatusCode((Int32)HttpStatusCode.InternalServerError);
+		}
+
+		// --------------------------------------------------------------------
 		// クライアント側から送られてきた ETag が有効か
 		// --------------------------------------------------------------------
 		protected Boolean IsValidEntityTag(Double lastModified)
@@ -91,6 +99,14 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 			}
 			return false;
+		}
+
+		// --------------------------------------------------------------------
+		// 与えられた条件に合うコンテンツが見つからない
+		// --------------------------------------------------------------------
+		protected StatusCodeResult NotAcceptable()
+		{
+			return StatusCode((Int32)HttpStatusCode.NotAcceptable);
 		}
 
 		// --------------------------------------------------------------------

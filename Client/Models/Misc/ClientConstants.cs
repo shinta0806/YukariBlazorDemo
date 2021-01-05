@@ -27,5 +27,8 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// エラーページ
 		public const String ERROR_PARAM_NAME_MESSAGE = "message";
 		public const String ERROR_PARAM_NAME_TRACE = "trace";
+
+		// 初期状態を表す文字列
+		public const String INIT_STRING = "__Init__";
 	}
 }

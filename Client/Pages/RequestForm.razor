@@ -221,7 +221,7 @@ else
 	{
 		try
 		{
-			HttpResponseMessage message = await RequestSongService.AddRequestAsync(requestSong);
+			using HttpResponseMessage message = await RequestSongService.AddRequestAsync(requestSong);
 			if (!message.IsSuccessStatusCode)
 			{
 				requestResult = "予約できませんでした。やり直してください。";

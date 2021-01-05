@@ -172,12 +172,17 @@ namespace YukariBlazorDemo.Client.Models.Services
 			{
 				switch (response.StatusCode)
 				{
+					case HttpStatusCode.BadRequest:
+						return "入力内容が不正です。";
 					case HttpStatusCode.Conflict:
-						return "既に登録されています。";
+						return "そのお名前は既に登録されています。";
+					case HttpStatusCode.InternalServerError:
+						return "サーバー内部でエラーが発生しました。";
 					case HttpStatusCode.Unauthorized:
 						return "お名前またはパスワードが違います。";
+					default:
+						return "予期しないエラーが発生しました。";
 				}
-				return "サーバーに接続できませんでした。";
 			}
 
 			String? idAndToken = await response.Content.ReadAsStringAsync();
