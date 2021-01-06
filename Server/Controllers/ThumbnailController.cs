@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 
 using System;
@@ -49,16 +50,12 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception("デフォルトサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
 				}
-				using ThumbnailContext thumbnailContext = new();
-				if (thumbnailContext.Thumbnails == null)
-				{
-					throw new Exception();
-				}
+				using ThumbnailContext thumbnailContext = CreateThumbnailContext(out DbSet<Thumbnail> thumbnails);
 
 				// FirstOrDefault を使用すると列の不足を検出できる
-				thumbnailContext.Thumbnails.FirstOrDefault(x => x.Id == 0);
+				thumbnails.FirstOrDefault(x => x.Id == 0);
 
-				status = "正常 / サムネイル数：" + thumbnailContext.Thumbnails.Count();
+				status = "正常 / サムネイル数：" + thumbnails.Count();
 			}
 			catch (Exception excep)
 			{
@@ -81,18 +78,15 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSongs == null)
+				using AvailableSongContext availableSongContext = CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs);
+				AvailableSong? availableSong = availableSongs.SingleOrDefault(x => x.Id == id);
+				if (availableSong == null)
 				{
-					throw new Exception();
+					// ID が見つからない
+					return NotAcceptable();
 				}
-				AvailableSong availableSong = availableSongContext.AvailableSongs.First(x => x.Id == id);
 
-				using ThumbnailContext thumbnailContext = new();
-				if (thumbnailContext.Thumbnails == null)
-				{
-					throw new Exception();
-				}
+				using ThumbnailContext thumbnailContext = CreateThumbnailContext(out DbSet<Thumbnail> thumbnails);
 
 				// 実際の運用時はサムネイルの返却に時間がかかることを想定
 				Random random = new();
@@ -106,23 +100,41 @@ namespace YukariBlazorDemo.Server.Controllers
 					Thread.Sleep(random.Next(500, 1000));
 				}
 
-				Thumbnail thumbnail = thumbnailContext.Thumbnails.First(x => x.Path == availableSong.Path);
+				Thumbnail? thumbnail = thumbnails.FirstOrDefault(x => x.Path == availableSong.Path);
+				if (thumbnail == null)
+				{
+					// ID に対応するサムネイルが無い
+					return DefaultThumbnailFile();
+				}
+
 				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
 				EntityTagHeaderValue eTag = GenerateEntityTag(thumbnail.LastModified);
 				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
-				if (DefaultThumbnail != null)
-				{
-					// サムネイルが無いのでデフォルトサムネイル（NoImage）を返す
-					return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
-				}
-
 				Debug.WriteLine("サムネイル取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
+		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// デフォルトサムネイル（NoImage）
+		// ＜例外＞ Exception
+		// --------------------------------------------------------------------
+		private IActionResult DefaultThumbnailFile()
+		{
+			if (DefaultThumbnail == null)
+			{
+				throw new Exception();
+			}
+
+			return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
 		}
 
 	}

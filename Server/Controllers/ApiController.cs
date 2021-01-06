@@ -105,6 +105,21 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// データベースコンテキスト生成
+		// ＜例外＞ Exception
+		// --------------------------------------------------------------------
+		protected ThumbnailContext CreateThumbnailContext(out DbSet<Thumbnail> thumbnails)
+		{
+			ThumbnailContext thumbnailContext = new();
+			if (thumbnailContext.Thumbnails == null)
+			{
+				throw new Exception("動画サムネイルデータベースにアクセスできません。");
+			}
+			thumbnails = thumbnailContext.Thumbnails;
+			return thumbnailContext;
+		}
+
+		// --------------------------------------------------------------------
 		// ETag 生成
 		// --------------------------------------------------------------------
 		protected EntityTagHeaderValue GenerateEntityTag(Double lastModified)
