@@ -9,10 +9,12 @@
 // ----------------------------------------------------------------------------
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
+using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Shared.Database;
 using YukariBlazorDemo.Shared.Misc;
 
@@ -38,18 +40,39 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// 予約を追加
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<HttpResponseMessage> AddRequestAsync(RequestSong requestSong)
+		public async Task<String> AddRequestAsync(RequestSong requestSong)
 		{
-			return await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
+			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
+			if (response.IsSuccessStatusCode)
+			{
+				return String.Empty;
+			}
+			switch (response.StatusCode)
+			{
+				default:
+					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+			}
 		}
 
 		// --------------------------------------------------------------------
 		// 予約をすべて削除
 		// --------------------------------------------------------------------
-		public async Task<HttpResponseMessage> DeleteAllAsync()
+		public async Task<String> DeleteAllAsync()
 		{
-			return await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_DELETE_ALL, 0);
+			using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_DELETE_ALL, 0);
+			if (response.IsSuccessStatusCode)
+			{
+				return String.Empty;
+			}
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.NotAcceptable:
+					return "予約がありません。";
+				default:
+					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+			}
 		}
 
 		// --------------------------------------------------------------------
@@ -67,7 +90,5 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			return await GetArrayAsync<String>(YbdConstants.URL_GUEST_USER_NAMES);
 		}
-
-
 	}
 }

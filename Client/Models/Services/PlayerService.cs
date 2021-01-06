@@ -68,6 +68,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// 現在の曲を再生または一時停止する
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
 		public async Task<String> PlayOrPauseAsync()
 		{
@@ -87,6 +88,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// 前の曲を再生
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
 		public async Task<String> PrevAsync()
 		{
@@ -103,7 +105,5 @@ namespace YukariBlazorDemo.Client.Models.Services
 					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
 			}
 		}
-
-
 	}
 }

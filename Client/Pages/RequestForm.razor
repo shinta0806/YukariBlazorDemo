@@ -215,19 +215,20 @@ else
 	// ====================================================================
 
 	// --------------------------------------------------------------------
-	// 有効な状態で検索ボタンクリック
+	// 有効な状態で予約ボタンクリック
 	// --------------------------------------------------------------------
 	private async Task OnOK()
 	{
 		try
 		{
-			using HttpResponseMessage message = await RequestSongService.AddRequestAsync(requestSong);
-			if (!message.IsSuccessStatusCode)
+			String message = await RequestSongService.AddRequestAsync(requestSong);
+			if (!String.IsNullOrEmpty(message))
 			{
-				requestResult = "予約できませんでした。やり直してください。";
+				requestResult = message;
 				StateHasChanged();
 				return;
 			}
+
 			NavigationManager.NavigateTo("/");
 		}
 		catch (Exception excep)

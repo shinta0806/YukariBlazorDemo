@@ -42,16 +42,12 @@ namespace YukariBlazorDemo.Server.Controllers
 			String status;
 			try
 			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception("データベースにアクセスできません。");
-				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				// FirstOrDefault を使用すると列の不足を検出できる
-				requestSongContext.RequestSongs.FirstOrDefault(x => x.RequestSongId == 0);
+				requestSongs.FirstOrDefault(x => x.RequestSongId == 0);
 
-				status = "正常 / 予約曲数：" + requestSongContext.RequestSongs.Count();
+				status = "正常 / 予約曲数：" + requestSongs.Count();
 			}
 			catch (Exception excep)
 			{
@@ -76,36 +72,24 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (!requestSong.IsValid())
 				{
-					throw new Exception();
+					return BadRequest();
 				}
 
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				Int32 sort;
-				if (requestSongContext.RequestSongs.Count() == 0)
+				if (requestSongs.Count() == 0)
 				{
 					sort = 1;
 				}
 				else
 				{
-					// 最後の予約との重複チェック
-					RequestSong lastRequestSong = requestSongContext.RequestSongs.OrderBy(x => x.Sort).Last();
-					if (requestSong.Path == lastRequestSong.Path && requestSong.UserName == lastRequestSong.UserName)
-					{
-						// 重複している場合は既に登録されているので OK とする
-						return Ok();
-					}
-
-					sort = requestSongContext.RequestSongs.Max(x => x.Sort) + 1;
+					sort = requestSongs.Max(x => x.Sort) + 1;
 				}
 
 				// 追加する曲は最後
 				requestSong.Sort = sort;
-				requestSongContext.RequestSongs.Add(requestSong);
+				requestSongs.Add(requestSong);
 				requestSongContext.SaveChanges();
 				return Ok();
 			}
@@ -113,7 +97,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("予約追加サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
 
@@ -125,10 +109,10 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+				if (requestSongs.Count() == 0)
 				{
-					throw new Exception();
+					return NotAcceptable();
 				}
 				requestSongContext.Database.EnsureDeleted();
 				requestSongContext.Database.EnsureCreated();
@@ -138,7 +122,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("予約全削除サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
 
@@ -148,41 +132,29 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_LIST + "{query?}")]
 		public IActionResult GetRequestSongs(String? query)
 		{
-			IEnumerable<RequestSong>? results = null;
-			Int32 numResults = 0;
-			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
 				// キャッシュチェック
-				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					return NotModified();
 				}
 
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
-
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 				Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(query);
 				Int32 page = YbdCommon.GetPageFromQueryParameters(parameters);
-				numResults = requestSongContext.RequestSongs.Count();
-				results = requestSongContext.RequestSongs.OrderByDescending(x => x.Sort).Skip(YbdConstants.PAGE_SIZE * page).Take(YbdConstants.PAGE_SIZE).ToArray();
+				Int32 numResults = requestSongs.Count();
+				RequestSong[] results = requestSongs.OrderByDescending(x => x.Sort).Skip(YbdConstants.PAGE_SIZE * page).Take(YbdConstants.PAGE_SIZE).ToArray();
+				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("予約一覧取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
 			}
-			if (results == null)
-			{
-				results = new RequestSong[0];
-			}
-
-			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
-			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
 
 		// --------------------------------------------------------------------
@@ -191,46 +163,28 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_GUEST_USER_NAMES)]
 		public IActionResult GetUserNames()
 		{
-			IEnumerable<String>? results = null;
-			Int32 numResults = 0;
-			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
 				// キャッシュチェック
-				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					return NotModified();
 				}
 
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
-				results = requestSongContext.RequestSongs.Where(x => x.UserId == 0).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
-				numResults = results.Count();
+				String[] results = requestSongs.Where(x => x.UserId == 0).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
+				Int32 numResults = results.Count();
+				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("予約者名一覧取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
 			}
-			if (results == null)
-			{
-				results = new String[0];
-			}
-
-			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
-			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
-
-		// ====================================================================
-		// private メンバー関数
-		// ====================================================================
-
-
-
 	}
 }

@@ -123,15 +123,15 @@
 				return;
 			}
 
-			HttpResponseMessage message = await RequestSongService.DeleteAllAsync();
-			if (message.IsSuccessStatusCode)
+			String message = await RequestSongService.DeleteAllAsync();
+			if (String.IsNullOrEmpty(message))
 			{
 				adminResult = "削除しました。";
 				requestStatus = await RequestSongService.StatusAsync();
 			}
 			else
 			{
-				adminResult = "削除できませんでした。";
+				adminResult = message;
 			}
 			StateHasChanged();
 		}
