@@ -178,7 +178,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 						return "そのお名前は既に登録されています。";
 					case HttpStatusCode.InternalServerError:
 						return "サーバー内部でエラーが発生しました。";
-					case HttpStatusCode.Unauthorized:
+					case HttpStatusCode.NotAcceptable:
 						return "お名前またはパスワードが違います。";
 					default:
 						return "予期しないエラーが発生しました。";
