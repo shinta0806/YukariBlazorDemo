@@ -64,7 +64,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// 認証が必要な API からデータを取得
 		// 401 が返ってきたらログアウトする
 		// --------------------------------------------------------------------
-		public async Task<T?> GetFromJsonAsync<T>(String uri)
+		public async Task<T?> GetAuthorizedFromJsonAsync<T>(String uri)
 		{
 			if (AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
 			{
@@ -125,8 +125,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<Boolean> IsLoggedInAsync()
 		{
-			// サーバーから Unauthorized が返されても例外にはならず false が返せる模様
-			return await GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
+			return await GetAuthorizedFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
 		}
 
 		// --------------------------------------------------------------------
