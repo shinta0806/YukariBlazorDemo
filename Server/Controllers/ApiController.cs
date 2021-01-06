@@ -63,6 +63,21 @@ namespace YukariBlazorDemo.Server.Controllers
 		// データベースコンテキスト生成
 		// ＜例外＞ Exception
 		// --------------------------------------------------------------------
+		protected AvailableSongContext CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs)
+		{
+			AvailableSongContext availableSongContext = new();
+			if (availableSongContext.AvailableSongs == null)
+			{
+				throw new Exception("予約可能曲データベースにアクセスできません。");
+			}
+			availableSongs = availableSongContext.AvailableSongs;
+			return availableSongContext;
+		}
+
+		// --------------------------------------------------------------------
+		// データベースコンテキスト生成
+		// ＜例外＞ Exception
+		// --------------------------------------------------------------------
 		protected RegisteredUserContext CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers)
 		{
 			RegisteredUserContext registeredUserContext = new();

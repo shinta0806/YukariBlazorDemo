@@ -42,15 +42,13 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<AvailableSong?> SearchByIdAsync(String? id)
 		{
-			AvailableSong? result = null;
-			try
+			AvailableSong? result = await HttpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
+
+			if (String.IsNullOrEmpty(result?.Id))
 			{
-				result = await HttpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
-			}
-			catch (JsonException)
-			{
-				// 存在しない ID が指定された場合（ユーザーが URL を書き換えた場合など）はサーバー側で null を返し、JSON 化できないため JsonException 例外となる
+				// 存在しない ID が指定された場合（ユーザーが URL を書き換えた場合など）はサーバー側で空の AvailableSong を返す
 				// クライアント側には null を返す
+				result = null;
 			}
 			return result;
 		}

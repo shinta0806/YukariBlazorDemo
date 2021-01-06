@@ -43,19 +43,15 @@ namespace YukariBlazorDemo.Server.Controllers
 			String status;
 			try
 			{
-				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSongs == null)
-				{
-					throw new Exception("データベースにアクセスできません。");
-				}
+				using AvailableSongContext availableSongContext = CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs);
 #if DEBUG
 				Thread.Sleep(1000);
 #endif
 
 				// FirstOrDefault を使用すると列の不足を検出できる
-				availableSongContext.AvailableSongs.FirstOrDefault(x => x.Id == String.Empty);
+				availableSongs.FirstOrDefault(x => x.Id == String.Empty);
 
-				status = "正常 / 曲数：" + availableSongContext.AvailableSongs.Count();
+				status = "正常 / 曲数：" + availableSongs.Count();
 			}
 			catch (Exception excep)
 			{
@@ -76,22 +72,24 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_ID + "{id}")]
 		public AvailableSong? SearchById(String? id)
 		{
-			AvailableSong? result = null;
 			try
 			{
-				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSongs == null)
+				using AvailableSongContext availableSongContext = CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs);
+				AvailableSong? result = availableSongs.FirstOrDefault(x => x.Id == id);
+				if (result == null)
 				{
-					throw new Exception();
+					// 再生中の曲が無い
+					// null を返すとクライアント側が HttpClient.GetFromJsonAsync<AvailableSong?>() で受け取った際に例外が発生するため、空のインスタンスを返す
+					result = new();
 				}
-				result = availableSongContext.AvailableSongs.FirstOrDefault(x => x.Id == id);
+				return result;
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("曲取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return null;
 			}
-			return result;
 		}
 
 		// --------------------------------------------------------------------
@@ -100,13 +98,10 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_WORD + "{query}")]
 		public IActionResult SearchByWord(String? query)
 		{
-			IEnumerable<AvailableSong>? results = null;
-			Int32 numResults = 0;
-			DateTime lastModified = ServerConstants.INVALID_DATE;
 			try
 			{
 				// キャッシュチェック
-				lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					return NotModified();
@@ -115,15 +110,11 @@ namespace YukariBlazorDemo.Server.Controllers
 				SearchWord searchWord = new SearchWord(query);
 				if (!searchWord.IsValid(out String? errorMessage))
 				{
-					throw new Exception(errorMessage);
-				}
-				using AvailableSongContext availableSongContext = new();
-				if (availableSongContext.AvailableSongs == null)
-				{
-					throw new Exception();
+					return BadRequest();
 				}
 
-				IQueryable<AvailableSong> searchResults = availableSongContext.AvailableSongs;
+				using AvailableSongContext availableSongContext = CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs);
+				IQueryable<AvailableSong> searchResults = availableSongs;
 				if (searchWord.Type == SearchWordType.AnyWord)
 				{
 					// なんでも検索
@@ -178,22 +169,19 @@ namespace YukariBlazorDemo.Server.Controllers
 						searchResults = SearchByPath(searchResults, pathes[i]);
 					}
 				}
-				numResults = searchResults.Count();
+				Int32 numResults = searchResults.Count();
 
 				// 検索結果は AvailableSongContext の寿命と共に尽きるようなので、ToArray() で新しいコンテナに格納する
-				results = SortSearchResult(searchResults, searchWord.Sort).Skip(YbdConstants.PAGE_SIZE * searchWord.Page).Take(YbdConstants.PAGE_SIZE).ToArray();
+				AvailableSong[] results = SortSearchResult(searchResults, searchWord.Sort).Skip(YbdConstants.PAGE_SIZE * searchWord.Page).Take(YbdConstants.PAGE_SIZE).ToArray();
+				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("キーワード検索サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
 			}
-			if (results == null)
-			{
-				results = new AvailableSong[0];
-			}
-			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
-			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
 
 		// ====================================================================
