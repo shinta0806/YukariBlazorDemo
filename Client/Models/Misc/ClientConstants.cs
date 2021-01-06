@@ -12,6 +12,13 @@ using System;
 
 namespace YukariBlazorDemo.Client.Models.Misc
 {
+	// ====================================================================
+	// public デリゲート
+	// ====================================================================
+
+	// 一般通知（引数無し）
+	public delegate void NotifyDelegate();
+
 	public class ClientConstants
 	{
 		// ====================================================================

@@ -13,6 +13,7 @@ using Microsoft.JSInterop;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -121,6 +122,16 @@ namespace YukariBlazorDemo.Client.Models.Misc
 			navigationManager.NavigateTo("/clienterror/" + ClientConstants.ERROR_PARAM_NAME_TYPE + "=" + excep.GetType().Name
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_MESSAGE + "=" + Uri.EscapeDataString(excep.Message)
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_TRACE + "=" + Uri.EscapeDataString(excep.StackTrace ?? String.Empty));
+		}
+
+		// ====================================================================
+		// public static メンバー関数（デバッグ専用）
+		// ====================================================================
+
+		[Conditional("DEBUG")]
+		public static void DebugWriteLine(String message)
+		{
+			Console.WriteLine(message);
 		}
 
 		// ====================================================================

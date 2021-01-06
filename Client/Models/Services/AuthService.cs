@@ -125,6 +125,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<Boolean> IsLoggedInAsync()
 		{
+			// サーバーから Unauthorized が返されても例外にはならず false が返せる模様
 			return await GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
 		}
 
@@ -157,6 +158,19 @@ namespace YukariBlazorDemo.Client.Models.Services
 				result = false;
 			}
 			return result;
+		}
+
+		// --------------------------------------------------------------------
+		// イベントハンドラー設定
+		// --------------------------------------------------------------------
+		public Boolean SetStateChangedHandler(NotifyDelegate notifyDelegate)
+		{
+			if (AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			{
+				stateProvider.StateChanged = notifyDelegate;
+				return true;
+			}
+			return false;
 		}
 
 		// ====================================================================

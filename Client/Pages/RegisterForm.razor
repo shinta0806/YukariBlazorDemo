@@ -239,11 +239,17 @@ else
 			else
 			{
 				result = await LoginAsync();
+#if DEBUG
+				Console.WriteLine("OnOK() after LoginAsync()");
+#endif
 			}
 			if (!result)
 			{
 				return;
 			}
+#if DEBUG
+			Console.WriteLine("OnOK() before navigate");
+#endif
 			NavigationManager.NavigateTo("/mypage");
 		}
 		catch (Exception excep)

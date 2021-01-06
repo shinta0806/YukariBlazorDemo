@@ -19,6 +19,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Shared.Authorization;
 
 namespace YukariBlazorDemo.Client.Models.Authorization
@@ -50,6 +51,9 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 
 		// ログインしているユーザーの情報
 		public PublicUserInfo? LoginUserInfo { get; private set; }
+
+		// ログイン状態が変化した
+		public NotifyDelegate? StateChanged { get; set; }
 
 		// ====================================================================
 		// public メンバー関数
@@ -103,9 +107,15 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			// ローカルストレージに認証状態を保存
 			await LocalStorage.SetItemAsync(ITEM_NAME_TOKEN, token);
 			await LocalStorage.SetItemAsync(ITEM_NAME_LOGIN_INFO, loginUserInfo);
+#if DEBUG
+			Console.WriteLine("SetStateLoginAsync() saved");
+#endif
 
 			LoginUserInfo = loginUserInfo;
-			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+			InvokeStateChanged();
+#if DEBUG
+			Console.WriteLine("SetStateLoginAsync() notified");
+#endif
 		}
 
 		// --------------------------------------------------------------------
@@ -118,7 +128,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			await LocalStorage.RemoveItemAsync(ITEM_NAME_LOGIN_INFO);
 
 			LoginUserInfo = null;
-			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+			InvokeStateChanged();
 		}
 
 		// ====================================================================
@@ -134,6 +144,18 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// ====================================================================
 		// private メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ログイン状態が変化したことを通知
+		// --------------------------------------------------------------------
+		private void InvokeStateChanged()
+		{
+			if (StateChanged != null)
+			{
+				StateChanged();
+			}
+			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+		}
 
 		// --------------------------------------------------------------------
 		// ローカルストレージから認証状態を読み込む
@@ -155,12 +177,18 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			(String? token, PublicUserInfo? loginUserInfo) = await LoadLocalStorageAsync();
 			if (String.IsNullOrEmpty(token) || loginUserInfo == null)
 			{
+#if DEBUG
+				Console.WriteLine("SetAuthorizationHeaderAndPropertyAsync() clear()");
+#endif
 				// 認証ヘッダーをクリア
 				HttpClient.DefaultRequestHeaders.Authorization = null;
 				LoginUserInfo = null;
 				return (null, null);
 			}
 
+#if DEBUG
+			Console.WriteLine("SetAuthorizationHeaderAndPropertyAsync() set()");
+#endif
 			// 認証ヘッダーを設定
 			header = new AuthenticationHeaderValue("Bearer", token);
 			HttpClient.DefaultRequestHeaders.Authorization = header;
