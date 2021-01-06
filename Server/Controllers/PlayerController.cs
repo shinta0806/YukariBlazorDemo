@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -50,15 +50,12 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
-				RequestSong? result = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+				RequestSong? result = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (result == null)
 				{
 					// 再生中の曲が無い
+					// null を返すとクライアント側が HttpClient.GetFromJsonAsync<RequestSong?>() で受け取った際に例外が発生するため、空のインスタンスを返す
 					result = new();
 				}
 				return result;
@@ -79,14 +76,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 				RequestSong? requestSong;
-
-				requestSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing);
+				requestSong = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing);
 				if (requestSong != null)
 				{
 					// 再生中の曲を一時停止する
@@ -95,7 +87,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					return Ok();
 				}
 
-				requestSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Pause);
+				requestSong = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Pause);
 				if (requestSong != null)
 				{
 					// 一時停止中の曲を再生する
@@ -104,7 +96,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					return Ok();
 				}
 
-				requestSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Unplayed).OrderBy(x => x.Sort).FirstOrDefault();
+				requestSong = requestSongs.Where(x => x.PlayStatus == PlayStatus.Unplayed).OrderBy(x => x.Sort).FirstOrDefault();
 				if (requestSong != null)
 				{
 					// 未再生の曲を再生する
@@ -112,13 +104,15 @@ namespace YukariBlazorDemo.Server.Controllers
 					requestSongContext.SaveChanges();
 					return Ok();
 				}
+
+				return NotAcceptable();
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("再生／一時停止サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
 			}
-			return BadRequest();
 		}
 
 		// --------------------------------------------------------------------
@@ -129,13 +123,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
-				RequestSong? currentSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
+				RequestSong? currentSong = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (currentSong != null)
 				{
 					// 再生中・一時停止中の曲を再生済みにする
@@ -149,7 +139,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("次曲再生サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
 
@@ -161,13 +151,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RequestSongContext requestSongContext = new();
-				if (requestSongContext.RequestSongs == null)
-				{
-					throw new Exception();
-				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
-				RequestSong? currentSong = requestSongContext.RequestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
+				RequestSong? currentSong = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (currentSong != null)
 				{
 					// 再生中・一時停止中の曲を未再生にする
@@ -175,7 +161,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					requestSongContext.SaveChanges();
 				}
 
-				RequestSong? playedSong = requestSongContext.RequestSongs.Where(x => x.PlayStatus == PlayStatus.Played).OrderByDescending(x => x.Sort).FirstOrDefault();
+				RequestSong? playedSong = requestSongs.Where(x => x.PlayStatus == PlayStatus.Played).OrderByDescending(x => x.Sort).FirstOrDefault();
 				if (playedSong != null)
 				{
 					// 再生済みの曲を未再生にする
@@ -187,7 +173,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					if (currentSong == null)
 					{
 						// 再生済みの曲も再生中の曲も無い場合は戻れない
-						throw new Exception();
+						return NotAcceptable();
 					}
 				}
 
@@ -197,8 +183,28 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				Debug.WriteLine("前曲再生サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return BadRequest();
+				return InternalServerError();
 			}
 		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// データベースコンテキスト生成
+		// --------------------------------------------------------------------
+		private RequestSongContext CreateRequestSongContext(out DbSet<RequestSong> requestSongs)
+		{
+			RequestSongContext requestSongContext = new();
+			if (requestSongContext.RequestSongs == null)
+			{
+				throw new Exception("予約データベースにアクセスできません。");
+			}
+			requestSongs = requestSongContext.RequestSongs;
+			return requestSongContext;
+		}
+
+
 	}
 }

@@ -9,9 +9,6 @@
 // ----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace YukariBlazorDemo.Client.Models.Misc
 {
@@ -27,6 +24,9 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// エラーページ
 		public const String ERROR_PARAM_NAME_MESSAGE = "message";
 		public const String ERROR_PARAM_NAME_TRACE = "trace";
+
+		// エラーメッセージ
+		public const String ERROR_MESSAGE_UNEXPECTED = "予期しないエラーが発生しました。";
 
 		// 初期状態を表す文字列
 		public const String INIT_STRING = "__Init__";

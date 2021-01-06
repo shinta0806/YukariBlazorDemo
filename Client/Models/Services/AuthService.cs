@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using YukariBlazorDemo.Client.Models.Authorization;
+using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Shared.Authorization;
 using YukariBlazorDemo.Shared.Misc;
 
@@ -181,7 +182,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 					case HttpStatusCode.NotAcceptable:
 						return "お名前またはパスワードが違います。";
 					default:
-						return "予期しないエラーが発生しました。";
+						return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
 				}
 			}
 

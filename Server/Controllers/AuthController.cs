@@ -65,16 +65,12 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception("デフォルト登録ユーザーサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
 				}
 
-				using RegisteredUserContext registeredUserContext = new();
-				if (registeredUserContext.RegisteredUsers == null)
-				{
-					throw new Exception("データベースにアクセスできません。");
-				}
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 
 				// FirstOrDefault を使用すると列の不足を検出できる
-				registeredUserContext.RegisteredUsers.FirstOrDefault(x => x.Id == 0);
+				registeredUsers.FirstOrDefault(x => x.Id == 0);
 
-				status = "正常 / ユーザー数：" + registeredUserContext.RegisteredUsers.Count();
+				status = "正常 / ユーザー数：" + registeredUsers.Count();
 			}
 			catch (Exception excep)
 			{
@@ -99,13 +95,8 @@ namespace YukariBlazorDemo.Server.Controllers
 			Boolean? registered = null;
 			try
 			{
-				using RegisteredUserContext registeredUserContext = new();
-				if (registeredUserContext.RegisteredUsers == null)
-				{
-					throw new Exception("データベースにアクセスできません。");
-				}
-
-				registered = IsAdminRegistered(registeredUserContext.RegisteredUsers);
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				registered = IsAdminRegistered(registeredUsers);
 			}
 			catch (Exception excep)
 			{
@@ -129,17 +120,13 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = new();
-				if (registeredUserContext.RegisteredUsers == null)
-				{
-					throw new Exception();
-				}
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 				RegisteredUser newUser = new();
 				newUser.Name = registerInfo.Name;
 				newUser.Password = registerInfo.Password;
 				newUser.LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 
-				if (!IsAdminRegistered(registeredUserContext.RegisteredUsers))
+				if (!IsAdminRegistered(registeredUsers))
 				{
 					// 管理者未登録の場合は管理者登録でなければならない
 					if (newUser.Name != YbdConstants.ADMIN_NAME)
@@ -150,13 +137,13 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// 同じ名前のユーザーが既に存在している場合は登録できない
-				if (registeredUserContext.RegisteredUsers.FirstOrDefault(x => x.Name == newUser.Name) != null)
+				if (registeredUsers.FirstOrDefault(x => x.Name == newUser.Name) != null)
 				{
 					return Conflict();
 				}
 
 				// 登録
-				registeredUserContext.RegisteredUsers.Add(newUser);
+				registeredUsers.Add(newUser);
 				registeredUserContext.SaveChanges();
 
 				String idAndToken = GenerateIdAndTokenString(newUser.Id);
@@ -187,12 +174,8 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = new();
-				if (registeredUserContext.RegisteredUsers == null)
-				{
-					throw new Exception();
-				}
-				RegisteredUser? loginUser = registeredUserContext.RegisteredUsers.SingleOrDefault(x => x.Name == loginInfo.Name && x.Password == loginInfo.Password);
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name && x.Password == loginInfo.Password);
 				if (loginUser == null)
 				{
 					return NotAcceptable();
@@ -227,13 +210,8 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception("ID が指定されていません。");
 				}
 
-				using RegisteredUserContext registeredUserContext = new();
-				if (registeredUserContext.RegisteredUsers == null)
-				{
-					throw new Exception();
-				}
-
-				RegisteredUser registeredUser = registeredUserContext.RegisteredUsers.Single(x => x.Id == idNum);
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == idNum);
 				userInfo = new PublicUserInfo();
 				registeredUser.CopyPublicInfo(userInfo);
 			}
@@ -268,12 +246,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					return BadRequest();
 				}
-				using RegisteredUserContext registeredUserContext = new();
-				if (registeredUserContext.RegisteredUsers == null)
-				{
-					throw new Exception();
-				}
-				RegisteredUser? registeredUser = registeredUserContext.RegisteredUsers.SingleOrDefault(x => x.Id == idNum);
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == idNum);
 				if (registeredUser == null)
 				{
 					return BadRequest();
@@ -350,11 +324,25 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// データベースコンテキスト生成
+		// --------------------------------------------------------------------
+		private RegisteredUserContext CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers)
+		{
+			RegisteredUserContext registeredUserContext = new();
+			if (registeredUserContext.RegisteredUsers == null)
+			{
+				throw new Exception("登録ユーザーデータベースにアクセスできません。");
+			}
+			registeredUsers = registeredUserContext.RegisteredUsers;
+			return registeredUserContext;
+		}
+
+		// --------------------------------------------------------------------
 		// 管理者が登録されているか
 		// --------------------------------------------------------------------
 		private Boolean IsAdminRegistered(DbSet<RegisteredUser> registeredUsers)
 		{
-			return registeredUsers.Where(x => x.IsAdmin).FirstOrDefault() != null;
+			return registeredUsers.FirstOrDefault(x => x.IsAdmin) != null;
 		}
 
 		// --------------------------------------------------------------------

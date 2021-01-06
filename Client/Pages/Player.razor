@@ -16,7 +16,7 @@
 		</div>
 	</form>
 
-	<div>@playResult</div>
+	<div class="error-message">@playResult</div>
 
 </div>
 
@@ -68,14 +68,11 @@
 	{
 		try
 		{
-			HttpResponseMessage message = await PlayerService.NextAsync();
-			if (message.IsSuccessStatusCode)
+			String message = await PlayerService.NextAsync();
+			playResult = message;
+			if (String.IsNullOrEmpty(message))
 			{
 				await UpdateStatusAsync();
-			}
-			else
-			{
-				playResult = "次の曲を再生できませんでした。未再生の曲があるか確認してください。";
 			}
 			StateHasChanged();
 		}
@@ -92,14 +89,11 @@
 	{
 		try
 		{
-			HttpResponseMessage message = await PlayerService.PlayOrPauseAsync();
-			if (message.IsSuccessStatusCode)
+			String message = await PlayerService.PlayOrPauseAsync();
+			playResult = message;
+			if (String.IsNullOrEmpty(message))
 			{
 				await UpdateStatusAsync();
-			}
-			else
-			{
-				playResult = "再生／一時停止できませんでした。曲が予約されているか確認してください。";
 			}
 			StateHasChanged();
 		}
@@ -116,14 +110,11 @@
 	{
 		try
 		{
-			HttpResponseMessage message = await PlayerService.PrevAsync();
-			if (message.IsSuccessStatusCode)
+			String message = await PlayerService.PrevAsync();
+			playResult = message;
+			if (String.IsNullOrEmpty(message))
 			{
 				await UpdateStatusAsync();
-			}
-			else
-			{
-				playResult = "前の曲を再生できませんでした。曲が予約されているか確認してください。";
 			}
 			StateHasChanged();
 		}
@@ -141,19 +132,21 @@
 		playingSong = await PlayerService.GetPlayingSongAsync();
 		if (playingSong == null)
 		{
-			playStatus = "停止中";
+			return;
 		}
-		else
+		switch (playingSong.PlayStatus)
 		{
-			if (playingSong.PlayStatus == PlayStatus.Playing)
-			{
+			case PlayStatus.Playing:
 				playStatus = "再生中";
-			}
-			else
-			{
+				playingSongName = playingSong.SongName;
+				break;
+			case PlayStatus.Pause:
 				playStatus = "一時停止中";
-			}
-			playingSongName = playingSong.SongName;
+				playingSongName = playingSong.SongName;
+				break;
+			default:
+				playStatus = "停止中";
+				break;
 		}
 	}
 
