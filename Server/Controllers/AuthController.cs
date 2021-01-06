@@ -324,20 +324,6 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// データベースコンテキスト生成
-		// --------------------------------------------------------------------
-		private RegisteredUserContext CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers)
-		{
-			RegisteredUserContext registeredUserContext = new();
-			if (registeredUserContext.RegisteredUsers == null)
-			{
-				throw new Exception("登録ユーザーデータベースにアクセスできません。");
-			}
-			registeredUsers = registeredUserContext.RegisteredUsers;
-			return registeredUserContext;
-		}
-
-		// --------------------------------------------------------------------
 		// 管理者が登録されているか
 		// --------------------------------------------------------------------
 		private Boolean IsAdminRegistered(DbSet<RegisteredUser> registeredUsers)

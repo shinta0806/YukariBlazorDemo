@@ -118,7 +118,8 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// --------------------------------------------------------------------
 		public static void NavigateToClientError(NavigationManager navigationManager, Exception excep)
 		{
-			navigationManager.NavigateTo("/clienterror/" + ClientConstants.ERROR_PARAM_NAME_MESSAGE + "=" + Uri.EscapeDataString(excep.Message)
+			navigationManager.NavigateTo("/clienterror/" + ClientConstants.ERROR_PARAM_NAME_TYPE + "=" + excep.GetType().Name
+					+ "&" + ClientConstants.ERROR_PARAM_NAME_MESSAGE + "=" + Uri.EscapeDataString(excep.Message)
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_TRACE + "=" + Uri.EscapeDataString(excep.StackTrace ?? String.Empty));
 		}
 

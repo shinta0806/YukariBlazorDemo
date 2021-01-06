@@ -9,12 +9,16 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 using System;
 using System.Net;
+
+using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
+using YukariBlazorDemo.Shared.Database;
 using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
@@ -54,6 +58,36 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 		// protected メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// データベースコンテキスト生成
+		// ＜例外＞ Exception
+		// --------------------------------------------------------------------
+		protected RegisteredUserContext CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers)
+		{
+			RegisteredUserContext registeredUserContext = new();
+			if (registeredUserContext.RegisteredUsers == null)
+			{
+				throw new Exception("登録ユーザーデータベースにアクセスできません。");
+			}
+			registeredUsers = registeredUserContext.RegisteredUsers;
+			return registeredUserContext;
+		}
+
+		// --------------------------------------------------------------------
+		// データベースコンテキスト生成
+		// ＜例外＞ Exception
+		// --------------------------------------------------------------------
+		protected RequestSongContext CreateRequestSongContext(out DbSet<RequestSong> requestSongs)
+		{
+			RequestSongContext requestSongContext = new();
+			if (requestSongContext.RequestSongs == null)
+			{
+				throw new Exception("予約データベースにアクセスできません。");
+			}
+			requestSongs = requestSongContext.RequestSongs;
+			return requestSongContext;
+		}
 
 		// --------------------------------------------------------------------
 		// ETag 生成

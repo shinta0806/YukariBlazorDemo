@@ -8,6 +8,14 @@
 
 		<table class="input-table">
 			<tr>
+				<td class="input-td">状況：</td>
+				<td class="input-td">@status</td>
+			</tr>
+			<tr>
+				<td class="input-td">タイプ：</td>
+				<td class="input-td">@errorType</td>
+			</tr>
+			<tr>
 				<td class="input-td">メッセージ：</td>
 				<td class="input-td">@errorMessage</td>
 			</tr>
@@ -47,8 +55,9 @@
 				return;
 			}
 
-			// エラーメッセージ
+			// 型とメッセージ
 			Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(Query);
+			parameters.TryGetValue(ClientConstants.ERROR_PARAM_NAME_TYPE, out errorType);
 			parameters.TryGetValue(ClientConstants.ERROR_PARAM_NAME_MESSAGE, out errorMessage);
 
 			// スタックトレースに "&" が含まれる場合があるため、YbdCommon.AnalyzeQuery は使えない
@@ -60,6 +69,9 @@
 				stackTrace = stackTrace?.Replace(">", "&gt;");
 				stackTrace = stackTrace?.Replace("\n", "<br>");
 			}
+
+			// 状況の推測
+			status = GuessStatus();
 		}
 		catch (Exception)
 		{
@@ -70,11 +82,35 @@
 	// private 変数
 	// ====================================================================
 
+	// 推測される状況
+	private String? status;
+
+	// 例外の型
+	private String? errorType;
+
 	// エラーメッセージ
 	private String? errorMessage;
 
 	// スタックトレース
 	private String? stackTrace;
 
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 状況の推測
+	// --------------------------------------------------------------------
+	private String GuessStatus()
+	{
+		if (errorType == typeof(HttpRequestException).Name)
+		{
+			// サーバーが稼働していない場合、HttpClient の GetFromJsonAsyncCore() PostAsJsonAsync() は HttpRequestException を出す
+			return "サーバーが稼働していない可能性があります。";
+		}
+
+		// 推測できない
+		return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+	}
 
 }

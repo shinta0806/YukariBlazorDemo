@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 
 using System;
@@ -224,6 +225,11 @@ namespace YukariBlazorDemo.Server.Controllers
 			EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 			return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
 
 
 	}

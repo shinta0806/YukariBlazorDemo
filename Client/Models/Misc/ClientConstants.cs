@@ -24,8 +24,10 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// エラーページ
 		public const String ERROR_PARAM_NAME_MESSAGE = "message";
 		public const String ERROR_PARAM_NAME_TRACE = "trace";
+		public const String ERROR_PARAM_NAME_TYPE = "type";
 
 		// エラーメッセージ
+		public const String ERROR_MESSAGE_CANNOT_CONNECT = "サーバーに接続できませんでした。";
 		public const String ERROR_MESSAGE_UNEXPECTED = "予期しないエラーが発生しました。";
 
 		// 初期状態を表す文字列

@@ -191,19 +191,6 @@ namespace YukariBlazorDemo.Server.Controllers
 		// private メンバー関数
 		// ====================================================================
 
-		// --------------------------------------------------------------------
-		// データベースコンテキスト生成
-		// --------------------------------------------------------------------
-		private RequestSongContext CreateRequestSongContext(out DbSet<RequestSong> requestSongs)
-		{
-			RequestSongContext requestSongContext = new();
-			if (requestSongContext.RequestSongs == null)
-			{
-				throw new Exception("予約データベースにアクセスできません。");
-			}
-			requestSongs = requestSongContext.RequestSongs;
-			return requestSongContext;
-		}
 
 
 	}
