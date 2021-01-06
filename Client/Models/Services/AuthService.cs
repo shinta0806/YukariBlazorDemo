@@ -97,7 +97,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得
 		// --------------------------------------------------------------------
-		public async Task<PublicUserInfo?> GetPublicUserInfoAsync(Int32 id)
+		public async Task<PublicUserInfo?> GetPublicUserInfoAsync(String id)
 		{
 			PublicUserInfo? result = null;
 			try
@@ -125,7 +125,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<Boolean> IsLoggedInAsync()
 		{
-			return await GetAuthorizedFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
+			Boolean isLoggedIn = await GetAuthorizedFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
+			if (!isLoggedIn)
+			{
+				await SetStateLogoutAsync();
+			}
+			return isLoggedIn;
 		}
 
 		// --------------------------------------------------------------------
@@ -214,7 +219,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			{
 				return "サーバーから認証情報を取得できませんでした。";
 			}
-			Int32.TryParse(split[0], out Int32 id);
+			String id = split[0];
 			String token = split[1];
 
 			// ユーザー情報を取得

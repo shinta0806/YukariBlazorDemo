@@ -34,7 +34,7 @@ namespace YukariBlazorDemo.Shared.Database
 		public Int32 Sort { get; set; }
 
 		// 予約者のユーザー ID（ログインユーザーの場合のみ）
-		public Int32 UserId { get; set; }
+		public String UserId { get; set; } = String.Empty;
 
 		// 予約者
 		[Required(ErrorMessage = "予約者を入力してください。")]

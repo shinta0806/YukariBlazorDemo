@@ -89,9 +89,6 @@
 	// ユーザー ID
 	private String? id;
 
-	// 以前に確認したヘッダー
-	private AuthenticationHeaderValue? prevHeader;
-
 	// ====================================================================
 	// private 関数
 	// ====================================================================
@@ -101,9 +98,8 @@
 	// --------------------------------------------------------------------
 	private void UpdateId()
 	{
-		id = AuthService.GetLoginUserInfo()?.Id.ToString();
+		id = AuthService.GetLoginUserInfo()?.Id;
 		ClientCommon.DebugWriteLine("UpdateId() id: " + id);
-		prevHeader = HttpClient.DefaultRequestHeaders.Authorization;
 		StateHasChanged();
 	}
 

@@ -57,6 +57,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			private set
 			{
 				mLoginUserInfo = value;
+				ClientCommon.DebugWriteLine("LoginUserInfo setter() id: " + mLoginUserInfo?.Id);
 				if (StateChanged != null)
 				{
 					StateChanged();
@@ -143,7 +144,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		private const String ITEM_NAME_TOKEN = "token";
 
 		// ログイン情報用
-		private const String ITEM_NAME_LOGIN_INFO = "logininfo";
+		private const String ITEM_NAME_LOGIN_INFO = "logininfo2";
 
 		// ====================================================================
 		// private メンバー関数
@@ -180,6 +181,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			// 認証ヘッダーを設定
 			header = new AuthenticationHeaderValue("Bearer", token);
 			HttpClient.DefaultRequestHeaders.Authorization = header;
+			ClientCommon.DebugWriteLine("SetAuthorizationHeaderAndPropertyAsync() header set: " + token);
 
 			// 認証ヘッダー更新後に LoginUserInfo 設定
 			LoginUserInfo = loginUserInfo;

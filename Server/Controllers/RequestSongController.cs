@@ -174,7 +174,7 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
-				String[] results = requestSongs.Where(x => x.UserId == 0).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
+				String[] results = requestSongs.Where(x => x.UserId == String.Empty).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
 				Int32 numResults = results.Count();
 				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);

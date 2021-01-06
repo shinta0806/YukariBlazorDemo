@@ -68,7 +68,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 
 				// FirstOrDefault を使用すると列の不足を検出できる
-				registeredUsers.FirstOrDefault(x => x.Id == 0);
+				registeredUsers.FirstOrDefault(x => x.Id == String.Empty);
 
 				status = "正常 / ユーザー数：" + registeredUsers.Count();
 			}
@@ -205,13 +205,14 @@ namespace YukariBlazorDemo.Server.Controllers
 			PublicUserInfo? userInfo = null;
 			try
 			{
-				if (!Int32.TryParse(id, out Int32 idNum))
+				if (String.IsNullOrEmpty(id))
 				{
 					throw new Exception("ID が指定されていません。");
 				}
 
+				Debug.WriteLine("GetPublicUserInfo() id: " + id);
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == idNum);
+				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == id);
 				userInfo = new PublicUserInfo();
 				registeredUser.CopyPublicInfo(userInfo);
 			}
@@ -242,12 +243,8 @@ namespace YukariBlazorDemo.Server.Controllers
 					return File(DefaultGuestUserThumbnail.Bitmap, DefaultGuestUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
 				}
 
-				if (!Int32.TryParse(id, out Int32 idNum))
-				{
-					return BadRequest();
-				}
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == idNum);
+				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 				if (registeredUser == null)
 				{
 					return BadRequest();
@@ -279,7 +276,21 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_IS_LOGGED_IN)]
 		public Boolean IsLoggedIn()
 		{
-			// ここに到達できているということはログインしているということ
+			// ここに到達できているということはログインはできている
+			String? id = GetIdFromHeader();
+			if (String.IsNullOrEmpty(id))
+			{
+				return false;
+			}
+
+			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
+			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+			RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+			if (registeredUser == null)
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -318,28 +329,23 @@ namespace YukariBlazorDemo.Server.Controllers
 		// トークンの有効期間 [h]
 		private const Int32 TOKEN_AVAILABLE_HOURS = 12;
 
+		// authorization ヘッダー
+		private const String HEADER_NAME_AUTHORIZATION = "authorization";
+
 		// ====================================================================
 		// private メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// 管理者が登録されているか
-		// --------------------------------------------------------------------
-		private Boolean IsAdminRegistered(DbSet<RegisteredUser> registeredUsers)
-		{
-			return registeredUsers.FirstOrDefault(x => x.IsAdmin) != null;
-		}
-
-		// --------------------------------------------------------------------
 		// 認証トークン文字列生成
 		// --------------------------------------------------------------------
-		private String GenerateToken(Int32 id)
+		private String GenerateToken(String id)
 		{
 			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY));
 			SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 			Claim[] claims = new Claim[]
 			{
-				new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+				new Claim(ClaimTypes.NameIdentifier, id),
 			};
 			JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.Now.AddHours(TOKEN_AVAILABLE_HOURS), creds);
 			return new JwtSecurityTokenHandler().WriteToken(token);
@@ -348,9 +354,61 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// ユーザー ID と認証トークンセットの文字列生成
 		// --------------------------------------------------------------------
-		private String GenerateIdAndTokenString(Int32 id)
+		private String GenerateIdAndTokenString(String id)
 		{
 			return id + YbdConstants.TOKEN_DELIM + GenerateToken(id);
+		}
+
+		// --------------------------------------------------------------------
+		// ヘッダーの認証トークンから Id を取得
+		// --------------------------------------------------------------------
+		private String? GetIdFromHeader()
+		{
+			// Authorization ヘッダーは "Bearer Token" の形式になっている
+			HttpContext.Request.Headers.TryGetValue(HEADER_NAME_AUTHORIZATION, out StringValues values);
+			if (values.Count == 0)
+			{
+				return null;
+			}
+			String[] split = values[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			if (split.Length <= 1)
+			{
+				return null;
+			}
+			String token = split[1];
+
+			// トークン検証
+			String? id = null;
+			try
+			{
+				TokenValidationParameters parameters = new()
+				{
+					ValidateIssuer = true,
+					ValidateAudience = false,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = ServerConstants.TOKEN_ISSUER,
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
+				};
+				JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
+				ClaimsPrincipal claims = jwtSecurityTokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
+				id = claims.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+			}
+			catch (Exception excep)
+			{
+				// 不正なトークンの場合は例外が出る（ログイン状態の場合はフレームワークによりトークン検証済みのため例外が出ることは無いはず）
+				Debug.WriteLine("トークン検証サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+			}
+			return id;
+		}
+
+		// --------------------------------------------------------------------
+		// 管理者が登録されているか
+		// --------------------------------------------------------------------
+		private Boolean IsAdminRegistered(DbSet<RegisteredUser> registeredUsers)
+		{
+			return registeredUsers.FirstOrDefault(x => x.IsAdmin) != null;
 		}
 
 

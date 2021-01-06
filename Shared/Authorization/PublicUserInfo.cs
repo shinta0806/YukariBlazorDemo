@@ -19,7 +19,7 @@ namespace YukariBlazorDemo.Shared.Authorization
 		// ====================================================================
 
 		// ID
-		public Int32 Id { get; set; }
+		public String Id { get; set; } = String.Empty;
 
 		// 管理者権限かどうか
 		public Boolean IsAdmin { get; set; }
