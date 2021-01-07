@@ -68,7 +68,7 @@
 				</div>
 
 				<div class="actions">
-					<button class="default-button">@activeTabLabel</button>
+					<button class="default-button" disabled="@isButtonDisabled">@activeTabLabel</button>
 				</div>
 
 				<div class="error-message">
@@ -187,6 +187,9 @@ else
 	// パスワード再入力
 	private String? confirmPassword;
 
+	// ボタン無効化
+	private Boolean isButtonDisabled;
+
 	// 結果
 	private String? result;
 
@@ -231,6 +234,8 @@ else
 	{
 		try
 		{
+			isButtonDisabled = true;
+
 			Boolean result;
 			if (IsRegister())
 			{
@@ -249,6 +254,10 @@ else
 		catch (Exception excep)
 		{
 			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+		finally
+		{
+			isButtonDisabled = false;
 		}
 	}
 
