@@ -6,6 +6,7 @@
 
 // ----------------------------------------------------------------------------
 // 認証状態は頻繁に更新されるため ShortCache 属性を付与
+// ToDo: Firefox だと画像がうまくキャッシュされない模様
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Authorization;
@@ -307,11 +308,12 @@ namespace YukariBlazorDemo.Server.Controllers
 				DateTime lastModified = ServerCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
-					Debug.WriteLine("GetThumbnail() キャッシュ有効: " + id);
+					Debug.WriteLine("GetThumbnail() プロフィール画像キャッシュ有効: " + id);
 					return NotModified();
 				}
 
 				// プロフィール画像を返す
+				Debug.WriteLine("GetThumbnail() プロフィール画像キャッシュ無効: " + id);
 				EntityTagHeaderValue eTag = GenerateEntityTag(registeredUser.LastModified);
 				return File(registeredUser.Bitmap, registeredUser.Mime, lastModified, eTag);
 			}

@@ -1,0 +1,114 @@
+﻿@page "/changeuserthumbnail"
+@inject AuthService AuthService
+
+<AuthorizeView>
+	<NotAuthorized>
+		<div class="content">
+			<div>ログアウトしました。</div>
+		</div>
+	</NotAuthorized>
+	<Authorized>
+
+		<h1>プロフィール画像の変更</h1>
+		<div class="content">
+
+			<div>
+				<img src="@changeThumbnailPreview" />
+				<div class="actions">
+					<label for="input-thumbnail" class="general-button">
+						画像ファイル選択
+						<InputFile class="general-button" id="input-thumbnail" OnChange="@OnThumbnailFileChangeAsync" />
+					</label>
+					<br />
+					<div>@confirm</div>
+					<br />
+					<br />
+					<button class="general-button" type="button" @onclick="OnClickSendThumbnailAsync">変更</button>
+				</div>
+			</div>
+			<div>@changeThumbnailResult</div>
+
+		</div>
+
+	</Authorized>
+</AuthorizeView>
+
+
+@code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 認証状態
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+	// ====================================================================
+	// private 定数
+	// ====================================================================
+
+	// プロフィール画像の最大サイズ
+	private const Int32 USER_THUMBNAIL_WIDTH_MAX = 400;
+	private const Int32 USER_THUMBNAIL_HEIGHT_MAX = 400;
+
+	// プロフィール画像変更プレビュー
+	private String? changeThumbnailPreview;
+
+	// 確認メッセージ
+	private String? confirm;
+
+	// プロフィール画像送信用
+	private TransferFile thumbnailFile = new();
+
+	// プロフィール画像変更結果
+	private String? changeThumbnailResult;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// サムネイル変更ボタンがクリックされた
+	// --------------------------------------------------------------------
+	private async Task OnClickSendThumbnailAsync()
+	{
+		try
+		{
+			changeThumbnailResult = String.Empty;
+			changeThumbnailResult = await AuthService.SetThumbnailAsync(thumbnailFile);
+			if (!String.IsNullOrEmpty(changeThumbnailResult))
+			{
+				StateHasChanged();
+				return;
+			}
+			NavigationManager.NavigateTo("/mypage");
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// サムネイルファイル指定が変更された
+	// --------------------------------------------------------------------
+	private async Task OnThumbnailFileChangeAsync(InputFileChangeEventArgs e)
+	{
+		try
+		{
+			IBrowserFile resizedImageFile = await e.File.RequestImageFileAsync(e.File.ContentType, USER_THUMBNAIL_WIDTH_MAX, USER_THUMBNAIL_HEIGHT_MAX);
+			Byte[] buffer = new Byte[resizedImageFile.Size];
+			await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+			thumbnailFile.Content = buffer;
+			thumbnailFile.Mime = e.File.ContentType;
+			changeThumbnailPreview = $"data:{e.File.ContentType};base64,{Convert.ToBase64String(buffer)}";
+			confirm = "この画像で良ければ、「変更」ボタンをクリックしてください。";
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+}

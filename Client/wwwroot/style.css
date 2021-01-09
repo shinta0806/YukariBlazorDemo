@@ -270,6 +270,11 @@ img {
         outline: 2px solid var(--primary-bg-color);
     }
 
+/* ファイル選択ボタンのスタイルを無効にする */
+label > input {
+    display: none;
+}
+
 .actions {
     margin: 20px 0 0 0;
 }
