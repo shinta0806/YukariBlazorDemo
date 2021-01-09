@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 
+using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Database;
@@ -104,6 +105,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
+					Debug.WriteLine("SearchByWord() キャッシュ有効: " + query);
 					return NotModified();
 				}
 

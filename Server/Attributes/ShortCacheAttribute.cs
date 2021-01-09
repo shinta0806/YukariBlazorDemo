@@ -8,30 +8,21 @@
 // 
 // ----------------------------------------------------------------------------
 
-using Microsoft.AspNetCore.Mvc.Filters;
-
-using System;
-
-namespace YukariBlazorDemo.Server.Controllers
+namespace YukariBlazorDemo.Server.Attributes
 {
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-	public class ShortCacheAttribute : ActionFilterAttribute
+	public class ShortCacheAttribute : CachePeriodAttribute
 	{
 		// ====================================================================
-		// public メンバー関数
+		// コンストラクター・デストラクター
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// action result 実行前
-		// OnResultExecuted() では既に応答が始まっているのでキャッシュコントロールを変更できない
+		// コンストラクター
 		// --------------------------------------------------------------------
-		public override void OnResultExecuting(ResultExecutingContext context)
+		public ShortCacheAttribute() : base(1)
 		{
 			// ブラウザに内容をキャッシュさせるが、1 秒後には有効期限が切れて変更確認が来る
 			// max-age=0 でも大丈夫そうだが、キャッシュは保持して欲しいので念のため 1 にしておく
-			context.HttpContext.Response.Headers["Cache-Control"] = "max-age=1";
-			base.OnResultExecuting(context);
 		}
-
 	}
 }

@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
+using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Database;
@@ -138,6 +139,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
+					Debug.WriteLine("GetRequestSongs() キャッシュ有効: " + query);
 					return NotModified();
 				}
 
@@ -169,6 +171,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
 				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
+					Debug.WriteLine("GetUserNames() キャッシュ有効: ");
 					return NotModified();
 				}
 

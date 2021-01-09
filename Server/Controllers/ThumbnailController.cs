@@ -5,7 +5,7 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// サムネイルはめったに更新されないため ShortCache 属性は付与しない
+// 
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
+using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Database;
@@ -72,7 +73,9 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		// --------------------------------------------------------------------
 		// AvailableSong.Id に対応するサムネイルを返す
+		// サムネイルはめったに更新されないため OneYearCache 属性を付与する
 		// --------------------------------------------------------------------
+		[OneYearCache]
 		[HttpGet, Route("{id}")]
 		public IActionResult GetThumbnail(String? id)
 		{
@@ -87,6 +90,23 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				using ThumbnailContext thumbnailContext = CreateThumbnailContext(out DbSet<Thumbnail> thumbnails);
+				Thumbnail? thumbnail = thumbnails.FirstOrDefault(x => x.Path == availableSong.Path);
+				if (thumbnail == null)
+				{
+					// ID に対応するサムネイルが無い
+					thumbnail = DefaultThumbnail;
+					if (thumbnail == null)
+					{
+						throw new Exception();
+					}
+				}
+
+				// キャッシュチェック
+				if (IsValidEntityTag(thumbnail.LastModified))
+				{
+					Debug.WriteLine("GetThumbnail() キャッシュ有効: " + id);
+					return NotModified();
+				}
 
 				// 実際の運用時はサムネイルの返却に時間がかかることを想定
 				Random random = new();
@@ -100,13 +120,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					Thread.Sleep(random.Next(500, 1000));
 				}
 
-				Thumbnail? thumbnail = thumbnails.FirstOrDefault(x => x.Path == availableSong.Path);
-				if (thumbnail == null)
-				{
-					// ID に対応するサムネイルが無い
-					return DefaultThumbnailFile();
-				}
-
+				Debug.WriteLine("GetThumbnail() キャッシュ無し: " + id);
 				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
 				EntityTagHeaderValue eTag = GenerateEntityTag(thumbnail.LastModified);
 				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
@@ -118,24 +132,5 @@ namespace YukariBlazorDemo.Server.Controllers
 				return InternalServerError();
 			}
 		}
-
-		// ====================================================================
-		// private メンバー関数
-		// ====================================================================
-
-		// --------------------------------------------------------------------
-		// デフォルトサムネイル（NoImage）
-		// ＜例外＞ Exception
-		// --------------------------------------------------------------------
-		private IActionResult DefaultThumbnailFile()
-		{
-			if (DefaultThumbnail == null)
-			{
-				throw new Exception();
-			}
-
-			return File(DefaultThumbnail.Bitmap, DefaultThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
-		}
-
 	}
 }

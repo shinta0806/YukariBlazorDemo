@@ -384,7 +384,7 @@ namespace YukariBlazorDemo.Server
 					Path = moviePath,
 					Bitmap = stream.ToArray(),
 					Mime = ServerConstants.MIME_TYPE_PNG,
-					LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName)),
+					LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(imageFileName)),
 				};
 			}
 			catch (Exception excep)
