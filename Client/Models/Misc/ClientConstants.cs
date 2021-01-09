@@ -41,5 +41,8 @@ namespace YukariBlazorDemo.Client.Models.Misc
 
 		// 初期状態を表す文字列
 		public const String INIT_STRING = "__Init__";
+
+		// ログインページのパラメーター
+		public const String LOGIN_PARAM_REDIRECT = "redirect";
 	}
 }

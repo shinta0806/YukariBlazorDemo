@@ -20,8 +20,8 @@
 		<div class="dropdown-menu">
 			<AuthorizeView>
 				<NotAuthorized>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/registerform"))">新規ユーザー登録</div>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/registerform/login"))">ログイン</div>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("register/")))">新規ユーザー登録</div>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("login/")))">ログイン</div>
 				</NotAuthorized>
 				<Authorized>
 					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/mypage"))">マイページ</div>
@@ -95,13 +95,17 @@
 	// ====================================================================
 
 	// --------------------------------------------------------------------
-	// ログイン ID を最新の状態に更新
+	// ログインリンクの URL
 	// --------------------------------------------------------------------
-	private void UpdateId()
+	private String LoginUrl(String kind)
 	{
-		id = AuthService.GetLoginUserInfo()?.Id;
-		ClientCommon.DebugWriteLine("UpdateId() id: " + id);
-		StateHasChanged();
+		String redirect = NavigationManager.Uri.Substring(NavigationManager.BaseUri.Length);
+		String url = "/registerform/" + kind;
+		if (!String.IsNullOrEmpty(redirect))
+		{
+			url += ClientConstants.LOGIN_PARAM_REDIRECT + "=" + Uri.EscapeDataString(redirect);
+		}
+		return url;
 	}
 
 	// --------------------------------------------------------------------
@@ -112,4 +116,15 @@
 		await JSRuntime.InvokeVoidAsync("CloseLoginDropdown");
 		NavigationManager.NavigateTo(param);
 	}
+
+	// --------------------------------------------------------------------
+	// ログイン ID を最新の状態に更新
+	// --------------------------------------------------------------------
+	private void UpdateId()
+	{
+		id = AuthService.GetLoginUserInfo()?.Id;
+		ClientCommon.DebugWriteLine("UpdateId() id: " + id);
+		StateHasChanged();
+	}
+
 }
