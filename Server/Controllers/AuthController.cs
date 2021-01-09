@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
@@ -19,8 +20,9 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
-
+using System.Threading;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Authorization;
@@ -143,6 +145,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// 登録
+				HashPassword(newUser);
 				registeredUsers.Add(newUser);
 				registeredUserContext.SaveChanges();
 
@@ -174,9 +177,20 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
+#if DEBUG
+				Thread.Sleep(1000);
+#endif
+
+				// ユーザーを検索
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name && x.Password == loginInfo.Password);
+				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name);
 				if (loginUser == null)
+				{
+					return NotAcceptable();
+				}
+
+				// パスワードハッシュの一致を確認
+				if (loginUser.Password != HashPassword(loginInfo.Password, loginUser.Salt))
 				{
 					return NotAcceptable();
 				}
@@ -276,22 +290,31 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route(YbdConstants.URL_IS_LOGGED_IN)]
 		public Boolean IsLoggedIn()
 		{
-			// ここに到達できているということはログインはできている
-			String? id = GetIdFromHeader();
-			if (String.IsNullOrEmpty(id))
+			try
 			{
+				// ここに到達できているということはトークン自体は有効である
+				String? id = GetIdFromHeader();
+				if (String.IsNullOrEmpty(id))
+				{
+					return false;
+				}
+
+				// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+				if (registeredUser == null)
+				{
+					return false;
+				}
+
+				return true;
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("ログイン確認サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return false;
 			}
-
-			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
-			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-			RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
-			if (registeredUser == null)
-			{
-				return false;
-			}
-
-			return true;
 		}
 
 		// --------------------------------------------------------------------
@@ -326,11 +349,24 @@ namespace YukariBlazorDemo.Server.Controllers
 		// private メンバー定数
 		// ====================================================================
 
+		// 1 バイトは 8 ビット
+		private const Int32 BITS_PER_BYTE = 8;
+
+		// ソルト長 [bit]
+		private const Int32 SALT_LENGTH = 128;
+
+		// ハッシュ時の反復回数
+		private const Int32 ITERATION_COUNT = 10000;
+
+		// ハッシュ長 [bit]
+		private const Int32 HASH_LENGTH = 512;
+
 		// トークンの有効期間 [h]
 		private const Int32 TOKEN_AVAILABLE_HOURS = 12;
 
 		// authorization ヘッダー
 		private const String HEADER_NAME_AUTHORIZATION = "authorization";
+
 
 		// ====================================================================
 		// private メンバー関数
@@ -401,6 +437,29 @@ namespace YukariBlazorDemo.Server.Controllers
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 			}
 			return id;
+		}
+
+		// --------------------------------------------------------------------
+		// 登録情報のパスワードをハッシュ化
+		// --------------------------------------------------------------------
+		private void HashPassword(RegisteredUser user)
+		{
+			// ソルトの作成
+			user.Salt = new Byte[SALT_LENGTH / BITS_PER_BYTE];
+			using RandomNumberGenerator generator = RandomNumberGenerator.Create();
+			generator.GetBytes(user.Salt);
+
+			// ハッシュ化
+			user.Password = HashPassword(user.Password, user.Salt);
+		}
+
+		// --------------------------------------------------------------------
+		// 指定されたソルトでパスワードをハッシュ化
+		// --------------------------------------------------------------------
+		private String HashPassword(String password, Byte[] salt)
+		{
+			Byte[] hash = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, ITERATION_COUNT, HASH_LENGTH / BITS_PER_BYTE);
+			return Convert.ToBase64String(hash);
 		}
 
 		// --------------------------------------------------------------------

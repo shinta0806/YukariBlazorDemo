@@ -48,9 +48,13 @@ namespace YukariBlazorDemo.Server.Database
 		[Required]
 		public String Name { get; set; } = String.Empty;
 
-		// パスワード
+		// パスワード（保存時はハッシュ化）
 		[Required]
 		public String Password { get; set; } = String.Empty;
+
+		// ソルト
+		[Required]
+		public Byte[] Salt { get; set; } = new Byte[0];
 
 		// サムネイル画像
 		public Byte[] Bitmap { get; set; } = new Byte[0];
