@@ -8,8 +8,10 @@
 // 
 // ----------------------------------------------------------------------------
 
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IO;
+using System.Text;
 
 namespace YukariBlazorDemo.Server.Misc
 {
@@ -42,6 +44,22 @@ namespace YukariBlazorDemo.Server.Misc
 		public static DateTime ModifiedJulianDateToDateTime(Double mjd)
 		{
 			return JulianDayToDateTime(mjd + MJD_DELTA);
+		}
+
+		// --------------------------------------------------------------------
+		// トークン検証パラメーター
+		// --------------------------------------------------------------------
+		public static TokenValidationParameters TokenValidationParameters()
+		{
+			return new()
+			{
+				ValidateIssuer = true,
+				ValidateAudience = false,
+				ValidateLifetime = true,
+				ValidateIssuerSigningKey = true,
+				ValidIssuer = ServerConstants.TOKEN_ISSUER,
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
+			};
 		}
 
 		// ====================================================================

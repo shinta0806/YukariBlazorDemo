@@ -45,7 +45,7 @@
 
 	<form>
 		<div class="actions">
-			<button class="general-button" type="button" @onclick="OnClickDeleteAll">予約をすべて削除</button>
+			<button class="general-button" type="button" @onclick="OnClickDeleteAllAsync">予約をすべて削除</button>
 		</div>
 	</form>
 
@@ -113,7 +113,7 @@
 	// --------------------------------------------------------------------
 	// 予約をすべて削除ボタンクリック
 	// --------------------------------------------------------------------
-	private async Task OnClickDeleteAll()
+	private async Task OnClickDeleteAllAsync()
 	{
 		try
 		{

@@ -61,28 +61,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// 認証が必要な API からデータを取得
-		// 401 が返ってきたらログアウトする
-		// --------------------------------------------------------------------
-		public async Task<T?> GetAuthorizedFromJsonAsync<T>(String uri)
-		{
-			if (AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
-			{
-				await stateProvider.AddAuthorizationHeaderIfCanAsync();
-			}
-			using HttpResponseMessage response = await HttpClient.GetAsync(uri);
-			if (!response.IsSuccessStatusCode)
-			{
-				if (response.StatusCode == HttpStatusCode.Unauthorized)
-				{
-					await SetStateLogoutAsync();
-				}
-				return default(T);
-			}
-			return await response.Content.ReadFromJsonAsync<T>();
-		}
-
-		// --------------------------------------------------------------------
 		// ログインしているユーザーの情報を取得
 		// --------------------------------------------------------------------
 		public PublicUserInfo? GetLoginUserInfo()
@@ -145,23 +123,17 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// ログアウト
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<Boolean> LogoutAsync()
+		public async Task<String> LogoutAsync()
 		{
-			Boolean result = true;
-			try
+			using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGOUT, 0);
+			Boolean result = await SetStateLogoutAsync();
+			if (!response.IsSuccessStatusCode || !result)
 			{
-				using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGOUT, 0);
+				return "ログアウトできませんでした。";
 			}
-			catch (Exception)
-			{
-				result = false;
-			}
-			if (!await SetStateLogoutAsync())
-			{
-				result = false;
-			}
-			return result;
+			return String.Empty;
 		}
 
 		// --------------------------------------------------------------------
@@ -177,9 +149,72 @@ namespace YukariBlazorDemo.Client.Models.Services
 			return false;
 		}
 
+		// --------------------------------------------------------------------
+		// プロフィール画像設定
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> SetThumbnailAsync(TransferFile transferFile)
+		{
+			HttpStatusCode statusCode = await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_SET_USER_THUMBNAIL, transferFile);
+			if (!IsSuccessStatusCode(statusCode))
+			{
+				switch (statusCode)
+				{
+					case HttpStatusCode.InternalServerError:
+						return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+					case HttpStatusCode.Unauthorized:
+						return ClientConstants.ERROR_MESSAGE_UNAUTHORIZED;
+					default:
+						return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+				}
+			}
+			return String.Empty;
+		}
+
 		// ====================================================================
 		// private メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 認証が必要な API からデータを取得
+		// 401 が返ってきたらログアウトする
+		// --------------------------------------------------------------------
+		private async Task<T?> GetAuthorizedFromJsonAsync<T>(String uri)
+		{
+			if (AuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			{
+				await stateProvider.AddAuthorizationHeaderIfCanAsync();
+			}
+			using HttpResponseMessage response = await HttpClient.GetAsync(uri);
+			if (await SetStateLogoutIfUnauthorizedAsync(response))
+			{
+				return default(T);
+			}
+			if (!response.IsSuccessStatusCode)
+			{
+				return default(T);
+			}
+			return await response.Content.ReadFromJsonAsync<T>();
+		}
+
+		// --------------------------------------------------------------------
+		// HTTP 応答が成功したかどうか
+		// --------------------------------------------------------------------
+		private Boolean IsSuccessStatusCode(HttpStatusCode statusCode)
+		{
+			return HttpStatusCode.OK <= statusCode && statusCode < HttpStatusCode.MultipleChoices;
+		}
+
+		// --------------------------------------------------------------------
+		// 認証が必要な API へデータを送信
+		// 401 が返ってきたらログアウトする
+		// --------------------------------------------------------------------
+		private async Task<HttpStatusCode> PutAuthorizedAsJsonAsync<T>(String uri, T obj)
+		{
+			using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(uri, obj);
+			await SetStateLogoutIfUnauthorizedAsync(response);
+			return response.StatusCode;
+		}
 
 		// --------------------------------------------------------------------
 		// サーバーからのトークンを使ってログイン状態にする
@@ -196,7 +231,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 					case HttpStatusCode.Conflict:
 						return "そのお名前は既に登録されています。";
 					case HttpStatusCode.InternalServerError:
-						return "サーバー内部でエラーが発生しました。";
+						return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
 					case HttpStatusCode.NotAcceptable:
 						return "お名前またはパスワードが違います。";
 					default:
@@ -241,6 +276,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// ログアウト状態にする
+		// ＜返値＞ ログアウト状態にしたら true
 		// --------------------------------------------------------------------
 		private async Task<Boolean> SetStateLogoutAsync()
 		{
@@ -253,6 +289,23 @@ namespace YukariBlazorDemo.Client.Models.Services
 			await stateProvider.SetStateLogoutAsync();
 			return true;
 		}
+
+		// --------------------------------------------------------------------
+		// HTTP 応答が Unauthorized ならログアウト状態にする
+		// ＜返値＞ ログアウト状態にしたら true
+		// --------------------------------------------------------------------
+		private async Task<Boolean> SetStateLogoutIfUnauthorizedAsync(HttpResponseMessage response)
+		{
+			if (!response.IsSuccessStatusCode)
+			{
+				if (response.StatusCode == HttpStatusCode.Unauthorized)
+				{
+					return await SetStateLogoutAsync();
+				}
+			}
+			return false;
+		}
+
 
 	}
 }

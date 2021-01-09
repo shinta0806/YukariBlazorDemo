@@ -40,18 +40,8 @@ namespace YukariBlazorDemo.Server
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 			{
-				options.TokenValidationParameters = new TokenValidationParameters
-				{
-					ValidateIssuer = true,
-					ValidateAudience = false,
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
-					ValidIssuer = ServerConstants.TOKEN_ISSUER,
-					//ValidAudience = "MyIssuer",
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
-				};
+				options.TokenValidationParameters = ServerCommon.TokenValidationParameters();
 			});
-			//services.AddScoped<IAuthService, JwtAuthService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -14,9 +14,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -39,10 +40,10 @@ namespace YukariBlazorDemo.Server.Controllers
 		// public static プロパティー
 		// ====================================================================
 
-		// ゲストのユーザー画像
+		// ゲストのプロフィール画像
 		public static Thumbnail? DefaultGuestUserThumbnail { get; set; }
 
-		// 登録ユーザーのデフォルトユーザー画像
+		// 登録ユーザーのデフォルトプロフィール画像
 		public static Thumbnail? DefaultRegisteredUserThumbnail { get; set; }
 
 		// ====================================================================
@@ -60,11 +61,11 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (DefaultGuestUserThumbnail == null)
 				{
-					throw new Exception("デフォルトゲストサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
+					throw new Exception("デフォルトゲストプロフィール画像が作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
 				}
 				if (DefaultRegisteredUserThumbnail == null)
 				{
-					throw new Exception("デフォルト登録ユーザーサムネイルが作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
+					throw new Exception("デフォルト登録ユーザープロフィール画像が作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
 				}
 
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
@@ -239,7 +240,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// 公開されているユーザーの画像を返す
+		// 公開されているプロフィール画像を返す
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
 		[HttpGet, Route(YbdConstants.URL_PUBLIC_USER_THUMBNAIL + "{*id}")]
@@ -249,7 +250,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				if (String.IsNullOrEmpty(id))
 				{
-					// 引数が空の場合は、ゲストのユーザー画像を返す
+					// 引数が空の場合は、ゲストのプロフィール画像を返す
 					if (DefaultGuestUserThumbnail == null)
 					{
 						throw new Exception();
@@ -264,16 +265,24 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				// 指定されたユーザーが見つかった
-				if (DefaultRegisteredUserThumbnail == null)
+				// 指定されたユーザーにプロフィール画像が設定されていない場合
+				if (registeredUser.Bitmap.Length == 0)
 				{
-					throw new Exception();
+					if (DefaultRegisteredUserThumbnail == null)
+					{
+						throw new Exception();
+					}
+					return File(DefaultRegisteredUserThumbnail.Bitmap, DefaultRegisteredUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
 				}
-				return File(DefaultRegisteredUserThumbnail.Bitmap, DefaultRegisteredUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
+
+				// プロフィール画像を返す
+				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified));
+				EntityTagHeaderValue eTag = GenerateEntityTag(registeredUser.LastModified);
+				return File(registeredUser.Bitmap, registeredUser.Mime, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("ユーザー画像取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("プロフィール画像取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
@@ -292,22 +301,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				// ここに到達できているということはトークン自体は有効である
-				String? id = GetIdFromHeader();
-				if (String.IsNullOrEmpty(id))
-				{
-					return false;
-				}
-
-				// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
-				if (registeredUser == null)
-				{
-					return false;
-				}
-
-				return true;
+				// ここに到達できているということはトークン自体は正規のものである
+				// しかし有効かどうかはまた別問題のため、有効性を確認する
+				return IsTokenValid(out RegisteredUser? registeredUser);
 			}
 			catch (Exception excep)
 			{
@@ -337,12 +333,44 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// プロフィール画像を設定
+		// --------------------------------------------------------------------
+		[HttpPut, Route(YbdConstants.URL_SET_USER_THUMBNAIL)]
+		public IActionResult SetThumbnail([FromBody] TransferFile transferFile)
+		{
+			try
+			{
+				if (!IsTokenValid(out RegisteredUser? registeredUser))
+				{
+					return Unauthorized();
+				}
+
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				registeredUser = registeredUsers.Single(x => x.Id == registeredUser.Id);
+
+				// 設定
+				registeredUser.Bitmap = transferFile.Content;
+				registeredUser.Mime = transferFile.Mime;
+				registeredUser.LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				registeredUserContext.SaveChanges();
+
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("プロフィール画像設定サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// テスト用
 		// --------------------------------------------------------------------
 		[HttpGet, Route("test/")]
 		public String Test()
 		{
-			return "Test " + Environment.TickCount.ToString("#,0");
+			return "Test isTokenValid: " + IsTokenValid(out RegisteredUser? registeredUser) + " / " + Environment.TickCount.ToString("#,0");
 		}
 
 		// ====================================================================
@@ -383,7 +411,9 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				new Claim(ClaimTypes.NameIdentifier, id),
 			};
-			JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.Now.AddHours(TOKEN_AVAILABLE_HOURS), creds);
+			JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.UtcNow.AddHours(TOKEN_AVAILABLE_HOURS), creds);
+			//JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.UtcNow.AddMinutes(-4), creds);
+			//JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.UtcNow.AddHours(-1), creds);
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 
@@ -414,29 +444,18 @@ namespace YukariBlazorDemo.Server.Controllers
 			String token = split[1];
 
 			// トークン検証
-			String? id = null;
 			try
 			{
-				TokenValidationParameters parameters = new()
-				{
-					ValidateIssuer = true,
-					ValidateAudience = false,
-					ValidateLifetime = true,
-					ValidateIssuerSigningKey = true,
-					ValidIssuer = ServerConstants.TOKEN_ISSUER,
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
-				};
+				TokenValidationParameters parameters = ServerCommon.TokenValidationParameters();
 				JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
 				ClaimsPrincipal claims = jwtSecurityTokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
-				id = claims.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+				return claims.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 			}
-			catch (Exception excep)
+			catch (Exception)
 			{
-				// 不正なトークンの場合は例外が出る（ログイン状態の場合はフレームワークによりトークン検証済みのため例外が出ることは無いはず）
-				Debug.WriteLine("トークン検証サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				// トークンの有効期限切れ等の場合は例外となる
+				return null;
 			}
-			return id;
 		}
 
 		// --------------------------------------------------------------------
@@ -470,7 +489,28 @@ namespace YukariBlazorDemo.Server.Controllers
 			return registeredUsers.FirstOrDefault(x => x.IsAdmin) != null;
 		}
 
+		// --------------------------------------------------------------------
+		// ヘッダーに記載されているトークンが有効かどうか
+		// --------------------------------------------------------------------
+		private Boolean IsTokenValid([NotNullWhen(true)] out RegisteredUser? registeredUser)
+		{
+			registeredUser = null;
+			String? id = GetIdFromHeader();
+			if (String.IsNullOrEmpty(id))
+			{
+				return false;
+			}
 
+			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
+			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+			registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+			if (registeredUser == null)
+			{
+				return false;
+			}
+
+			return true;
+		}
 
 
 
@@ -490,9 +530,18 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		//[Authorize]
 		[AllowAnonymous]
-		[HttpGet, Route("test2/")]
-		public String Test2()
+		[HttpGet, Route("test2/{*query}")]
+		public String Test2(String? query)
 		{
+			try
+			{
+				GetIdFromHeader();
+			}
+			catch (Exception)
+			{
+				return "Test 2 GetIdFromHeader() failed";
+			}
+
 			String? token = null;
 			HttpContext.Request.Headers.TryGetValue("authorization", out StringValues values);
 			if (values.Count > 0)
@@ -530,10 +579,12 @@ namespace YukariBlazorDemo.Server.Controllers
 			};
 
 			JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
+			String? jwtInfo = null;
 			try
 			{
 				ClaimsPrincipal claims = jwtSecurityTokenHandler.ValidateToken(token, p, out SecurityToken validatedToken);
-				var a = claims.Claims.Count();
+				jwtInfo = claims.Claims.Count().ToString() + ", ";
+				jwtInfo += validatedToken.ValidTo.ToString("yyyy/MM/dd HH:mm:ss");
 			}
 			catch (Exception excep)
 			{
@@ -541,7 +592,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				return "Test 2 Exception: " + excep.Message;
 			}
 
-			return "Test 2 " + Environment.TickCount.ToString("#,0");
+			return "Test 2 query: " + query + " / numClaims: " + jwtInfo + " / now: " + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + " / " + Environment.TickCount.ToString("#,0");
 		}
 
 	}

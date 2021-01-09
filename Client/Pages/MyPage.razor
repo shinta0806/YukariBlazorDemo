@@ -2,24 +2,76 @@
 @inject AuthService AuthService
 @inject HttpClient HttpClient
 
+<AuthorizeView>
+	<NotAuthorized>
+		<div class="content">
+			<div>ログアウトしました。</div>
+		</div>
+	</NotAuthorized>
+	<Authorized>
+
+		<h1>プロフィール</h1>
+		<div class="content">
+
+			<div class="tab-content">
+				<table class="input-table">
+					<tr>
+						<td class="input-td">画像</td>
+						<td class="input-td">
+							<img src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + userInfo?.Id)" />
+						</td>
+					</tr>
+					<tr>
+						<td class="input-td">お名前：</td>
+						<td class="input-td">@userInfo?.Name</td>
+					</tr>
+				</table>
+			</div>
+
+		</div>
+
+		<h1>プロフィールの変更</h1>
+		<div class="content">
+
+			<a name="change-thumbnail"></a>
+			<h2 id="change-thumbnail">画像の変更</h2>
+			<div>
+				@if (!String.IsNullOrEmpty(changeThumbnailPreview))
+				{
+					<img src="@changeThumbnailPreview" />
+				}
+				<div class="actions">
+					<InputFile class="general-button" OnChange="@OnThumbnailFileChangeAsync" />
+					<button class="general-button" type="button" @onclick="OnClickSendThumbnailAsync">変更</button>
+				</div>
+			</div>
+			<div>@changeThumbnailResult</div>
+
+		</div>
+
+	</Authorized>
+</AuthorizeView>
+
 <h3>MyPage</h3>
 
 <div>[status] @status</div>
 <div>[test1] @test</div>
 <div>[test2] @test2</div>
 
-<AuthorizeView>
-	<NotAuthorized>
-		<div>オーソライズサレテナイヨ</div>
-	</NotAuthorized>
-	<Authorized>
-		<div>ここはおーそらいずど</div>
-	</Authorized>
-</AuthorizeView>
 
 @code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 認証状態
 	[CascadingParameter]
-	private Task<AuthenticationState>? authenticationStateTask { get; set; }
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
 
 	// --------------------------------------------------------------------
 	// 初期化が完了した
@@ -28,6 +80,12 @@
 	{
 		try
 		{
+			userInfo = AuthService.GetLoginUserInfo();
+
+
+
+
+
 			try
 			{
 				//status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API +YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_STATUS);
@@ -52,7 +110,7 @@
 			}
 			try
 			{
-				test2 = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + "test2/");
+				test2 = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + "test2/" + Environment.TickCount);
 			}
 			catch (Exception)
 			{
@@ -65,13 +123,103 @@
 		}
 	}
 
+	// ====================================================================
+	// private 定数
+	// ====================================================================
 
-	private LoginInfo? userInfo;
+	// プロフィール画像の最大サイズ
+	private const Int32 USER_THUMBNAIL_WIDTH_MAX = 400;
+	private const Int32 USER_THUMBNAIL_HEIGHT_MAX = 400;
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// ログインしているユーザーの情報
+	private PublicUserInfo? userInfo;
+
+	// プロフィール画像変更プレビュー
+	private String? changeThumbnailPreview;
+
+	// プロフィール画像送信用
+	private TransferFile thumbnailFile = new();
+
+	// プロフィール画像変更結果
+	private String? changeThumbnailResult;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// サムネイル変更ボタンがクリックされた
+	// --------------------------------------------------------------------
+	private async Task OnClickSendThumbnailAsync()
+	{
+		try
+		{
+			changeThumbnailResult = String.Empty;
+			changeThumbnailResult = await AuthService.SetThumbnailAsync(thumbnailFile);
+			if (String.IsNullOrEmpty(changeThumbnailResult))
+			{
+				changeThumbnailResult = "プロフィール画像を変更しました。";
+			}
+			StateHasChanged();
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// サムネイルファイル指定が変更された
+	// --------------------------------------------------------------------
+	private async Task OnThumbnailFileChangeAsync(InputFileChangeEventArgs e)
+	{
+		try
+		{
+			IBrowserFile resizedImageFile = await e.File.RequestImageFileAsync(e.File.ContentType, USER_THUMBNAIL_WIDTH_MAX, USER_THUMBNAIL_HEIGHT_MAX);
+			Byte[] buffer = new Byte[resizedImageFile.Size];
+			await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+			thumbnailFile.Content = buffer;
+			thumbnailFile.Mime = e.File.ContentType;
+			changeThumbnailPreview = $"data:{e.File.ContentType};base64,{Convert.ToBase64String(buffer)}";
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	private String? status;
 
 	private String? test;
 
 	private String? test2;
+
 
 }
