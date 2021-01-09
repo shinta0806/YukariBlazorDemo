@@ -52,6 +52,10 @@
 	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
 	// ====================================================================
+	// public 関数
+	// ====================================================================
+
+	// ====================================================================
 	// protected 関数
 	// ====================================================================
 
@@ -62,11 +66,12 @@
 	{
 		try
 		{
+			// ログイン状態を確認することにより AuthenticationStateTask に反映させる
+			await AuthService.IsLoggedInAsync();
+
 			userInfo = AuthService.GetLoginUserInfo();
 
-
-
-
+			//StateHasChanged();
 
 			try
 			{

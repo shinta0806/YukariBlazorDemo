@@ -74,7 +74,7 @@
 				throw new Exception();
 			}
 
-			// ログイン状態を確認することにより authenticationStateTask に反映させる
+			// ログイン状態を確認することにより AuthenticationStateTask に反映させる
 			await AuthService.IsLoggedInAsync();
 		}
 		catch (Exception excep)

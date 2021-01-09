@@ -20,13 +20,14 @@
 						<InputFile class="general-button" id="input-thumbnail" OnChange="@OnThumbnailFileChangeAsync" />
 					</label>
 					<br />
+					<br />
 					<div>@confirm</div>
 					<br />
 					<br />
 					<button class="general-button" type="button" @onclick="OnClickSendThumbnailAsync">変更</button>
 				</div>
 			</div>
-			<div>@changeThumbnailResult</div>
+			<div class="error-message">@changeThumbnailResult</div>
 
 		</div>
 
@@ -75,14 +76,13 @@
 	{
 		try
 		{
-			changeThumbnailResult = String.Empty;
 			changeThumbnailResult = await AuthService.SetThumbnailAsync(thumbnailFile);
 			if (!String.IsNullOrEmpty(changeThumbnailResult))
 			{
 				StateHasChanged();
 				return;
 			}
-			NavigationManager.NavigateTo("/mypage");
+			NavigationManager.NavigateTo("/mypage", true);
 		}
 		catch (Exception excep)
 		{
