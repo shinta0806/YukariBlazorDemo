@@ -5,7 +5,7 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// 認証状態は頻繁に更新されるため ShortCache 属性を付与
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -23,7 +24,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
+
+using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Authorization;
@@ -31,6 +35,7 @@ using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
+	[ShortCache]
 	[Authorize]
 	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_AUTH)]
@@ -215,28 +220,38 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
 		[HttpGet, Route(YbdConstants.URL_PUBLIC_USER_INFO + "{id}")]
-		public PublicUserInfo? GetPublicUserInfo(String? id)
+		public IActionResult GetPublicUserInfo(String? id)
 		{
-			PublicUserInfo? userInfo = null;
 			try
 			{
+				// キャッシュチェック
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REGISTERED_USERS);
+				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					Debug.WriteLine("GetPublicUserInfo() キャッシュ有効: " + id);
+					return NotModified();
+				}
+
 				if (String.IsNullOrEmpty(id))
 				{
-					throw new Exception("ID が指定されていません。");
+					return BadRequest();
 				}
 
 				Debug.WriteLine("GetPublicUserInfo() id: " + id);
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == id);
-				userInfo = new PublicUserInfo();
+				PublicUserInfo userInfo = new PublicUserInfo();
 				registeredUser.CopyPublicInfo(userInfo);
+
+				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified));
+				return File(JsonSerializer.SerializeToUtf8Bytes(userInfo), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("公開ユーザー情報取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
 			}
-			return userInfo;
 		}
 
 		// --------------------------------------------------------------------
@@ -248,6 +263,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
+				RegisteredUser? registeredUser = null;
 				if (String.IsNullOrEmpty(id))
 				{
 					// 引数が空の場合は、ゲストのプロフィール画像を返す
@@ -255,28 +271,47 @@ namespace YukariBlazorDemo.Server.Controllers
 					{
 						throw new Exception();
 					}
-					return File(DefaultGuestUserThumbnail.Bitmap, DefaultGuestUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
-				}
-
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
-				if (registeredUser == null)
-				{
-					return BadRequest();
-				}
-
-				// 指定されたユーザーにプロフィール画像が設定されていない場合
-				if (registeredUser.Bitmap.Length == 0)
-				{
-					if (DefaultRegisteredUserThumbnail == null)
+					registeredUser = new()
 					{
-						throw new Exception();
+						Bitmap = DefaultGuestUserThumbnail.Bitmap,
+						Mime = DefaultGuestUserThumbnail.Mime,
+						LastModified = ServerConstants.INVALID_MJD,
+					};
+				}
+				else
+				{
+					using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+					registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+					if (registeredUser == null)
+					{
+						return NotAcceptable();
 					}
-					return File(DefaultRegisteredUserThumbnail.Bitmap, DefaultRegisteredUserThumbnail.Mime, ServerConstants.INVALID_DATE_OFFSET, INVALID_ETAG);
+
+					// 指定されたユーザーにプロフィール画像が設定されていない場合
+					if (registeredUser.Bitmap.Length == 0)
+					{
+						if (DefaultRegisteredUserThumbnail == null)
+						{
+							throw new Exception();
+						}
+						registeredUser = new()
+						{
+							Bitmap = DefaultRegisteredUserThumbnail.Bitmap,
+							Mime = DefaultRegisteredUserThumbnail.Mime,
+							LastModified = ServerConstants.INVALID_MJD,
+						};
+					}
+				}
+
+				// キャッシュチェック
+				DateTime lastModified = ServerCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified);
+				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					Debug.WriteLine("GetThumbnail() キャッシュ有効: " + id);
+					return NotModified();
 				}
 
 				// プロフィール画像を返す
-				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified));
 				EntityTagHeaderValue eTag = GenerateEntityTag(registeredUser.LastModified);
 				return File(registeredUser.Bitmap, registeredUser.Mime, lastModified, eTag);
 			}

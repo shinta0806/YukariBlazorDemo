@@ -270,10 +270,12 @@ else
 	// --------------------------------------------------------------------
 	private String RedirectUrl()
 	{
-		// Param に "&" や "=" が含まれる場合があるため YbdCommon.AnalyzeQuery() は使えない
 		String redirect = String.Empty;
-		if (!String.IsNullOrEmpty(Param))
+
+		// ログアウトページから来た場合はリダイレクトしない
+		if (!String.IsNullOrEmpty(Param) && Param.IndexOf("logout") < 0)
 		{
+			// Param に "&" や "=" が含まれる場合があるため YbdCommon.AnalyzeQuery() は使えない
 			Int32 pos = Param.IndexOf(ClientConstants.LOGIN_PARAM_REDIRECT + "=");
 			if (pos >= 0)
 			{

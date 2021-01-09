@@ -39,7 +39,7 @@ namespace YukariBlazorDemo.Server.Attributes
 		// --------------------------------------------------------------------
 		public override void OnResultExecuting(ResultExecutingContext context)
 		{
-			context.HttpContext.Response.Headers["Cache-Control"] = "max-age=" + mPeriod.ToString();
+			context.HttpContext.Response.Headers["Cache-Control"] = "public, max-age=" + mPeriod.ToString();
 			base.OnResultExecuting(context);
 		}
 
