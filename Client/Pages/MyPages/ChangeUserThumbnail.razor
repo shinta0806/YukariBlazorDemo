@@ -2,13 +2,7 @@
 @inject AuthService AuthService
 
 <AuthorizeView>
-	<NotAuthorized>
-		<div class="content">
-			<div>ログアウトしました。</div>
-		</div>
-	</NotAuthorized>
 	<Authorized>
-
 		<h1>プロフィール画像の変更</h1>
 		<div class="content">
 
@@ -31,8 +25,12 @@
 			</div>
 
 		</div>
-
 	</Authorized>
+	<NotAuthorized>
+		<div class="content">
+			<div>ログアウトしました。</div>
+		</div>
+	</NotAuthorized>
 </AuthorizeView>
 
 
@@ -73,7 +71,14 @@
 	{
 		try
 		{
-			changeThumbnailResult = await AuthService.SetThumbnailAsync(thumbnailFile);
+			if (thumbnailFile.Content.Length == 0)
+			{
+				changeThumbnailResult = "画像が選択されていません。";
+			}
+			else
+			{
+				changeThumbnailResult = await AuthService.SetThumbnailAsync(thumbnailFile);
+			}
 			if (!String.IsNullOrEmpty(changeThumbnailResult))
 			{
 				StateHasChanged();
@@ -102,6 +107,7 @@
 			changeThumbnailPreview = $"data:{e.File.ContentType};base64,{Convert.ToBase64String(buffer)}";
 			confirm = "プレビュー：プロフィール画像は<span class='error-message'>まだ変更されていません</span>。この画像で良ければ、「変更」ボタンをクリックしてください。"
 					+ "<span class='supplement'>（形式：" + e.File.ContentType + "、データ容量：" + (buffer.Length / 1024).ToString() + " KB）</span>";
+			changeThumbnailResult = String.Empty;
 		}
 		catch (Exception excep)
 		{

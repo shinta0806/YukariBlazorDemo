@@ -63,7 +63,13 @@
 							<div class="req-list-misc">@misc</div>
 							<div class="req-list-path">@Path.GetFileName(requestSong.Path.Replace('\\', '/'))</div>
 						</td>
-						<td class="req-list-td">@requestSong.UserName</td>
+						<td class="req-list-td">
+							@if (!String.IsNullOrEmpty(requestSong.UserId))
+							{
+								<div><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + requestSong.UserId)" /></div>
+							}
+							<div class="center">@requestSong.UserName</div>
+						</td>
 						<td class="req-list-td">@requestSong.Comment</td>
 					</tr>
 				}

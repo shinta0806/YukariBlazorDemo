@@ -85,11 +85,6 @@ header {
         color: black;
     }
 
-header img {
-    width: 3rem;
-    height: 3rem;
-}
-
 h1 {
     background-color: #D00010;
     color: white;
@@ -104,6 +99,15 @@ img {
 
 .content {
     margin: 20px 10px;
+}
+
+.center {
+    text-align: center;
+}
+
+.tb-center {
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .supplement {
@@ -308,6 +312,15 @@ label > input {
 .error-message {
     color: red;
     margin: 10px 0 0 0;
+}
+
+/*
+    ユーザー
+*/
+
+.user-thumbnail {
+    width: 3rem;
+    height: 3rem;
 }
 
 /*

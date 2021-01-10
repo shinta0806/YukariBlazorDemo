@@ -15,18 +15,18 @@
 	</div>
 	<div class="header-item-dropdown">
 		<button class="dropdown-button" id="login-button" onclick="OnClickDropdown(this)">
-			<img src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + id)" />
+			<img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + id)" />
 		</button>
 		<div class="dropdown-menu">
 			<AuthorizeView>
-				<NotAuthorized>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("register/")))">新規ユーザー登録</div>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("login/")))">ログイン</div>
-				</NotAuthorized>
 				<Authorized>
 					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/mypage"))">マイページ</div>
 					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/logout"))">ログアウト</div>
 				</Authorized>
+				<NotAuthorized>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("register/")))">新規ユーザー登録</div>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("login/")))">ログイン</div>
+				</NotAuthorized>
 			</AuthorizeView>
 		</div>
 	</div>

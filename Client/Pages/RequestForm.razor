@@ -51,6 +51,12 @@
 							<tr>
 								<td class="input-td">予約者</td>
 								<AuthorizeView>
+									<Authorized Context="AuthorizeView">
+										<td class="input-td">
+											<span class="tb-center"><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + requestSong.UserId)" /></span>
+											<span class="tb-center">@requestSong.UserName<br /><span class="supplement">（ログイン済）</span></span>
+										</td>
+									</Authorized>
 									<NotAuthorized Context="AuthorizeView">
 										<td class="input-td">
 											<select class="input-narrow" @bind="requestSong.UserName">
@@ -64,9 +70,6 @@
 											<span class="supplement">（ゲスト）</span>
 										</td>
 									</NotAuthorized>
-									<Authorized Context="AuthorizeView">
-										<td class="input-td">@requestSong.UserName　<span class="supplement">（ログイン済ユーザー）</span></td>
-									</Authorized>
 								</AuthorizeView>
 							</tr>
 							<tr>

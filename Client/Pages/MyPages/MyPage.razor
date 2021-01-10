@@ -3,35 +3,40 @@
 @inject HttpClient HttpClient
 
 <AuthorizeView>
+	<Authorized>
+		@if (userInfo != null)
+		{
+			<h1>プロフィール</h1>
+			<div class="content">
+
+				<div class="tab-content">
+					<table class="input-table">
+						<tr>
+							<td class="input-td">画像</td>
+							<td class="input-td">
+								<img src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + userInfo.Id)" />
+							</td>
+							<td class="input-td"><a href="/changeuserthumbnail/">変更</a></td>
+						</tr>
+						<tr>
+							<td class="input-td">お名前：</td>
+							<td class="input-td">@userInfo?.Name</td>
+						</tr>
+					</table>
+				</div>
+
+			</div>
+		}
+		else
+		{
+			<div class="loading">Loading...</div>
+		}
+	</Authorized>
 	<NotAuthorized>
 		<div class="content">
 			<div>ログアウトしました。</div>
 		</div>
 	</NotAuthorized>
-	<Authorized>
-
-		<h1>プロフィール</h1>
-		<div class="content">
-
-			<div class="tab-content">
-				<table class="input-table">
-					<tr>
-						<td class="input-td">画像</td>
-						<td class="input-td">
-							<img src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + userInfo?.Id)" />
-						</td>
-						<td class="input-td"><a href="/changeuserthumbnail/">変更</a></td>
-					</tr>
-					<tr>
-						<td class="input-td">お名前：</td>
-						<td class="input-td">@userInfo?.Name</td>
-					</tr>
-				</table>
-			</div>
-
-		</div>
-
-	</Authorized>
 </AuthorizeView>
 
 <h3>MyPage</h3>
