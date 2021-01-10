@@ -19,8 +19,8 @@ function CloseLoginDropdown() {
 // 指定した要素までスクロール
 // 2021/01 現在、a href="#xxx" がうまく動かないため、JS で代替
 // --------------------------------------------------------------------
-function ScrollToElement(elementName) {
-    var element = document.getElementById(elementName);
+function ScrollToElement(elementId) {
+    var element = document.getElementById(elementId);
     if (element) {
         scrollTo(0, element.getBoundingClientRect().top);
     }
