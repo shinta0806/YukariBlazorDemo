@@ -1,17 +1,14 @@
-﻿@page "/admin"
+﻿@page "/info"
 @inject AuthService AuthService
-@inject IJSRuntime JSRuntime
 @inject PlayerService PlayerService
 @inject RequestSongService RequestSongService
 @inject SearchService SearchService
 @inject ThumbnailService ThumbnailService
 
 <h1>デモの状態</h1>
-
 <div class="content">
 
 	<div class="tab-content">
-
 		<table class="input-table">
 			<tr>
 				<td class="input-td">予約可能曲データベース：</td>
@@ -34,27 +31,11 @@
 				<td class="input-td">@((MarkupString)playerStatus)</td>
 			</tr>
 		</table>
-
 	</div>
 
 </div>
 
-<h1>予約管理</h1>
-
-<div class="content">
-
-	<form>
-		<div class="actions">
-			<button class="general-button" type="button" @onclick="OnClickDeleteAllAsync">予約をすべて削除</button>
-		</div>
-	</form>
-
-	<div>@adminResult</div>
-
-</div>
-
-<h1>参考情報</h1>
-
+<h1 >参考情報</h1>
 <div class="content">
 
 	<ul>
@@ -62,7 +43,6 @@
 	</ul>
 
 </div>
-
 
 @code {
 
@@ -83,8 +63,9 @@
 			userStatus = await AuthService.StatusAsync();
 			playerStatus = await PlayerService.StatusAsync();
 		}
-		catch (Exception)
+		catch (Exception excep)
 		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
 		}
 	}
 
@@ -102,43 +83,5 @@
 	private String requestStatus = ClientConstants.DIV_MINI_LOADING;
 	private String userStatus = ClientConstants.DIV_MINI_LOADING;
 	private String playerStatus = ClientConstants.DIV_MINI_LOADING;
-
-	// 管理作業結果メッセージ
-	private String? adminResult;
-
-	// ====================================================================
-	// private 関数
-	// ====================================================================
-
-	// --------------------------------------------------------------------
-	// 予約をすべて削除ボタンクリック
-	// --------------------------------------------------------------------
-	private async Task OnClickDeleteAllAsync()
-	{
-		try
-		{
-			Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "予約をすべて削除してもよろしいですか？");
-			if (!confirm)
-			{
-				return;
-			}
-
-			String message = await RequestSongService.DeleteAllAsync();
-			if (String.IsNullOrEmpty(message))
-			{
-				adminResult = "削除しました。";
-				requestStatus = await RequestSongService.StatusAsync();
-			}
-			else
-			{
-				adminResult = message;
-			}
-			StateHasChanged();
-		}
-		catch (Exception excep)
-		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
-		}
-	}
 
 }

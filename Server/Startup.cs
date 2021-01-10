@@ -83,6 +83,7 @@ namespace YukariBlazorDemo.Server
 				CreateDatabaseIfNeeded();
 				ThumbnailController.DefaultThumbnail = CreateMovieThumbnail(String.Empty, "DefaultThumbnail.png");
 				AuthController.DefaultGuestUserThumbnail = CreateUserThumbnail("DefaultGuestUser.png");
+				AuthController.DefaultAdminUserThumbnail = CreateUserThumbnail("DefaultAdminUser.png");
 				AuthController.DefaultRegisteredUserThumbnail = CreateUserThumbnail("DefaultRegisteredUser.png");
 
 				//TestCreateThumbnail();
@@ -355,7 +356,7 @@ namespace YukariBlazorDemo.Server
 				return new Thumbnail
 				{
 					Path = moviePath,
-					Bitmap = ServerCommon.CreateThumbnail(sourceStream, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, false),
+					Bitmap = ServerCommon.CreateThumbnail(sourceStream, ServerConstants.MIME_TYPE_PNG, maxWidth, maxHeight, false),
 					Mime = ServerConstants.MIME_TYPE_PNG,
 					LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(imageFileName)),
 				};

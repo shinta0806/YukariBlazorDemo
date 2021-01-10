@@ -1,0 +1,90 @@
+﻿@page "/admin"
+@inject IJSRuntime JSRuntime
+@inject RequestSongService RequestSongService
+
+<AuthorizeView Roles="@ClientConstants.ROLE_NAME_ADMIN">
+	<Authorized>
+		<ul>
+			<li><span class="link" onclick="ScrollToElement('request')">予約管理</span></li>
+		</ul>
+
+		<h1 id="request">予約管理</h1>
+		<div class="content">
+
+			<div class="actions">
+				<button class="general-button" type="button" @onclick="OnClickDeleteAllAsync">予約をすべて削除</button>
+			</div>
+			<div>@((MarkupString)deleteAllResult)</div>
+
+		</div>
+	</Authorized>
+	<NotAuthorized>
+		<div class="content">
+			<div>管理者専用です。</div>
+		</div>
+	</NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 認証状態
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// 予約をすべて削除の結果
+	private String deleteAllResult = String.Empty;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 予約をすべて削除ボタンクリック
+	// --------------------------------------------------------------------
+	private async Task OnClickDeleteAllAsync()
+	{
+		try
+		{
+			Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "予約をすべて削除してもよろしいですか？");
+			if (!confirm)
+			{
+				return;
+			}
+
+			String errorMessage = await RequestSongService.DeleteAllAsync();
+			deleteAllResult = ResultHtml("削除しました。", errorMessage);
+			StateHasChanged();
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 予約をすべて削除ボタンクリック
+	// --------------------------------------------------------------------
+	private String ResultHtml(String okMessage, String errorMessage)
+	{
+		if (String.IsNullOrEmpty(errorMessage))
+		{
+			// OK
+			return "<div class='ok-message'>" + okMessage + "</div>";
+		}
+		else
+		{
+			// エラー
+			return "<div class='error-message'>" + errorMessage + "</div>";
+		}
+	}
+
+
+}

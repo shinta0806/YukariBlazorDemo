@@ -78,7 +78,7 @@
 			</div>
 
 			<div class="error-message">
-				<ValidationSummary></ValidationSummary>
+				<ValidationSummary displaymode="SingleParagraph"></ValidationSummary>
 			</div>
 		</EditForm>
 	</div>
@@ -120,6 +120,7 @@
 			{
 				await inputSongName.FocusAsync();
 			}
+
 			prevDetail = Detail;
 		}
 		catch (Exception excep)

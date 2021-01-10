@@ -115,6 +115,17 @@ img {
     color: #999999;
 }
 
+.link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .link:hover {
+        color: #6666ff;
+    }
+
 /*
     ドロップダウン
 */
@@ -308,6 +319,10 @@ label > input {
     .default-button:hover, .general-button:hover, .page-navi-item:hover {
         opacity: 0.75;
     }
+
+.ok-message {
+    margin: 10px 0 0 0;
+}
 
 .error-message {
     color: red;

@@ -100,8 +100,13 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 				{
 					new Claim(ClaimTypes.NameIdentifier, loginUserInfo.Id.ToString()),
 					new Claim(ClaimTypes.Name, loginUserInfo.Name),
+					new Claim(ClaimTypes.Role, loginUserInfo.IsAdmin ? ClientConstants.ROLE_NAME_ADMIN : ClientConstants.ROLE_NAME_GENERAL),
 				};
-				ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "apiauth");
+
+				// AuthenticationType
+				// https://docs.microsoft.com/ja-jp/dotnet/api/system.security.claims.authenticationtypes?view=netframework-4.8&viewFallbackFrom=net-5.0
+				// 何かしらを指定しないと AuthorizeView がうまく動作しない
+				ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Signature");
 				return new AuthenticationState(new ClaimsPrincipal(claimsIdentity));
 			}
 		}

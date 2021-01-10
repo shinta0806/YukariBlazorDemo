@@ -10,6 +10,8 @@
 
 using System;
 
+using YukariBlazorDemo.Shared.Misc;
+
 namespace YukariBlazorDemo.Client.Models.Misc
 {
 	// ====================================================================
@@ -44,5 +46,9 @@ namespace YukariBlazorDemo.Client.Models.Misc
 
 		// ログインページのパラメーター
 		public const String LOGIN_PARAM_REDIRECT = "redirect";
+
+		// 権限
+		public const String ROLE_NAME_ADMIN = YbdConstants.ADMIN_NAME;
+		public const String ROLE_NAME_GENERAL = "general";
 	}
 }

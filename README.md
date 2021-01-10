@@ -13,7 +13,7 @@ UI は以前から検討事項となっている「シンプルモード」を�
 
 デバッグ実行時、ブレーク機能を使いたい場合は、ブラウザを Chrome にする必要があります。
 
-Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッグ実行していると、ブラウザが立ち上がらない現象が発生することがあります。その場合は Visual Studio をいったん閉じた後、タスクマネージャーでゾンビになっている Visual Studio を終了してから、再度 Visual Studio を起動すると治ります。
+Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッグ実行していると、ブラウザが立ち上がらない現象が発生することがあります。その場合は Visual Studio と Chrome をいったん閉じた後、タスクマネージャーでゾンビになっている Visual Studio と Chrome を終了してから、再度 Visual Studio を起動すると治ります。
 
 リリースして IIS 下で実行したい場合は YukariBlazorDemo.Server プロジェクトを publish フォルダーに発行します。その後、IIS で publish フォルダーをサイトとして登録します。
 
@@ -99,6 +99,15 @@ Player ページでは、予約した曲を再生します。
 
 「予約をすべて削除」ボタンをクリックすると、予約をすべて削除できます。
 <br clear="right">
+
+# 技術的キーワード
+
+- Blazor WebAssembly (client-side Blazor / WASM) + ASP.NET Core hosted
+- Entity Framework Core + SQLite
+- JSON Web Token (JWT) 認証 + AuthorizeView
+- C# 9.0 + nullable
+- REST API
+- ローカルストレージ (localStorage / Web Storage)
 
 # 謝辞
 

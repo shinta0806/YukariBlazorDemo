@@ -50,6 +50,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ゲストのプロフィール画像
 		public static Thumbnail? DefaultGuestUserThumbnail { get; set; }
 
+		// 管理者のデフォルトプロフィール画像
+		public static Thumbnail? DefaultAdminUserThumbnail { get; set; }
+
 		// 登録ユーザーのデフォルトプロフィール画像
 		public static Thumbnail? DefaultRegisteredUserThumbnail { get; set; }
 
@@ -292,14 +295,23 @@ namespace YukariBlazorDemo.Server.Controllers
 					// 指定されたユーザーにプロフィール画像が設定されていない場合
 					if (registeredUser.Bitmap.Length == 0)
 					{
-						if (DefaultRegisteredUserThumbnail == null)
+						Thumbnail? defaultThumbnail;
+						if (registeredUser.IsAdmin)
+						{
+							defaultThumbnail = DefaultAdminUserThumbnail;
+						}
+						else
+						{
+							defaultThumbnail = DefaultRegisteredUserThumbnail;
+						}
+						if (defaultThumbnail == null)
 						{
 							throw new Exception();
 						}
 						registeredUser = new()
 						{
-							Bitmap = DefaultRegisteredUserThumbnail.Bitmap,
-							Mime = DefaultRegisteredUserThumbnail.Mime,
+							Bitmap = defaultThumbnail.Bitmap,
+							Mime = defaultThumbnail.Mime,
 							LastModified = ServerConstants.INVALID_MJD,
 						};
 					}

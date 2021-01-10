@@ -8,9 +8,9 @@
 
 <header>
 	<div class="header-item"><NavLink class="header-link" ActiveClass="active" href="/" Match="NavLinkMatch.All">予約一覧</NavLink></div>
-	<div class="header-item"><NavLink class="header-link" href="searchform">検索</NavLink></div>
-	<div class="header-item"><NavLink class="header-link" href="player">Player</NavLink></div>
-	<div class="header-item"><NavLink class="header-link" href="admin">管理</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="/searchform">検索</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="/player">Player</NavLink></div>
+	<div class="header-item"><NavLink class="header-link" href="/info">情報</NavLink></div>
 	<div class="header-item">
 	</div>
 	<div class="header-item-dropdown">
@@ -21,6 +21,15 @@
 			<AuthorizeView>
 				<Authorized>
 					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/mypage"))">マイページ</div>
+				</Authorized>
+			</AuthorizeView>
+			<AuthorizeView Roles="@ClientConstants.ROLE_NAME_ADMIN">
+				<Authorized>
+					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/admin"))">管理ページ</div>
+				</Authorized>
+			</AuthorizeView>
+			<AuthorizeView>
+				<Authorized>
 					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/logout"))">ログアウト</div>
 				</Authorized>
 				<NotAuthorized>
