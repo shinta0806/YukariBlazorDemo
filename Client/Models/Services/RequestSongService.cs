@@ -44,7 +44,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> AddRequestAsync(RequestSong requestSong)
 		{
-			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;
@@ -61,7 +61,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> DeleteAllAsync()
 		{
-			using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_DELETE_ALL, 0);
+			using HttpResponseMessage response = await mHttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_DELETE_ALL, 0);
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;

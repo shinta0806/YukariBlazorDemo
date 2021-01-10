@@ -42,7 +42,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<AvailableSong?> SearchByIdAsync(String? id)
 		{
-			AvailableSong? result = await HttpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
+			AvailableSong? result = await mHttpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
 
 			if (String.IsNullOrEmpty(result?.Id))
 			{

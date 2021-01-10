@@ -43,7 +43,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<RequestSong?> GetPlayingSongAsync()
 		{
-			return await HttpClient.GetFromJsonAsync<RequestSong?>(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAYING);
+			return await mHttpClient.GetFromJsonAsync<RequestSong?>(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAYING);
 		}
 
 		// --------------------------------------------------------------------
@@ -52,7 +52,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> NextAsync()
 		{
-			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_NEXT, 0);
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_NEXT, 0);
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;
@@ -72,7 +72,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> PlayOrPauseAsync()
 		{
-			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAY_OR_PAUSE, 0);
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAY_OR_PAUSE, 0);
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;
@@ -92,7 +92,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> PrevAsync()
 		{
-			using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PREV, 0);
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PREV, 0);
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;

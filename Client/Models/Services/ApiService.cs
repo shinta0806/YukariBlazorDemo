@@ -31,19 +31,9 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public ApiService(HttpClient httpClient, String baseUrl)
 		{
-			HttpClient = httpClient;
-			BaseUrl = baseUrl;
+			mHttpClient = httpClient;
+			mBaseUrl = baseUrl;
 		}
-
-		// ====================================================================
-		// public プロパティー
-		// ====================================================================
-
-		// HTTP 通信用
-		public HttpClient HttpClient { get; }
-
-		// API URL
-		public String BaseUrl { get; }
 
 		// ====================================================================
 		// public メンバー関数
@@ -57,7 +47,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			String? status;
 			try
 			{
-				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + BaseUrl + YbdConstants.URL_STATUS);
+				status = await mHttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + mBaseUrl + YbdConstants.URL_STATUS);
 				if (status == null)
 				{
 					status = API_STATUS_ERROR_CANNOT_GET;
@@ -71,6 +61,13 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// ====================================================================
+		// protected メンバー変数
+		// ====================================================================
+
+		// HTTP 通信用
+		protected HttpClient mHttpClient;
+
+		// ====================================================================
 		// protected メンバー関数
 		// ====================================================================
 
@@ -81,7 +78,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			T[]? results = null;
 			Int32 numResults = 0;
-			using HttpResponseMessage response = await HttpClient.GetAsync(YbdConstants.URL_API + BaseUrl + leafUrl + query);
+			using HttpResponseMessage response = await mHttpClient.GetAsync(YbdConstants.URL_API + mBaseUrl + leafUrl + query);
 			Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
 			results = await response.Content.ReadFromJsonAsync<T[]>();
 			if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
@@ -100,13 +97,18 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// ====================================================================
-		// private メンバー関数
+		// private メンバー定数
 		// ====================================================================
 
 		// API 状態取得
 		private const String API_STATUS_ERROR_CANNOT_GET = "状態を取得できません。";
 		private const String API_STATUS_ERROR_CANNOT_CONNECT = "サーバーと通信できません。";
 
+		// ====================================================================
+		// private メンバー変数
+		// ====================================================================
 
+		// API URL
+		private String mBaseUrl;
 	}
 }
