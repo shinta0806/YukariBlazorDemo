@@ -61,7 +61,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> DeleteAllAsync()
 		{
-			using HttpResponseMessage response = await mHttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_DELETE_ALL, 0);
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + "-1/");
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;
@@ -80,7 +80,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<(RequestSong[], Int32)> GetRequestSongsAsync(String? query)
 		{
-			return await GetArrayAsync<RequestSong>(YbdConstants.URL_LIST, query);
+			return await GetArrayAsync<RequestSong>(YbdConstants.URL_REQUEST, query);
 		}
 
 		// --------------------------------------------------------------------

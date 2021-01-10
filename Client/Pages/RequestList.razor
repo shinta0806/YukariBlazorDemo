@@ -50,7 +50,7 @@
 
 					<tr class="@trClassName" @key="requestSong.RequestSongId">
 						<td class="req-list-td"><div class="req-list-no">@((MarkupString)playIcon)@requestSong.Sort</div></td>
-						<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL + @Uri.EscapeDataString(requestSong.AvailableSongId))" /></div></td>
+						<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + @Uri.EscapeDataString(requestSong.AvailableSongId))" /></div></td>
 						<td class="req-list-td">
 							<div class="req-list-song">@requestSong.SongName</div>
 							@{
@@ -66,7 +66,7 @@
 						<td class="req-list-td">
 							@if (!String.IsNullOrEmpty(requestSong.UserId))
 							{
-								<div><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + requestSong.UserId)" /></div>
+								<div><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + requestSong.UserId)" /></div>
 							}
 							<div class="center">@requestSong.UserName</div>
 						</td>

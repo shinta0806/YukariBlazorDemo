@@ -72,31 +72,37 @@ namespace YukariBlazorDemo.Shared.Misc
 		// API URL
 		// --------------------------------------------------------------------
 
-		public const String URL_ADD = "add/";
+		//public const String URL_ADD = "add/";
 		public const String URL_API = "api/";
 		public const String URL_AUTH = "auth/";
+		public const String URL_CURRENT_USER = "currentuser/";
 		public const String URL_DELETE_ALL = "deleteall/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
 		public const String URL_ID = "id/";
+		public const String URL_INFO = "info/";
 		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";
 		public const String URL_IS_LOGGED_IN = "isloggedin/";
-		public const String URL_LIST = "list/";
+		//public const String URL_LIST = "list/";
 		public const String URL_LOGIN = "login/";
 		public const String URL_LOGIN_INFO = "logininfo/";
 		public const String URL_LOGOUT = "logout/";
-		public const String URL_MOVIE_THUMBNAIL = "moviethumbnail/";
+		public const String URL_MOVIE = "movie/";
+		//public const String URL_MOVIE_THUMBNAIL = "moviethumbnail/";
 		public const String URL_NEXT = "next/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
 		public const String URL_PLAYER = "player/";
 		public const String URL_PLAYING = "playing/";
 		public const String URL_PREV = "prev/";
-		public const String URL_PUBLIC_USER_INFO = "publicuserinfo/";
-		public const String URL_PUBLIC_USER_THUMBNAIL = "publicuserthumbnail/";
+		public const String URL_PUBLIC = "public/";
+		//public const String URL_PUBLIC_USER_INFO = "publicuserinfo/";
+		//public const String URL_PUBLIC_USER_THUMBNAIL = "publicuserthumbnail/";
 		public const String URL_REQUEST = "request/";
 		public const String URL_REQUEST_SONGS = "requestsongs/";
 		public const String URL_SEARCH = "search/";
-		public const String URL_SET_USER_THUMBNAIL = "setuserthumbnail/";
+		//public const String URL_SET_USER_THUMBNAIL = "setuserthumbnail/";
 		public const String URL_STATUS = "status/";
+		public const String URL_THUMBNAIL = "thumbnail/";
+		public const String URL_USERS = "users/";
 		public const String URL_WORD = "word/";
 
 		// --------------------------------------------------------------------

@@ -24,7 +24,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// コンストラクター
 		// --------------------------------------------------------------------
 		public ThumbnailService(HttpClient httpClient)
-				: base(httpClient, YbdConstants.URL_MOVIE_THUMBNAIL)
+				: base(httpClient, YbdConstants.URL_MOVIE)
 		{
 		}
 	}

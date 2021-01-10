@@ -1,6 +1,6 @@
 ﻿// ============================================================================
 // 
-// サムネイル API
+// 動画サムネイル API
 // 
 // ============================================================================
 
@@ -25,7 +25,7 @@ using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
-	[Route(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL)]
+	[Route(YbdConstants.URL_API + YbdConstants.URL_MOVIE)]
 	public class ThumbnailController : ApiController
 	{
 		// ====================================================================
@@ -76,7 +76,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// サムネイルはめったに更新されないため OneYearCache 属性を付与する
 		// --------------------------------------------------------------------
 		[OneYearCache]
-		[HttpGet, Route("{id}")]
+		[HttpGet, Route(YbdConstants.URL_THUMBNAIL + "{id}")]
 		public IActionResult GetThumbnail(String? id)
 		{
 			try

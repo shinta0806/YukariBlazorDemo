@@ -66,6 +66,10 @@ namespace YukariBlazorDemo.Server.Database
 		[Required]
 		public Double LastModified { get; set; }
 
+		// 前回ログイン日時 UTC（修正ユリウス日）
+		[Required]
+		public Double LastLogin { get; set; }
+
 		// ====================================================================
 		// public メンバー関数
 		// ====================================================================

@@ -69,7 +69,7 @@
 				@foreach (AvailableSong availableSong in availableSongs)
 				{
 					<tr class="req-list-tr-unplayed" @key="@availableSong.Id">
-						<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL + Uri.EscapeDataString(availableSong.Id))" /></div></td>
+						<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(availableSong.Id))" /></div></td>
 						<td class="req-list-td" @onclick="() => OnClickRequest(availableSong)">
 							<div class="search-result-song">@availableSong.SongName</div>
 							@{

@@ -22,7 +22,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">サムネイル</td>
-								<td class="input-td"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE_THUMBNAIL + @Uri.EscapeDataString(requestSong.AvailableSongId))" /></td>
+								<td class="input-td"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + @Uri.EscapeDataString(requestSong.AvailableSongId))" /></td>
 							</tr>
 							<tr>
 								<td class="input-td">曲名</td>
@@ -53,7 +53,7 @@
 								<AuthorizeView>
 									<Authorized Context="AuthorizeView">
 										<td class="input-td">
-											<span class="tb-center"><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_THUMBNAIL + requestSong.UserId)" /></span>
+											<span class="tb-center"><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + requestSong.UserId)" /></span>
 											<span class="tb-center">@requestSong.UserName<br /><span class="supplement">（ログイン済）</span></span>
 										</td>
 									</Authorized>

@@ -123,7 +123,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ユーザー登録
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
-		[HttpPost, Route(YbdConstants.URL_ADD)]
+		[HttpPost, Route(YbdConstants.URL_USERS)]
 		public IActionResult AddUser([FromBody] LoginInfo registerInfo)
 		{
 			try
@@ -137,7 +137,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				RegisteredUser newUser = new();
 				newUser.Name = registerInfo.Name;
 				newUser.Password = registerInfo.Password;
-				newUser.LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				newUser.LastModified = newUser.LastLogin = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 
 				if (!IsAdminRegistered(registeredUsers))
 				{
@@ -209,6 +209,9 @@ namespace YukariBlazorDemo.Server.Controllers
 				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
 				Debug.WriteLine("Login() " + idAndToken);
 
+				loginUser.LastLogin = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				registeredUserContext.SaveChanges();
+
 				// ID とログイン用トークンを返す
 				return Ok(idAndToken);
 			}
@@ -224,7 +227,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// 公開ユーザー情報を返す
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
-		[HttpGet, Route(YbdConstants.URL_PUBLIC_USER_INFO + "{id}")]
+		[HttpGet, Route(YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO + "{id}")]
 		public IActionResult GetPublicUserInfo(String? id)
 		{
 			try
@@ -263,7 +266,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// 公開されているプロフィール画像を返す
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
-		[HttpGet, Route(YbdConstants.URL_PUBLIC_USER_THUMBNAIL + "{*id}")]
+		[HttpGet, Route(YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + "{*id}")]
 		public IActionResult GetThumbnail(String? id)
 		{
 			try
@@ -339,14 +342,14 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// ====================================================================
-		// API（一般）【要認証】
+		// API（一般）【要認証（一般ユーザー）】
 		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// ログインしているか
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認できる
 		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_IS_LOGGED_IN)]
+		[HttpGet, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_IS_LOGGED_IN)]
 		public Boolean IsLoggedIn()
 		{
 			try
@@ -366,7 +369,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// ログアウト時のサーバー側の処理
 		// --------------------------------------------------------------------
-		[HttpPut, Route(YbdConstants.URL_LOGOUT)]
+		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT)]
 		public IActionResult Logout([FromBody] Int32 dummy)
 		{
 			try
@@ -386,7 +389,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// プロフィール画像を設定
 		// --------------------------------------------------------------------
 		[RequestSizeLimit(YbdConstants.USER_THUMBNAIL_LENGTH_MAX)]
-		[HttpPut, Route(YbdConstants.URL_SET_USER_THUMBNAIL)]
+		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_THUMBNAIL)]
 		public IActionResult SetThumbnail([FromBody] TransferFile transferFile)
 		{
 			try
@@ -415,6 +418,20 @@ namespace YukariBlazorDemo.Server.Controllers
 				return InternalServerError();
 			}
 		}
+
+		// ====================================================================
+		// API（一般）【要認証（管理者用）】
+		// ====================================================================
+
+		[HttpGet, Route(YbdConstants.URL_USERS)]
+		public void hoge()
+		{
+
+		}
+
+		// ====================================================================
+		// テスト用
+		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// テスト用

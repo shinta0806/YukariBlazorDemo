@@ -49,7 +49,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> AddUserAsync(LoginInfo registerInfo)
 		{
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_ADD, registerInfo);
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS, registerInfo);
 			return await SetStateLoginAsync(response);
 		}
 
@@ -73,7 +73,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			PublicUserInfo? result = null;
 			try
 			{
-				result = await mHttpClient.GetFromJsonAsync<PublicUserInfo>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC_USER_INFO + id);
+				result = await mHttpClient.GetFromJsonAsync<PublicUserInfo>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO + id);
 			}
 			catch (JsonException)
 			{
@@ -96,7 +96,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<Boolean> IsLoggedInAsync()
 		{
-			Boolean isLoggedIn = await GetAuthorizedFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_LOGGED_IN);
+			Boolean isLoggedIn = await GetAuthorizedFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_IS_LOGGED_IN);
 			if (!isLoggedIn)
 			{
 				await SetStateLogoutAsync();
@@ -120,7 +120,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> LogoutAsync()
 		{
-			using HttpResponseMessage response = await mHttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGOUT, 0);
+			using HttpResponseMessage response = await mHttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT, 0);
 			Boolean result = await SetStateLogoutAsync();
 			if (!response.IsSuccessStatusCode || !result)
 			{
@@ -148,7 +148,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> SetThumbnailAsync(TransferFile transferFile)
 		{
-			HttpStatusCode statusCode = await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_SET_USER_THUMBNAIL, transferFile);
+			HttpStatusCode statusCode = await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_THUMBNAIL, transferFile);
 			if (!IsSuccessStatusCode(statusCode))
 			{
 				switch (statusCode)

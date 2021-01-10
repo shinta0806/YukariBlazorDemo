@@ -103,10 +103,10 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// 予約をすべて削除
+		// 予約を削除
 		// --------------------------------------------------------------------
-		[HttpPut, Route(YbdConstants.URL_DELETE_ALL)]
-		public IActionResult DeleteAllSongs([FromBody] Int32 dummy)
+		[HttpDelete, Route(YbdConstants.URL_REQUEST + "{id?}")]
+		public IActionResult DeleteRequest()
 		{
 			try
 			{
@@ -130,7 +130,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 予約一覧を返す
 		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_LIST + "{query?}")]
+		[HttpGet, Route(YbdConstants.URL_REQUEST + "{query?}")]
 		public IActionResult GetRequestSongs(String? query)
 		{
 			try
