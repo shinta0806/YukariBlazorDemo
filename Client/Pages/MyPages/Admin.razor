@@ -1,4 +1,5 @@
 ﻿@page "/admin"
+@inject AuthService AuthService
 @inject IJSRuntime JSRuntime
 @inject RequestSongService RequestSongService
 
@@ -12,11 +13,47 @@
 		<div class="content">
 
 			<div class="actions">
-				<button class="general-button" type="button" @onclick="OnClickDeleteAllAsync">予約をすべて削除</button>
+				<button class="general-button" type="button" @onclick="OnClickDeleteAllRequestsAsync">予約をすべて削除</button>
 			</div>
-			<div>@((MarkupString)deleteAllResult)</div>
+			<div>@((MarkupString)deleteAllRequestsResult)</div>
 
 		</div>
+
+		<h1 id="user">ユーザー管理</h1>
+		<div class="content">
+
+			<form>
+
+				<table class="req-list-table">
+					<tr class="req-list-tr">
+						<th class="req-list-th">削除</th>
+						<th class="req-list-th">名前</th>
+						<th class="req-list-th">最終ログイン日時</th>
+						<th class="req-list-th">登録更新日時</th>
+					</tr>
+					@foreach (PublicUserInfo userInfo in userInfos)
+					{
+						<tr class="req-list-tr-unplayed" @key="@userInfo.Id">
+							<td class="req-list-td"><input type="checkbox" name="user" @bind="userChecks[userInfo.Id]"></td>
+							<td class="req-list-td">
+								<span class="tb-center"><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + userInfo.Id)" /></span>
+								<span class="tb-center">@userInfo.Name</span>
+							</td>
+							<td class="req-list-td">@YbdCommon.ModifiedJulianDateToDateTime(userInfo.LastLogin).ToLocalTime().ToString(ClientConstants.DATE_TIME_FORMAT)</td>
+							<td class="req-list-td">@YbdCommon.ModifiedJulianDateToDateTime(userInfo.LastModified).ToLocalTime().ToString(ClientConstants.DATE_TIME_FORMAT)</td>
+						</tr>
+					}
+				</table>
+
+				<div class="actions">
+					<button class="general-button" type="button" @onclick="OnClickDeleteUsersAsync">選択したユーザーを削除</button>
+				</div>
+				<div>@((MarkupString)deleteUsersResult)</div>
+
+			</form>
+
+		</div>
+
 	</Authorized>
 	<NotAuthorized>
 		<div class="content">
@@ -36,11 +73,52 @@
 	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
 	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			(userInfos, numUsers) = await AuthService.GetUsersAsync();
+
+			// 管理者を除く
+			userInfos = userInfos.Where(x => !x.IsAdmin).ToArray();
+			numUsers = userInfos.Length;
+
+			// チェック初期化
+			foreach (PublicUserInfo userInfo in userInfos)
+			{
+				userChecks[userInfo.Id] = false;
+			}
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// ====================================================================
 	// private 変数
 	// ====================================================================
 
 	// 予約をすべて削除の結果
-	private String deleteAllResult = String.Empty;
+	private String deleteAllRequestsResult = String.Empty;
+
+	// ユーザー一覧
+	private PublicUserInfo[] userInfos = new PublicUserInfo[0];
+
+	// ユーザーの総数
+	private Int32 numUsers;
+
+	// ユーザーチェック
+	private Dictionary<String, Boolean> userChecks = new();
+
+	// ユーザーを削除の結果
+	private String deleteUsersResult = String.Empty;
 
 	// ====================================================================
 	// private 関数
@@ -49,18 +127,24 @@
 	// --------------------------------------------------------------------
 	// 予約をすべて削除ボタンクリック
 	// --------------------------------------------------------------------
-	private async Task OnClickDeleteAllAsync()
+	private async Task OnClickDeleteAllRequestsAsync()
 	{
 		try
 		{
+			// 前回のエラーをクリア
+			deleteAllRequestsResult = String.Empty;
+			StateHasChanged();
+
+			// 確認
 			Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "予約をすべて削除してもよろしいですか？");
 			if (!confirm)
 			{
 				return;
 			}
 
+			// 削除
 			String errorMessage = await RequestSongService.DeleteAllAsync();
-			deleteAllResult = ResultHtml("削除しました。", errorMessage);
+			deleteAllRequestsResult = ResultHtml("削除しました。", errorMessage);
 			StateHasChanged();
 		}
 		catch (Exception excep)
@@ -70,7 +154,56 @@
 	}
 
 	// --------------------------------------------------------------------
-	// 予約をすべて削除ボタンクリック
+	// 選択したユーザーを削除ボタンクリック
+	// --------------------------------------------------------------------
+	private async Task OnClickDeleteUsersAsync()
+	{
+		try
+		{
+			// 前回のエラーをクリア
+			deleteUsersResult = String.Empty;
+			StateHasChanged();
+
+			// 確認
+			Int32 numChecks = userChecks.Where(x => x.Value).Count();
+			if (numChecks == 0)
+			{
+				deleteUsersResult = ResultHtml(String.Empty, "削除したいユーザーを選択してください。");
+				StateHasChanged();
+				return;
+			}
+			String confirmMessage;
+			if (numChecks == 1)
+			{
+				String checkedUserId = userChecks.First(x => x.Value).Key;
+				confirmMessage = "「" + userInfos.First(x => x.Id == checkedUserId).Name + "」さんを削除してもよろしいですか？";
+			}
+			else
+			{
+				confirmMessage = numChecks.ToString() + " 人のユーザーを削除してもよろしいですか？";
+			}
+			Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, confirmMessage);
+			if (!confirm)
+			{
+				return;
+			}
+
+			String errorMessage = String.Empty;
+			foreach (KeyValuePair<String, Boolean> userCheck in userChecks.Where(x => x.Value))
+			{
+				errorMessage += await AuthService.DeleteUserAsync(userCheck.Key);
+			}
+			deleteUsersResult = ResultHtml("削除しました。", errorMessage);
+			StateHasChanged();
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 結果表示用 HTML
 	// --------------------------------------------------------------------
 	private String ResultHtml(String okMessage, String errorMessage)
 	{

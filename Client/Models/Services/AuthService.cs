@@ -54,6 +54,32 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// ユーザー削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> DeleteUserAsync(String? id)
+		{
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS + id);
+			if (!response.IsSuccessStatusCode)
+			{
+				switch (response.StatusCode)
+				{
+					case HttpStatusCode.BadRequest:
+						return "入力内容が不正です。";
+					case HttpStatusCode.InternalServerError:
+						return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+					case HttpStatusCode.NotAcceptable:
+						return "指定された ID が見つかりません。";
+					case HttpStatusCode.Unauthorized:
+						return "権限がありません。";
+					default:
+						return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+				}
+			}
+			return String.Empty;
+		}
+
+		// --------------------------------------------------------------------
 		// ログインしているユーザーの情報を取得
 		// --------------------------------------------------------------------
 		public PublicUserInfo? GetLoginUserInfo()
@@ -81,6 +107,14 @@ namespace YukariBlazorDemo.Client.Models.Services
 				// クライアント側には null を返す
 			}
 			return result;
+		}
+
+		// --------------------------------------------------------------------
+		// ユーザー一覧を取得
+		// --------------------------------------------------------------------
+		public async Task<(PublicUserInfo[], Int32)> GetUsersAsync()
+		{
+			return await GetArrayAsync<PublicUserInfo>(YbdConstants.URL_USERS);
 		}
 
 		// --------------------------------------------------------------------

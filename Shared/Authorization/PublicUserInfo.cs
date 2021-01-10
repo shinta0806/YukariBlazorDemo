@@ -15,7 +15,7 @@ namespace YukariBlazorDemo.Shared.Authorization
 	public class PublicUserInfo
 	{
 		// ====================================================================
-		// public プロパティー
+		// public プロパティー（他人も取得可能な情報）
 		// ====================================================================
 
 		// ID
@@ -26,5 +26,15 @@ namespace YukariBlazorDemo.Shared.Authorization
 
 		// 名前
 		public String Name { get; set; } = String.Empty;
+
+		// ====================================================================
+		// public プロパティー（管理者のみ取得可能な情報）
+		// ====================================================================
+
+		// 更新日時 UTC（修正ユリウス日）
+		public Double LastModified { get; set; }
+
+		// 前回ログイン日時 UTC（修正ユリウス日）
+		public Double LastLogin { get; set; }
 	}
 }

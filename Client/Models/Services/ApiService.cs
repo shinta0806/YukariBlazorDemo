@@ -79,15 +79,18 @@ namespace YukariBlazorDemo.Client.Models.Services
 			T[]? results = null;
 			Int32 numResults = 0;
 			using HttpResponseMessage response = await mHttpClient.GetAsync(YbdConstants.URL_API + mBaseUrl + leafUrl + query);
-			Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
-			results = await response.Content.ReadFromJsonAsync<T[]>();
-			if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
+			if (response.IsSuccessStatusCode)
 			{
-				Int32.TryParse(value, out numResults);
-			}
-			else
-			{
-				numResults = results?.Length ?? 0;
+				Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
+				results = await response.Content.ReadFromJsonAsync<T[]>();
+				if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
+				{
+					Int32.TryParse(value, out numResults);
+				}
+				else
+				{
+					numResults = results?.Length ?? 0;
+				}
 			}
 			if (results == null)
 			{

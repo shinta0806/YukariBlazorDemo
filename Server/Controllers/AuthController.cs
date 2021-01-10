@@ -137,7 +137,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				RegisteredUser newUser = new();
 				newUser.Name = registerInfo.Name;
 				newUser.Password = registerInfo.Password;
-				newUser.LastModified = newUser.LastLogin = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				newUser.LastModified = newUser.LastLogin = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 
 				if (!IsAdminRegistered(registeredUsers))
 				{
@@ -209,7 +209,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
 				Debug.WriteLine("Login() " + idAndToken);
 
-				loginUser.LastLogin = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				loginUser.LastLogin = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 				registeredUserContext.SaveChanges();
 
 				// ID とログイン用トークンを返す
@@ -234,7 +234,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// キャッシュチェック
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REGISTERED_USERS);
-				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetPublicUserInfo() キャッシュ有効: " + id);
 					return NotModified();
@@ -249,9 +249,9 @@ namespace YukariBlazorDemo.Server.Controllers
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == id);
 				PublicUserInfo userInfo = new PublicUserInfo();
-				registeredUser.CopyPublicInfo(userInfo);
+				registeredUser.CopyPublicInfo(userInfo, false);
 
-				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified));
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified));
 				return File(JsonSerializer.SerializeToUtf8Bytes(userInfo), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
@@ -266,7 +266,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// 公開されているプロフィール画像を返す
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
-		[HttpGet, Route(YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + "{*id}")]
+		[HttpGet, Route(YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + "{id?}")]
 		public IActionResult GetThumbnail(String? id)
 		{
 			try
@@ -321,8 +321,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// キャッシュチェック
-				DateTime lastModified = ServerCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified);
-				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				DateTime lastModified = YbdCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified);
+				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetThumbnail() プロフィール画像キャッシュ有効: " + id);
 					return NotModified();
@@ -406,7 +406,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				using MemoryStream memoryStream = new MemoryStream(transferFile.Content);
 				registeredUser.Bitmap = ServerCommon.CreateThumbnail(memoryStream, transferFile.Mime, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX, true);
 				registeredUser.Mime = transferFile.Mime;
-				registeredUser.LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				registeredUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 				registeredUserContext.SaveChanges();
 
 				return Ok();
@@ -423,10 +423,81 @@ namespace YukariBlazorDemo.Server.Controllers
 		// API（一般）【要認証（管理者用）】
 		// ====================================================================
 
+		// --------------------------------------------------------------------
+		// ユーザー一覧
+		// --------------------------------------------------------------------
 		[HttpGet, Route(YbdConstants.URL_USERS)]
-		public void hoge()
+		public IActionResult GetUsers()
 		{
+			try
+			{
+				if (!IsTokenValid(out RegisteredUser? registeredUser) || !registeredUser.IsAdmin)
+				{
+					return Unauthorized();
+				}
 
+				// キャッシュチェック
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REGISTERED_USERS);
+				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					Debug.WriteLine("GetUsers() キャッシュ有効: ");
+					return NotModified();
+				}
+
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				RegisteredUser[] registeredUsersArray = registeredUsers.ToArray();
+				PublicUserInfo[] results = new PublicUserInfo[registeredUsersArray.Length];
+				for (Int32 i = 0; i < registeredUsersArray.Length; i++)
+				{
+					PublicUserInfo publicUserInfo = new();
+					registeredUsersArray[i].CopyPublicInfo(publicUserInfo, true);
+					results[i] = publicUserInfo;
+				}
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified));
+				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("ユーザー一覧取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// ユーザー削除
+		// --------------------------------------------------------------------
+		[HttpDelete, Route(YbdConstants.URL_USERS + "{id?}")]
+		public IActionResult DeleteUser(String? id)
+		{
+			try
+			{
+				if (!IsTokenValid(out RegisteredUser? registeredUser) || !registeredUser.IsAdmin)
+				{
+					return Unauthorized();
+				}
+				if (String.IsNullOrEmpty(id))
+				{
+					return BadRequest();
+				}
+
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				RegisteredUser? deleteUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+				if (deleteUser == null)
+				{
+					return NotAcceptable();
+				}
+
+				registeredUsers.Remove(deleteUser);
+				registeredUserContext.SaveChanges();
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("ユーザー削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
 		}
 
 		// ====================================================================

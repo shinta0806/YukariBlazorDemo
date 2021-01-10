@@ -10,6 +10,8 @@
 
 using System;
 
+using YukariBlazorDemo.Shared.Misc;
+
 namespace YukariBlazorDemo.Server.Misc
 {
 	public class ServerConstants
@@ -72,7 +74,7 @@ namespace YukariBlazorDemo.Server.Misc
 		public static readonly DateTimeOffset INVALID_DATE_OFFSET = new DateTimeOffset(INVALID_DATE);
 
 		// 日付が指定されていない場合の修正ユリウス日
-		public static readonly Double INVALID_MJD = ServerCommon.DateTimeToModifiedJulianDate(INVALID_DATE);
+		public static readonly Double INVALID_MJD = YbdCommon.DateTimeToModifiedJulianDate(INVALID_DATE);
 
 		// --------------------------------------------------------------------
 		// 認証

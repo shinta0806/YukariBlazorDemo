@@ -121,7 +121,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				Debug.WriteLine("GetThumbnail() キャッシュ無し: " + id);
-				DateTimeOffset lastModified = new DateTimeOffset(ServerCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
+				DateTimeOffset lastModified = new DateTimeOffset(YbdCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));
 				EntityTagHeaderValue eTag = GenerateEntityTag(thumbnail.LastModified);
 				return File(thumbnail.Bitmap, thumbnail.Mime, lastModified, eTag);
 			}

@@ -358,7 +358,7 @@ namespace YukariBlazorDemo.Server
 					Path = moviePath,
 					Bitmap = ServerCommon.CreateThumbnail(sourceStream, ServerConstants.MIME_TYPE_PNG, maxWidth, maxHeight, false),
 					Mime = ServerConstants.MIME_TYPE_PNG,
-					LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(imageFileName)),
+					LastModified = YbdCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(imageFileName)),
 				};
 			}
 			catch (Exception excep)

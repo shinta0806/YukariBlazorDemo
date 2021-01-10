@@ -77,11 +77,19 @@ namespace YukariBlazorDemo.Server.Database
 		// --------------------------------------------------------------------
 		// 公開情報のみをコピー
 		// --------------------------------------------------------------------
-		public void CopyPublicInfo(PublicUserInfo publicUserInfo)
+		public void CopyPublicInfo(PublicUserInfo publicUserInfo, Boolean forAdmin)
 		{
+			// 他人も取得可能な情報
 			publicUserInfo.Id = Id;
 			publicUserInfo.IsAdmin = IsAdmin;
 			publicUserInfo.Name = Name;
+
+			// 管理者のみ取得可能な情報
+			if (forAdmin)
+			{
+				publicUserInfo.LastModified = LastModified;
+				publicUserInfo.LastLogin = LastLogin;
+			}
 		}
 
 	}

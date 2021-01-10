@@ -137,7 +137,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// キャッシュチェック
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
-				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetRequestSongs() キャッシュ有効: " + query);
 					return NotModified();
@@ -148,7 +148,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				Int32 page = YbdCommon.GetPageFromQueryParameters(parameters);
 				Int32 numResults = requestSongs.Count();
 				RequestSong[] results = requestSongs.OrderByDescending(x => x.Sort).Skip(YbdConstants.PAGE_SIZE * page).Take(YbdConstants.PAGE_SIZE).ToArray();
-				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
@@ -169,7 +169,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// キャッシュチェック
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
-				if (IsValidEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetUserNames() キャッシュ有効: ");
 					return NotModified();
@@ -179,7 +179,7 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				String[] results = requestSongs.Where(x => x.UserId == String.Empty).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
 				Int32 numResults = results.Count();
-				EntityTagHeaderValue eTag = GenerateEntityTag(ServerCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
