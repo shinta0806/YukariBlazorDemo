@@ -13,21 +13,22 @@
 		<div class="content">
 
 			<div>
-				<img src="@changeThumbnailPreview" />
+				<div>PNG / GIF / JPEG 画像をプロフィール画像にできます。</div>
+				<div class="supplement">横 @YbdConstants.USER_THUMBNAIL_WIDTH_MAX × 縦 @YbdConstants.USER_THUMBNAIL_HEIGHT_MAX に縮小されます。縮小後のデータ容量でおよそ @(YbdConstants.USER_THUMBNAIL_LENGTH_MAX / 1024) KB までの画像を扱えます。</div>
 				<div class="actions">
 					<label for="input-thumbnail" class="general-button">
 						画像ファイル選択
 						<InputFile class="general-button" id="input-thumbnail" OnChange="@OnThumbnailFileChangeAsync" />
 					</label>
-					<br />
-					<br />
-					<div>@confirm</div>
-					<br />
-					<br />
+				</div>
+				<div class="actions">
 					<button class="general-button" type="button" @onclick="OnClickSendThumbnailAsync">変更</button>
 				</div>
+				<br />
+				<div>@((MarkupString)confirm)</div>
+				<div class="error-message">@changeThumbnailResult</div>
+				<img src="@changeThumbnailPreview" />
 			</div>
-			<div class="error-message">@changeThumbnailResult</div>
 
 		</div>
 
@@ -49,15 +50,11 @@
 	// private 定数
 	// ====================================================================
 
-	// プロフィール画像の最大サイズ
-	private const Int32 USER_THUMBNAIL_WIDTH_MAX = 400;
-	private const Int32 USER_THUMBNAIL_HEIGHT_MAX = 400;
-
 	// プロフィール画像変更プレビュー
 	private String? changeThumbnailPreview;
 
 	// 確認メッセージ
-	private String? confirm;
+	private String confirm = String.Empty;
 
 	// プロフィール画像送信用
 	private TransferFile thumbnailFile = new();
@@ -97,13 +94,14 @@
 	{
 		try
 		{
-			IBrowserFile resizedImageFile = await e.File.RequestImageFileAsync(e.File.ContentType, USER_THUMBNAIL_WIDTH_MAX, USER_THUMBNAIL_HEIGHT_MAX);
+			IBrowserFile resizedImageFile = await e.File.RequestImageFileAsync(e.File.ContentType, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX);
 			Byte[] buffer = new Byte[resizedImageFile.Size];
 			await resizedImageFile.OpenReadStream().ReadAsync(buffer);
 			thumbnailFile.Content = buffer;
 			thumbnailFile.Mime = e.File.ContentType;
 			changeThumbnailPreview = $"data:{e.File.ContentType};base64,{Convert.ToBase64String(buffer)}";
-			confirm = "この画像で良ければ、「変更」ボタンをクリックしてください。";
+			confirm = "プレビュー：プロフィール画像は<span class='error-message'>まだ変更されていません</span>。この画像で良ければ、「変更」ボタンをクリックしてください。"
+					+ "<span class='supplement'>（形式：" + e.File.ContentType + "、データ容量：" + (buffer.Length / 1024).ToString() + " KB）</span>";
 		}
 		catch (Exception excep)
 		{

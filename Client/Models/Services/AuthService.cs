@@ -161,7 +161,8 @@ namespace YukariBlazorDemo.Client.Models.Services
 				switch (statusCode)
 				{
 					case HttpStatusCode.InternalServerError:
-						return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+						// RequestSizeLimit を越えた場合も InternalServerError になる模様
+						return "プロフィール画像を変更できませんでした。データ容量が大きすぎないか確認してください。";
 					case HttpStatusCode.Unauthorized:
 						return ClientConstants.ERROR_MESSAGE_UNAUTHORIZED;
 					default:

@@ -72,6 +72,18 @@
     <None Update="SampleDataImages\Temple.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SampleDataImages\Test_150x62.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleDataImages\Test_250x468.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleDataImages\Test_430x177.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleDataImages\Test_43x80.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SampleDataImages\ToyPoodle.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -372,6 +373,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// プロフィール画像を設定
 		// --------------------------------------------------------------------
+		[RequestSizeLimit(YbdConstants.USER_THUMBNAIL_LENGTH_MAX)]
 		[HttpPut, Route(YbdConstants.URL_SET_USER_THUMBNAIL)]
 		public IActionResult SetThumbnail([FromBody] TransferFile transferFile)
 		{
@@ -386,7 +388,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				registeredUser = registeredUsers.Single(x => x.Id == registeredUser.Id);
 
 				// 設定
-				registeredUser.Bitmap = transferFile.Content;
+				using MemoryStream memoryStream = new MemoryStream(transferFile.Content);
+				registeredUser.Bitmap = ServerCommon.CreateThumbnail(memoryStream, transferFile.Mime, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX, true);
 				registeredUser.Mime = transferFile.Mime;
 				registeredUser.LastModified = ServerCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 				registeredUserContext.SaveChanges();

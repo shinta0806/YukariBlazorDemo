@@ -140,5 +140,14 @@ namespace YukariBlazorDemo.Shared.Misc
 		// ID とトークンの区切り（Base64URL とピリオド以外の文字）
 		public const String TOKEN_DELIM = ",";
 
+		// サムネイル最大幅 [pixel]
+		public const Int32 USER_THUMBNAIL_WIDTH_MAX = 300;
+
+		// サムネイル最大高さ [pixel]
+		public const Int32 USER_THUMBNAIL_HEIGHT_MAX = 300;
+
+		// サムネイル最大サイズ [byte]
+		public const Int32 USER_THUMBNAIL_LENGTH_MAX = 150 * 1024;
+
 	}
 }

@@ -342,3 +342,4 @@ healthchecksdb
 # Project
 *.sqlite3*
 Log.txt
+TestGen_*

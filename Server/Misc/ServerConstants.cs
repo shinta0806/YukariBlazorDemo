@@ -49,6 +49,12 @@ namespace YukariBlazorDemo.Server.Misc
 		// MimeType
 		// --------------------------------------------------------------------
 
+		// GIF
+		public const String MIME_TYPE_GIF = "image/gif";
+
+		// JPEG
+		public const String MIME_TYPE_JPEG = "image/jpeg";
+
 		// JSON
 		public const String MIME_TYPE_JSON = "application/json";
 

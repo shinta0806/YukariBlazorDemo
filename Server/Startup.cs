@@ -84,6 +84,8 @@ namespace YukariBlazorDemo.Server
 				ThumbnailController.DefaultThumbnail = CreateMovieThumbnail(String.Empty, "DefaultThumbnail.png");
 				AuthController.DefaultGuestUserThumbnail = CreateUserThumbnail("DefaultGuestUser.png");
 				AuthController.DefaultRegisteredUserThumbnail = CreateUserThumbnail("DefaultRegisteredUser.png");
+
+				//TestCreateThumbnail();
 			}
 			catch (Exception excep)
 			{
@@ -99,10 +101,6 @@ namespace YukariBlazorDemo.Server
 		// 動画サムネイルサイズ
 		private const Int32 MOVIE_THUMB_WIDTH_MAX = 160;
 		private const Int32 MOVIE_THUMB_HEIGHT_MAX = 90;
-
-		// ユーザー画像サムネイルサイズ
-		private const Int32 USER_THUMB_WIDTH_MAX = 400;
-		private const Int32 USER_THUMB_HEIGHT_MAX = 400;
 
 		// 動画ファイル名（メイン）
 		private const String FILE_NAME_TULIP = @"D:\Song\チューリップ.mp4";
@@ -353,36 +351,11 @@ namespace YukariBlazorDemo.Server
 		{
 			try
 			{
-				using Image sourceImage = Image.FromFile(imageFileName);
-
-				using MemoryStream stream = new();
-				if (sourceImage.Width <= maxWidth && sourceImage.Height <= maxHeight)
-				{
-					// 縮小の必要無し
-					sourceImage.Save(stream, ImageFormat.Png);
-				}
-				else
-				{
-					// サムネイルサイズ
-					Single scale = Math.Min((Single)maxWidth / sourceImage.Width, (Single)maxHeight / (float)sourceImage.Height);
-					Int32 scaledWidth = (Int32)(sourceImage.Width * scale);
-					Int32 scaledHeight = (Int32)(sourceImage.Height * scale);
-
-					// サムネイル生成
-					using Bitmap scaledImage = new Bitmap(scaledWidth, scaledHeight);
-					using Graphics graphics = Graphics.FromImage(scaledImage);
-					graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-					graphics.DrawImage(sourceImage, 0, 0, scaledWidth, scaledHeight);
-
-					// シリアル化
-					scaledImage.Save(stream, ImageFormat.Png);
-				}
-				stream.Position = 0;
-
+				using FileStream sourceStream = new FileStream(imageFileName, FileMode.Open);
 				return new Thumbnail
 				{
 					Path = moviePath,
-					Bitmap = stream.ToArray(),
+					Bitmap = ServerCommon.CreateThumbnail(sourceStream, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, false),
 					Mime = ServerConstants.MIME_TYPE_PNG,
 					LastModified = ServerCommon.DateTimeToModifiedJulianDate(ServerCommon.LastModified(imageFileName)),
 				};
@@ -400,7 +373,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		private Thumbnail? CreateUserThumbnail(String imageFileName)
 		{
-			return CreateThumbnail(String.Empty, ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName, USER_THUMB_WIDTH_MAX, USER_THUMB_HEIGHT_MAX);
+			return CreateThumbnail(String.Empty, ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX);
 		}
 
 		// --------------------------------------------------------------------
@@ -482,5 +455,37 @@ namespace YukariBlazorDemo.Server
 		{
 			return new NameAndRuby("家電", "カデン");
 		}
+
+#if DEBUG
+		// ====================================================================
+		// デバッグ専用
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// サムネイル生成テスト
+		// --------------------------------------------------------------------
+		private void TestCreateThumbnail()
+		{
+			// 横長・縮小あり
+			using FileStream y1 = new FileStream(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + "Test_430x177.png", FileMode.Open);
+			File.WriteAllBytes("TestGen_430x177_square.png", ServerCommon.CreateThumbnail(y1, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, true));
+			File.WriteAllBytes("TestGen_430x177_rect.png", ServerCommon.CreateThumbnail(y1, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, false));
+
+			// 横長・縮小なし
+			using FileStream y0 = new FileStream(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + "Test_150x62.png", FileMode.Open);
+			File.WriteAllBytes("TestGen_150x62_square.png", ServerCommon.CreateThumbnail(y0, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, true));
+			File.WriteAllBytes("TestGen_150x62_rect.png", ServerCommon.CreateThumbnail(y0, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, false));
+
+			// 縦長・縮小あり
+			using FileStream t1 = new FileStream(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + "Test_250x468.png", FileMode.Open);
+			File.WriteAllBytes("TestGen_250x468_square.png", ServerCommon.CreateThumbnail(t1, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, true));
+			File.WriteAllBytes("TestGen_250x468_rect.png", ServerCommon.CreateThumbnail(t1, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, false));
+
+			// 縦長・縮小なし
+			using FileStream t0 = new FileStream(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + "Test_43x80.png", FileMode.Open);
+			File.WriteAllBytes("TestGen_43x80_square.png", ServerCommon.CreateThumbnail(t0, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, true));
+			File.WriteAllBytes("TestGen_43x80_rect.png", ServerCommon.CreateThumbnail(t0, ServerConstants.MIME_TYPE_PNG, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX, false));
+		}
+#endif
 	}
 }
