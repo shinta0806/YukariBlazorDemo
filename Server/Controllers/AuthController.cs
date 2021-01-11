@@ -398,19 +398,20 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? registeredUser))
+				if (!IsTokenValid(out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
 				}
 
+				// 更新用インスタンスとして再度 loginUser を取得
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				registeredUser = registeredUsers.Single(x => x.Id == registeredUser.Id);
+				loginUser = registeredUsers.Single(x => x.Id == loginUser.Id);
 
 				// 設定
 				using MemoryStream memoryStream = new MemoryStream(transferFile.Content);
-				registeredUser.Bitmap = ServerCommon.CreateThumbnail(memoryStream, transferFile.Mime, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX, true);
-				registeredUser.Mime = transferFile.Mime;
-				registeredUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				loginUser.Bitmap = ServerCommon.CreateThumbnail(memoryStream, transferFile.Mime, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX, true);
+				loginUser.Mime = transferFile.Mime;
+				loginUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 				registeredUserContext.SaveChanges();
 
 				return Ok();
@@ -435,7 +436,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? registeredUser) || !registeredUser.IsAdmin)
+				if (!IsTokenValid(out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
 				}
@@ -449,7 +450,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				RegisteredUser[] registeredUsersArray = registeredUsers.ToArray();
+				RegisteredUser[] registeredUsersArray = registeredUsers.Where(x => !x.IsAdmin).OrderBy(x => x.Name).ToArray();
 				PublicUserInfo[] results = new PublicUserInfo[registeredUsersArray.Length];
 				for (Int32 i = 0; i < registeredUsersArray.Length; i++)
 				{
@@ -476,7 +477,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? registeredUser) || !registeredUser.IsAdmin)
+				if (!IsTokenValid(out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
 				}
@@ -489,6 +490,11 @@ namespace YukariBlazorDemo.Server.Controllers
 				RegisteredUser? deleteUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 				if (deleteUser == null)
 				{
+					return NotAcceptable();
+				}
+				if (deleteUser.IsAdmin)
+				{
+					// 管理者は削除できない
 					return NotAcceptable();
 				}
 
@@ -636,9 +642,9 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// ヘッダーに記載されているトークンが有効かどうか
 		// --------------------------------------------------------------------
-		private Boolean IsTokenValid([NotNullWhen(true)] out RegisteredUser? registeredUser)
+		private Boolean IsTokenValid([NotNullWhen(true)] out RegisteredUser? loginUser)
 		{
-			registeredUser = null;
+			loginUser = null;
 			String? id = GetIdFromHeader();
 			if (String.IsNullOrEmpty(id))
 			{
@@ -647,8 +653,8 @@ namespace YukariBlazorDemo.Server.Controllers
 
 			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
 			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-			registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
-			if (registeredUser == null)
+			loginUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+			if (loginUser == null)
 			{
 				return false;
 			}

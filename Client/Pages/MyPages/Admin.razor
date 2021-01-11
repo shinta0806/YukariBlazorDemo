@@ -224,10 +224,6 @@
 	{
 		(userInfos, numUsers) = await AuthService.GetUsersAsync();
 
-		// 管理者を除く
-		userInfos = userInfos.Where(x => !x.IsAdmin).ToArray();
-		numUsers = userInfos.Length;
-
 		// チェック初期化
 		userChecks.Clear();
 		foreach (PublicUserInfo userInfo in userInfos)
