@@ -104,6 +104,14 @@ namespace YukariBlazorDemo.Server.Misc
 		}
 
 		// --------------------------------------------------------------------
+		// トークン生成用の秘密鍵が要件を満たしているか
+		// --------------------------------------------------------------------
+		public static Boolean IsTokenSecretKeyValid()
+		{
+			return mTokenSecretKey.Length >= ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN;
+		}
+
+		// --------------------------------------------------------------------
 		// ファイルの更新日時（UTC）
 		// --------------------------------------------------------------------
 		public static DateTime LastModified(String path)

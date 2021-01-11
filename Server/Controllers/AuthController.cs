@@ -77,6 +77,10 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					throw new Exception("デフォルト登録ユーザープロフィール画像が作成できませんでした。" + ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + " フォルダーがあるか確認してください。");
 				}
+				if (!ServerCommon.IsTokenSecretKeyValid())
+				{
+					throw new Exception("トークン生成用の秘密鍵の長さが足りません。" + ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN + " 文字以上にしてください。");
+				}
 
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 
