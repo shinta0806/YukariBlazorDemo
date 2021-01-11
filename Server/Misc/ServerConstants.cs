@@ -81,7 +81,10 @@ namespace YukariBlazorDemo.Server.Misc
 		// --------------------------------------------------------------------
 
 		// トークン生成用の秘密鍵（16 文字以上）
-		public const String TOKEN_SECRET_KEY = "1234567890123456";
+		//public const String TOKEN_SECRET_KEY = "1234567890123456";
+
+		// トークン生成要の秘密鍵の最低長さ
+		public const Int32 TOKEN_SECRET_KEY_LENGTH_MIN = 16;
 
 		// 発行者名
 		public const String TOKEN_ISSUER = "YukariBlazorDemo";

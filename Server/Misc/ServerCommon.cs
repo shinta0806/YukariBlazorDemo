@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace YukariBlazorDemo.Server.Misc
@@ -24,6 +25,14 @@ namespace YukariBlazorDemo.Server.Misc
 		// ====================================================================
 		// public static メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// SymmetricSecurityKey 生成
+		// --------------------------------------------------------------------
+		public static SymmetricSecurityKey CreateSymmetricSecurityKey()
+		{
+			return new SymmetricSecurityKey(mTokenSecretKey);
+		}
 
 		// --------------------------------------------------------------------
 		// サムネイル生成（アスペクト比維持）
@@ -104,6 +113,27 @@ namespace YukariBlazorDemo.Server.Misc
 		}
 
 		// --------------------------------------------------------------------
+		// トークン生成用の秘密鍵を用意
+		// --------------------------------------------------------------------
+		public static void PrepareTokenSecretKey()
+		{
+			if (File.Exists(FILE_NAME_TOKEN_SECRET_KEY))
+			{
+				// 秘密鍵が存在しているので読み込む
+				mTokenSecretKey = Encoding.UTF8.GetBytes(File.ReadAllText(FILE_NAME_TOKEN_SECRET_KEY, Encoding.UTF8));
+				return;
+			}
+
+			// 生成
+			Byte[] source = new Byte[ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN];
+			using RandomNumberGenerator generator = RandomNumberGenerator.Create();
+			generator.GetBytes(source);
+			String keyString = Convert.ToBase64String(source);
+			File.WriteAllText(FILE_NAME_TOKEN_SECRET_KEY, keyString, Encoding.UTF8);
+			mTokenSecretKey = Encoding.UTF8.GetBytes(keyString);
+		}
+
+		// --------------------------------------------------------------------
 		// トークン検証パラメーター
 		// --------------------------------------------------------------------
 		public static TokenValidationParameters TokenValidationParameters()
@@ -115,7 +145,7 @@ namespace YukariBlazorDemo.Server.Misc
 				ValidateLifetime = true,
 				ValidateIssuerSigningKey = true,
 				ValidIssuer = ServerConstants.TOKEN_ISSUER,
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
+				IssuerSigningKey = CreateSymmetricSecurityKey(),
 			};
 		}
 
@@ -123,11 +153,17 @@ namespace YukariBlazorDemo.Server.Misc
 		// private メンバー定数
 		// ====================================================================
 
-		// --------------------------------------------------------------------
-		// その他
-		// --------------------------------------------------------------------
-
 		// サムネイル作成時の背景色（クライアント側のヘッダー色と合わせる）
 		private static readonly Color USER_THUMBNAIL_BG_COLOR = Color.FromArgb(0x22, 0x22, 0x22);
+
+		// トークン生成用の秘密鍵のファイル
+		private const String FILE_NAME_TOKEN_SECRET_KEY = "TokenSecretKey.txt";
+
+		// ====================================================================
+		// private メンバー変数
+		// ====================================================================
+
+		// トークン生成用の秘密鍵
+		private static Byte[] mTokenSecretKey = new Byte[0];
 	}
 }

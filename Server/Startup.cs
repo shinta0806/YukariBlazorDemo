@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 using YukariBlazorDemo.Server.Controllers;
@@ -38,8 +39,12 @@ namespace YukariBlazorDemo.Server
 			services.AddControllersWithViews();
 			services.AddRazorPages();
 
+			// ”é–§Œ®€”õ
+			ServerCommon.PrepareTokenSecretKey();
+
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 			{
+				// ”é–§Œ®€”õŒã
 				options.TokenValidationParameters = ServerCommon.TokenValidationParameters();
 			});
 		}

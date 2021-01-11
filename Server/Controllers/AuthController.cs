@@ -545,7 +545,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private String GenerateToken(String id)
 		{
-			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY));
+			SymmetricSecurityKey key = ServerCommon.CreateSymmetricSecurityKey();
 			SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 			Claim[] claims = new Claim[]
 			{
@@ -715,7 +715,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				ValidateIssuerSigningKey = true,
 				//ValidIssuer = "MyIssuer",
 				//ValidAudience = "MyIssuer",
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ServerConstants.TOKEN_SECRET_KEY))
+				IssuerSigningKey = ServerCommon.CreateSymmetricSecurityKey(),
 			};
 
 			JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
