@@ -54,13 +54,13 @@
 						</tr>
 						<tr>
 							<td class="input-td">パスワード</td>
-							<td class="input-td"><input class="input-general" type="text" @bind="loginInfo.Password" @ref="inputPassword" /></td>
+							<td class="input-td"><input class="input-general" type="password" @bind="loginInfo.Password" @ref="inputPassword" /></td>
 						</tr>
 						@if (IsRegister())
 						{
 							<tr>
 								<td class="input-td">確認のためパスワードを再度入力</td>
-								<td class="input-td"><input class="input-general" type="text" @bind="confirmPassword" /></td>
+								<td class="input-td"><input class="input-general" type="password" @bind="confirmPassword" /></td>
 							</tr>
 						}
 					</table>

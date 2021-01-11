@@ -1,6 +1,5 @@
 ﻿@page "/mypage"
 @inject AuthService AuthService
-@inject HttpClient HttpClient
 
 <AuthorizeView>
 	<Authorized>
@@ -20,7 +19,8 @@
 						</tr>
 						<tr>
 							<td class="input-td">お名前：</td>
-							<td class="input-td">@userInfo?.Name</td>
+							<td class="input-td">@userInfo.Name</td>
+							<td class="input-td"><a href="/changeusername/">変更</a></td>
 						</tr>
 					</table>
 				</div>
@@ -38,13 +38,6 @@
 		</div>
 	</NotAuthorized>
 </AuthorizeView>
-
-<h3>MyPage</h3>
-
-<div>[status] @status</div>
-<div>[test1] @test</div>
-<div>[test2] @test2</div>
-
 
 @code {
 
@@ -75,39 +68,6 @@
 			await AuthService.IsLoggedInAsync();
 
 			userInfo = AuthService.GetLoginUserInfo();
-
-			//StateHasChanged();
-
-			try
-			{
-				//status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API +YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_STATUS);
-				status = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_STATUS);
-				if (status == null)
-				{
-					status = "cannot get";
-				}
-			}
-			catch (Exception)
-			{
-				status = "cannot connect";
-			}
-			try
-			{
-				test = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + "test/");
-			}
-			catch (Exception)
-			{
-				await AuthService.LogoutAsync();
-				test = "cannot connect";
-			}
-			try
-			{
-				test2 = await HttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + YbdConstants.URL_AUTH + "test2/" + Environment.TickCount);
-			}
-			catch (Exception)
-			{
-				test2 = "cannot connect";
-			}
 		}
 		catch (Exception excep)
 		{
@@ -121,39 +81,4 @@
 
 	// ログインしているユーザーの情報
 	private PublicUserInfo? userInfo;
-
-	// ====================================================================
-	// private 関数
-	// ====================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	private String? status;
-
-	private String? test;
-
-	private String? test2;
-
-
 }

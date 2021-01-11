@@ -562,8 +562,6 @@ namespace YukariBlazorDemo.Server.Controllers
 				new Claim(ClaimTypes.NameIdentifier, id),
 			};
 			JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.UtcNow.AddHours(TOKEN_AVAILABLE_HOURS), creds);
-			//JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.UtcNow.AddMinutes(-4), creds);
-			//JwtSecurityToken token = new JwtSecurityToken(ServerConstants.TOKEN_ISSUER, null, claims, null, DateTime.UtcNow.AddHours(-1), creds);
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 
@@ -661,89 +659,5 @@ namespace YukariBlazorDemo.Server.Controllers
 
 			return true;
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		//[Authorize]
-		[AllowAnonymous]
-		[HttpGet, Route("test2/{*query}")]
-		public String Test2(String? query)
-		{
-			try
-			{
-				GetIdFromHeader();
-			}
-			catch (Exception)
-			{
-				return "Test 2 GetIdFromHeader() failed";
-			}
-
-			String? token = null;
-			HttpContext.Request.Headers.TryGetValue("authorization", out StringValues values);
-			if (values.Count > 0)
-			{
-				Debug.WriteLine("Test2() header: " + values[0]);
-				String[] split = values[0].Split('"');
-				if (split.Length > 3)
-				{
-					token = split[3];
-				}
-				else
-				{
-					split = values[0].Split(' ');
-					if (split.Length > 1)
-					{
-						token = split[1];
-					}
-				}
-			}
-			Debug.WriteLine("Test2() token: " + token);
-			if (token == null)
-			{
-				return "Test 2 token null";
-			}
-
-			TokenValidationParameters p = new TokenValidationParameters
-			{
-				ValidateIssuer = false,
-				ValidateAudience = false,
-				ValidateLifetime = true,
-				ValidateIssuerSigningKey = true,
-				//ValidIssuer = "MyIssuer",
-				//ValidAudience = "MyIssuer",
-				IssuerSigningKey = ServerCommon.CreateSymmetricSecurityKey(),
-			};
-
-			JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
-			String? jwtInfo = null;
-			try
-			{
-				ClaimsPrincipal claims = jwtSecurityTokenHandler.ValidateToken(token, p, out SecurityToken validatedToken);
-				jwtInfo = claims.Claims.Count().ToString() + ", ";
-				jwtInfo += validatedToken.ValidTo.ToString("yyyy/MM/dd HH:mm:ss");
-			}
-			catch (Exception excep)
-			{
-				Debug.WriteLine(excep.Message);
-				return "Test 2 Exception: " + excep.Message;
-			}
-
-			return "Test 2 query: " + query + " / numClaims: " + jwtInfo + " / now: " + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + " / " + Environment.TickCount.ToString("#,0");
-		}
-
 	}
 }
