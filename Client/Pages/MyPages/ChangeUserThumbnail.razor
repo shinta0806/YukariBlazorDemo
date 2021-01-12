@@ -16,7 +16,7 @@
 					</label>
 				</div>
 				<div class="actions">
-					<button class="general-button" type="button" @onclick="OnClickSendThumbnailAsync">変更</button>
+					<button class="default-button" type="button" @onclick="OnClickChangeUserThumbnailAsync">変更</button>
 				</div>
 				<br />
 				<div>@((MarkupString)confirm)</div>
@@ -45,7 +45,7 @@
 	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
 	// ====================================================================
-	// private 定数
+	// private 変数
 	// ====================================================================
 
 	// プロフィール画像変更プレビュー
@@ -67,7 +67,7 @@
 	// --------------------------------------------------------------------
 	// サムネイル変更ボタンがクリックされた
 	// --------------------------------------------------------------------
-	private async Task OnClickSendThumbnailAsync()
+	private async Task OnClickChangeUserThumbnailAsync()
 	{
 		try
 		{
@@ -84,7 +84,7 @@
 				StateHasChanged();
 				return;
 			}
-			NavigationManager.NavigateTo("/mypage", true);
+			NavigationManager.NavigateTo("/mypage/" + Uri.EscapeDataString("プロフィール画像を変更しました。"), true);
 		}
 		catch (Exception excep)
 		{

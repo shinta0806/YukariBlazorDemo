@@ -1,0 +1,120 @@
+﻿@page "/changeusername"
+@inject AuthService AuthService
+
+<AuthorizeView>
+	<Authorized>
+		<h1>お名前の変更</h1>
+		<div class="content">
+
+			<table class="input-table">
+				<tr>
+					<td class="input-td">現在のお名前</td>
+					<td class="input-td">@userInfo?.Name</td>
+				</tr>
+				<tr>
+					<td class="input-td">新しいお名前</td>
+					<td class="input-td"><input class="input-general" type="text" @bind="newName" @ref="inputNewName" /></td>
+				</tr>
+			</table>
+
+			<div class="actions">
+				<button class="default-button" type="button" @onclick="OnClickChangeUserNameAsync">変更</button>
+			</div>
+			<div class="error-message">@changeNameResult</div>
+
+		</div>
+	</Authorized>
+	<NotAuthorized>
+		<div class="content">
+			<div>ログアウトしました。</div>
+		</div>
+	</NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+	// ====================================================================
+	// public パラメーター
+	// ====================================================================
+
+	// 認証状態
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+	// ====================================================================
+	// protected 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 初期化が完了した
+	// --------------------------------------------------------------------
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			userInfo = AuthService.GetLoginUserInfo();
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+	// ====================================================================
+	// private 変数
+	// ====================================================================
+
+	// ログインしているユーザーの情報
+	private PublicUserInfo? userInfo;
+
+	// 新しい名前
+	private String? newName;
+
+	// 要素参照用
+	private ElementReference inputNewName;
+
+	// 結果
+	private String? changeNameResult;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// お名前変更ボタンがクリックされた
+	// --------------------------------------------------------------------
+	private async Task OnClickChangeUserNameAsync()
+	{
+		try
+		{
+			changeNameResult = null;
+			if (String.IsNullOrEmpty(newName))
+			{
+				changeNameResult = "新しいお名前を入力してください。";
+			}
+			else if(newName == userInfo?.Name)
+			{
+				changeNameResult = "現在とは異なるお名前を入力してください。";
+			}
+			else
+			{
+				changeNameResult = await AuthService.SetNameAsync(newName);
+			}
+			if (!String.IsNullOrEmpty(changeNameResult))
+			{
+				StateHasChanged();
+				return;
+			}
+
+			// トークンを更新することにより AuthenticationStateTask に反映させる
+			await AuthService.ExtendAsync();
+			NavigationManager.NavigateTo("/mypage/" + Uri.EscapeDataString("お名前を変更しました。次回ログイン時は、新しいお名前でログインしてください。"), false);
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientError(NavigationManager, excep);
+		}
+	}
+
+
+}

@@ -105,7 +105,7 @@ img {
     text-align: center;
 }
 
-.tb-center {
+.v-center {
     display: inline-block;
     vertical-align: middle;
 }
@@ -126,6 +126,9 @@ img {
         color: #6666ff;
     }
 
+.v-space {
+    margin: 10px 0 0 0;
+}
 /*
     ドロップダウン
 */
@@ -321,6 +324,7 @@ label > input {
     }
 
 .ok-message {
+    color: green;
     margin: 10px 0 0 0;
 }
 

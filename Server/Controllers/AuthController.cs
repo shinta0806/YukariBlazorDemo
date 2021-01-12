@@ -350,6 +350,37 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// トークンの有効期限を延長
+		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認でき、有効な場合は有効期限を延長できる
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.EXTEND)]
+		public IActionResult Extend([FromBody] Int32 dummy)
+		{
+			try
+			{
+				// ここに到達できているということはトークン自体は正規のものである
+				// しかし有効かどうかはまた別問題のため、有効性を確認する
+				if (!IsTokenValid(out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+
+				// 新しい有効期限のトークン
+				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
+
+				// ID とログイン用トークンを返す
+				return Ok(idAndToken);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("延長サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+#if false
+		// --------------------------------------------------------------------
 		// ログインしているか
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認できる
 		// --------------------------------------------------------------------
@@ -369,6 +400,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				return false;
 			}
 		}
+#endif
 
 		// --------------------------------------------------------------------
 		// ログアウト時のサーバー側の処理
@@ -390,17 +422,63 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// プロフィール画像を設定
+		// 名前を設定
 		// --------------------------------------------------------------------
-		[RequestSizeLimit(YbdConstants.USER_THUMBNAIL_LENGTH_MAX)]
-		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_THUMBNAIL)]
-		public IActionResult SetThumbnail([FromBody] TransferFile transferFile)
+		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_NAME)]
+		public IActionResult SetName([FromBody] String? newName)
 		{
 			try
 			{
 				if (!IsTokenValid(out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
+				}
+				if (String.IsNullOrEmpty(newName))
+				{
+					return BadRequest();
+				}
+
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+
+				// 同じ名前のユーザーが既に存在している場合は登録できない
+				if (registeredUsers.FirstOrDefault(x => x.Name == newName) != null)
+				{
+					return Conflict();
+				}
+
+				// 更新用インスタンスとして再度 loginUser を取得
+				loginUser = registeredUsers.Single(x => x.Id == loginUser.Id);
+
+				// 設定
+				loginUser.Name = newName;
+				registeredUserContext.SaveChanges();
+
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("名前設定サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// プロフィール画像を設定
+		// --------------------------------------------------------------------
+		[RequestSizeLimit(YbdConstants.USER_THUMBNAIL_LENGTH_MAX)]
+		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_THUMBNAIL)]
+		public IActionResult SetThumbnail([FromBody] TransferFile? transferFile)
+		{
+			try
+			{
+				if (!IsTokenValid(out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+				if (transferFile == null)
+				{
+					return BadRequest();
 				}
 
 				// 更新用インスタンスとして再度 loginUser を取得

@@ -83,8 +83,8 @@
 				throw new Exception();
 			}
 
-			// ログイン状態を確認することにより AuthenticationStateTask に反映させる
-			await AuthService.IsLoggedInAsync();
+			// トークンを更新することにより AuthenticationStateTask に反映させる
+			await AuthService.ExtendAsync();
 		}
 		catch (Exception excep)
 		{

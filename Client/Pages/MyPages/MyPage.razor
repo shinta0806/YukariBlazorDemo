@@ -1,4 +1,4 @@
-﻿@page "/mypage"
+﻿@page "/mypage/{Message?}"
 @inject AuthService AuthService
 
 <AuthorizeView>
@@ -8,6 +8,8 @@
 			<h1>プロフィール</h1>
 			<div class="content">
 
+				<div class="ok-message">@Message</div>
+				<div class="v-space"></div>
 				<div class="tab-content">
 					<table class="input-table">
 						<tr>
@@ -49,6 +51,10 @@
 	[CascadingParameter]
 	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
+	// メッセージ
+	[Parameter]
+	public String? Message { get; set; }
+
 	// ====================================================================
 	// public 関数
 	// ====================================================================
@@ -64,8 +70,8 @@
 	{
 		try
 		{
-			// ログイン状態を確認することにより AuthenticationStateTask に反映させる
-			await AuthService.IsLoggedInAsync();
+			// トークンを更新することにより AuthenticationStateTask に反映させる
+			await AuthService.ExtendAsync();
 
 			userInfo = AuthService.GetLoginUserInfo();
 		}
