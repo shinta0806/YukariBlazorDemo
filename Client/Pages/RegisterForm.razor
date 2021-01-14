@@ -59,7 +59,7 @@
 						@if (IsRegister())
 						{
 							<tr>
-								<td class="input-td">確認のためパスワードを再度入力</td>
+								<td class="input-td">確認のため同じパスワードを再度入力</td>
 								<td class="input-td"><input class="input-general" type="password" @bind="confirmPassword" /></td>
 							</tr>
 						}
@@ -299,7 +299,7 @@ else
 			}
 			if (loginInfo.Password != confirmPassword)
 			{
-				throw new Exception("確認のためパスワードが最初のパスワードと異なっています。");
+				throw new Exception("確認のためのパスワードが異なっています。");
 			}
 
 			String message = await AuthService.AddUserAsync(loginInfo);

@@ -87,6 +87,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_MOVIE = "movie/";
 		public const String URL_NAME = "name/";
 		public const String URL_NEXT = "next/";
+		public const String URL_PASSWORD = "password/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
 		public const String URL_PLAYER = "player/";
 		public const String URL_PLAYING = "playing/";

@@ -87,34 +87,28 @@
 	{
 		try
 		{
-			changeNameResult = null;
 			if (String.IsNullOrEmpty(newName))
 			{
-				changeNameResult = "新しいお名前を入力してください。";
+				throw new Exception( "新しいお名前を入力してください。");
 			}
-			else if(newName == userInfo?.Name)
+			if (newName == userInfo?.Name)
 			{
-				changeNameResult = "現在とは異なるお名前を入力してください。";
+				throw new Exception( "現在とは異なるお名前を入力してください。");
 			}
-			else
+			String setResult = await AuthService.SetNameAsync(newName);
+			if (!String.IsNullOrEmpty(setResult))
 			{
-				changeNameResult = await AuthService.SetNameAsync(newName);
-			}
-			if (!String.IsNullOrEmpty(changeNameResult))
-			{
-				StateHasChanged();
-				return;
+				throw new Exception(setResult);
 			}
 
 			// トークンを更新することにより AuthenticationStateTask に反映させる
 			await AuthService.ExtendAsync();
-			NavigationManager.NavigateTo("/mypage/" + Uri.EscapeDataString("お名前を変更しました。次回ログイン時は、新しいお名前でログインしてください。"), false);
+			NavigationManager.NavigateTo("/mypage/" + Uri.EscapeDataString("お名前を変更しました。次回ログイン時は、新しいお名前でログインしてください。"));
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			changeNameResult = excep.Message;
+			StateHasChanged();
 		}
 	}
-
-
 }

@@ -244,6 +244,33 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// パスワード設定
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> SetPasswordAsync(String currentPassword, String newPassword)
+		{
+			(HttpStatusCode statusCode, String content)
+					= await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_PASSWORD, new String[] { currentPassword, newPassword });
+			if (!IsSuccessStatusCode(statusCode))
+			{
+				switch (statusCode)
+				{
+					case HttpStatusCode.BadRequest:
+						return "パスワードが指定されていません。";
+					case HttpStatusCode.InternalServerError:
+						return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+					case HttpStatusCode.NotAcceptable:
+						return "現在のパスワードが間違っています。";
+					case HttpStatusCode.Unauthorized:
+						return ClientConstants.ERROR_MESSAGE_UNAUTHORIZED;
+					default:
+						return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+				}
+			}
+			return String.Empty;
+		}
+
+		// --------------------------------------------------------------------
 		// イベントハンドラー設定
 		// --------------------------------------------------------------------
 		public Boolean SetStateChangedHandler(NotifyDelegate notifyDelegate)

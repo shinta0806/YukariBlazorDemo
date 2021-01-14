@@ -451,6 +451,7 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				// 設定
 				loginUser.Name = newName;
+				loginUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
 				registeredUserContext.SaveChanges();
 
 				return Ok();
@@ -458,6 +459,57 @@ namespace YukariBlazorDemo.Server.Controllers
 			catch (Exception excep)
 			{
 				Debug.WriteLine("名前設定サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// パスワードを設定
+		// passwords[0]: 現在のパスワード, passwords[1]: 新しいパスワード
+		// --------------------------------------------------------------------
+		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_PASSWORD)]
+		public IActionResult SetPassword([FromBody] String?[] passwords)
+		{
+			try
+			{
+				if (!IsTokenValid(out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+				if (passwords.Length < 2)
+				{
+					return BadRequest();
+				}
+				String? currentPassword = passwords[0];
+				String? newPassword = passwords[1];
+				if (String.IsNullOrEmpty(currentPassword) || String.IsNullOrEmpty(newPassword))
+				{
+					return BadRequest();
+				}
+
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+
+				// 現在のパスワードハッシュの一致を確認
+				if (loginUser.Password != HashPassword(currentPassword, loginUser.Salt))
+				{
+					return NotAcceptable();
+				}
+
+				// 更新用インスタンスとして再度 loginUser を取得
+				loginUser = registeredUsers.Single(x => x.Id == loginUser.Id);
+
+				// 設定
+				loginUser.Password = newPassword;
+				loginUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				HashPassword(loginUser);
+				registeredUserContext.SaveChanges();
+
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("パスワード設定サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
