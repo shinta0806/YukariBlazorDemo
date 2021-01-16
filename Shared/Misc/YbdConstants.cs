@@ -69,7 +69,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// API URL
+		// API 等 URL
 		// --------------------------------------------------------------------
 
 		public const String URL_API = "api/";
@@ -96,6 +96,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_REQUEST = "request/";
 		public const String URL_REQUEST_SONGS = "requestsongs/";
 		public const String URL_SEARCH = "search/";
+		public const String URL_SSE = "sse/";
 		public const String URL_STATUS = "status/";
 		public const String URL_THUMBNAIL = "thumbnail/";
 		public const String URL_USERS = "users/";
@@ -150,6 +151,13 @@ namespace YukariBlazorDemo.Shared.Misc
 
 		// サムネイル最大サイズ [byte]
 		public const Int32 USER_THUMBNAIL_LENGTH_MAX = 150 * 1024;
+
+		// --------------------------------------------------------------------
+		// Server-Sent Events 関連
+		// --------------------------------------------------------------------
+
+		// 予約更新
+		public const String SSE_DATA_REQUEST_CHANGED = "RequestChanged";
 
 	}
 }

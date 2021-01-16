@@ -1,6 +1,8 @@
+using Lib.AspNetCore.ServerSentEvents;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,6 +49,9 @@ namespace YukariBlazorDemo.Server
 				// îÈñßåÆèÄîıå„
 				options.TokenValidationParameters = ServerCommon.TokenValidationParameters();
 			});
+
+			// Server-Sent Events
+			services.AddServerSentEvents();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +85,10 @@ namespace YukariBlazorDemo.Server
 			{
 				endpoints.MapRazorPages();
 				endpoints.MapControllers();
+
+				// Server-Sent Events
+				endpoints.MapServerSentEvents("/" + YbdConstants.URL_SSE);
+
 				endpoints.MapFallbackToFile("index.html");
 			});
 

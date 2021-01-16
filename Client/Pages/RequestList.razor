@@ -1,4 +1,5 @@
 ﻿@page "/{Query?}"
+@inject IJSRuntime JSRuntime
 @inject RequestSongService RequestSongService
 @using System
 @using System.IO
@@ -102,6 +103,21 @@ else
 	public String? Query { get; set; }
 
 	// ====================================================================
+	// public 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// Server-Sent Events 受信
+	// --------------------------------------------------------------------
+	[JSInvokable]
+	public async Task OnSse(String data)
+	{
+		ClientCommon.DebugWriteLine("OnSse() " + data);
+		await GetRequestAsync();
+		StateHasChanged();
+	}
+
+	// ====================================================================
 	// protected 関数
 	// ====================================================================
 
@@ -112,6 +128,7 @@ else
 	{
 		try
 		{
+			await JSRuntime.InvokeVoidAsync("CreateEventSource", DotNetObjectReference.Create(this));
 			await GetRequestAsync();
 			initialized = true;
 		}

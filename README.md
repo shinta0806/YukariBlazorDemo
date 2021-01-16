@@ -105,9 +105,11 @@ Player ページでは、予約した曲を再生します。
 - Blazor WebAssembly (client-side Blazor / WASM) + ASP.NET Core hosted
 - Entity Framework Core + SQLite
 - JSON Web Token (JWT) 認証 + AuthorizeView
+- Server-Sent Events (SSE) + EventSource
 - C# 9.0 + nullable
 - REST API
 - ローカルストレージ (localStorage / Web Storage)
+- JavaScript 相互運用
 
 # 謝辞
 

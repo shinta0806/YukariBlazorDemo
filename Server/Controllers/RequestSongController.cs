@@ -8,6 +8,7 @@
 // 予約は頻繁に更新されるため ShortCache 属性を付与
 // ----------------------------------------------------------------------------
 
+using Lib.AspNetCore.ServerSentEvents;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -17,7 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-
+using System.Threading.Tasks;
 using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
@@ -31,6 +32,18 @@ namespace YukariBlazorDemo.Server.Controllers
 	[Route(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS)]
 	public class RequestSongController : ApiController
 	{
+		// ====================================================================
+		// コンストラクター・デストラクター
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// コンストラクター
+		// --------------------------------------------------------------------
+		public RequestSongController(IServerSentEventsService serverSentEventsService)
+		{
+			mServerSentEventsService = serverSentEventsService;
+		}
+
 		// ====================================================================
 		// API（ApiController）
 		// ====================================================================
@@ -88,10 +101,12 @@ namespace YukariBlazorDemo.Server.Controllers
 					sort = requestSongs.Max(x => x.Sort) + 1;
 				}
 
-				// 追加する曲は最後
+				// 追加する曲の位置は最後
 				requestSong.Sort = sort;
 				requestSongs.Add(requestSong);
 				requestSongContext.SaveChanges();
+
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
 				return Ok();
 			}
 			catch (Exception excep)
@@ -188,6 +203,24 @@ namespace YukariBlazorDemo.Server.Controllers
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
+		}
+
+		// ====================================================================
+		// DI
+		// ====================================================================
+
+		private readonly IServerSentEventsService mServerSentEventsService;
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// Server-Sent Events で通知
+		// --------------------------------------------------------------------
+		private void SendSse(String data)
+		{
+			mServerSentEventsService.SendEventAsync(data).NoWait();
 		}
 	}
 }
