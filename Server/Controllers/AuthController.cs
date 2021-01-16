@@ -360,7 +360,8 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// ここに到達できているということはトークン自体は正規のものである
 				// しかし有効かどうかはまた別問題のため、有効性を確認する
-				if (!IsTokenValid(out RegisteredUser? loginUser))
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
 				}
@@ -378,29 +379,6 @@ namespace YukariBlazorDemo.Server.Controllers
 				return InternalServerError();
 			}
 		}
-
-#if false
-		// --------------------------------------------------------------------
-		// ログインしているか
-		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認できる
-		// --------------------------------------------------------------------
-		[HttpGet, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_IS_LOGGED_IN)]
-		public Boolean IsLoggedIn()
-		{
-			try
-			{
-				// ここに到達できているということはトークン自体は正規のものである
-				// しかし有効かどうかはまた別問題のため、有効性を確認する
-				return IsTokenValid(out RegisteredUser? registeredUser);
-			}
-			catch (Exception excep)
-			{
-				Debug.WriteLine("ログイン確認サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return false;
-			}
-		}
-#endif
 
 		// --------------------------------------------------------------------
 		// ログアウト時のサーバー側の処理
@@ -429,7 +407,8 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? loginUser))
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
 				}
@@ -438,16 +417,11 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-
 				// 同じ名前のユーザーが既に存在している場合は登録できない
 				if (registeredUsers.FirstOrDefault(x => x.Name == newName) != null)
 				{
 					return Conflict();
 				}
-
-				// 更新用インスタンスとして再度 loginUser を取得
-				loginUser = registeredUsers.Single(x => x.Id == loginUser.Id);
 
 				// 設定
 				loginUser.Name = newName;
@@ -473,7 +447,8 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? loginUser))
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
 				}
@@ -488,16 +463,11 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-
 				// 現在のパスワードハッシュの一致を確認
 				if (loginUser.Password != HashPassword(currentPassword, loginUser.Salt))
 				{
 					return NotAcceptable();
 				}
-
-				// 更新用インスタンスとして再度 loginUser を取得
-				loginUser = registeredUsers.Single(x => x.Id == loginUser.Id);
 
 				// 設定
 				loginUser.Password = newPassword;
@@ -524,7 +494,8 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? loginUser))
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
 				}
@@ -532,10 +503,6 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					return BadRequest();
 				}
-
-				// 更新用インスタンスとして再度 loginUser を取得
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
-				loginUser = registeredUsers.Single(x => x.Id == loginUser.Id);
 
 				// 設定
 				using MemoryStream memoryStream = new MemoryStream(transferFile.Content);
@@ -566,7 +533,8 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? loginUser) || !loginUser.IsAdmin)
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
 				}
@@ -579,7 +547,6 @@ namespace YukariBlazorDemo.Server.Controllers
 					return NotModified();
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 				RegisteredUser[] registeredUsersArray = registeredUsers.Where(x => !x.IsAdmin).OrderBy(x => x.Name).ToArray();
 				PublicUserInfo[] results = new PublicUserInfo[registeredUsersArray.Length];
 				for (Int32 i = 0; i < registeredUsersArray.Length; i++)
@@ -607,7 +574,8 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				if (!IsTokenValid(out RegisteredUser? loginUser) || !loginUser.IsAdmin)
+				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
 				}
@@ -616,7 +584,6 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 				RegisteredUser? deleteUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 				if (deleteUser == null)
 				{
@@ -650,7 +617,8 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route("test/")]
 		public String Test()
 		{
-			return "Test isTokenValid: " + IsTokenValid(out RegisteredUser? registeredUser) + " / " + Environment.TickCount.ToString("#,0");
+			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+			return "Test isTokenValid: " + IsTokenValid(registeredUsers, out RegisteredUser? registeredUser) + " / " + Environment.TickCount.ToString("#,0");
 		}
 
 		// ====================================================================
@@ -770,7 +738,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// ヘッダーに記載されているトークンが有効かどうか
 		// --------------------------------------------------------------------
-		private Boolean IsTokenValid([NotNullWhen(true)] out RegisteredUser? loginUser)
+		private Boolean IsTokenValid(DbSet<RegisteredUser> registeredUsers, [NotNullWhen(true)] out RegisteredUser? loginUser)
 		{
 			loginUser = null;
 			String? id = GetIdFromHeader();
@@ -780,7 +748,6 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 
 			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
-			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 			loginUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 			if (loginUser == null)
 			{
