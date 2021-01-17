@@ -1,3 +1,0 @@
-RegisteredTrademark(r)
-
-h1. 見出し1
