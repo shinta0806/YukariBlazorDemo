@@ -25,6 +25,7 @@
 					<th class="req-list-th">曲名</th>
 					<th class="req-list-th">予約者</th>
 					<th class="req-list-th">コメント</th>
+					<th class="req-list-th">操作</th>
 				</tr>
 
 				@foreach (RequestSong requestSong in requestSongs)
@@ -72,9 +73,20 @@
 							<div class="center">@requestSong.UserName</div>
 						</td>
 						<td class="req-list-td">@requestSong.Comment</td>
+						<td class="req-list-td">
+							<select @onchange="e => OnChangeListAction(requestSong, e)">
+								<option selected>リスト操作</option>
+								<option value="@LIST_ACTION_UP">上へ</option>
+								<option value="@LIST_ACTION_DOWN">下へ</option>
+								<option value="@LIST_ACTION_NEXT">次に再生</option>
+								<option value="@LIST_ACTION_DELETE">削除</option>
+							</select>
+						</td>
 					</tr>
 				}
 			</table>
+
+			<div id="action-result" class="error-message">@actionResult</div>
 
 			@((MarkupString)ClientCommon.GeneratePageNavigation((numRequests + YbdConstants.PAGE_SIZE - 1)/ YbdConstants.PAGE_SIZE, currentPage, "/"))
 		}
@@ -138,7 +150,7 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 
@@ -158,9 +170,25 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
+
+	// ====================================================================
+	// private 定数
+	// ====================================================================
+
+	// 上へ
+	private const String LIST_ACTION_UP = "up";
+
+	// 下へ
+	private const String LIST_ACTION_DOWN = "down";
+
+	// 次に再生
+	private const String LIST_ACTION_NEXT = "next";
+
+	// 削除
+	private const String LIST_ACTION_DELETE = "delete";
 
 	// ====================================================================
 	// private 変数
@@ -182,6 +210,9 @@ else
 	// 現在表示中のページ
 	private Int32 currentPage;
 
+	// 操作結果
+	private String? actionResult;
+
 	// ====================================================================
 	// private 関数
 	// ====================================================================
@@ -194,6 +225,30 @@ else
 		Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(Query);
 		currentPage = YbdCommon.GetPageFromQueryParameters(parameters);
 		(requestSongs, numRequests) = await RequestSongService.GetRequestSongsAsync(Query);
+	}
+
+	// --------------------------------------------------------------------
+	// リスト操作
+	// --------------------------------------------------------------------
+	private async Task OnChangeListAction(RequestSong requestSong, ChangeEventArgs e)
+	{
+		try
+		{
+			switch (e.Value)
+			{
+				case LIST_ACTION_UP:
+					ClientCommon.ThrowIfError(await RequestSongService.MoveUpRequestSongAsync(requestSong.RequestSongId));
+					break;
+				default:
+					return;
+			}
+			await GetRequestAsync();
+		}
+		catch (Exception excep)
+		{
+			actionResult = excep.Message;
+		}
+		StateHasChanged();
 	}
 
 }

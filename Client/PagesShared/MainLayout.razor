@@ -20,21 +20,21 @@
 		<div class="dropdown-menu">
 			<AuthorizeView>
 				<Authorized>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/mypage"))">マイページ</div>
+					<div class="dropdown-item" @onclick="@(() => OnClickLoginDropdownLink("/mypage"))">マイページ</div>
 				</Authorized>
 			</AuthorizeView>
 			<AuthorizeView Roles="@ClientConstants.ROLE_NAME_ADMIN">
 				<Authorized>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/admin"))">管理ページ</div>
+					<div class="dropdown-item" @onclick="@(() => OnClickLoginDropdownLink("/admin"))">管理ページ</div>
 				</Authorized>
 			</AuthorizeView>
 			<AuthorizeView>
 				<Authorized>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink("/logout"))">ログアウト</div>
+					<div class="dropdown-item" @onclick="@(() => OnClickLoginDropdownLink("/logout"))">ログアウト</div>
 				</Authorized>
 				<NotAuthorized>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("register/")))">新規ユーザー登録</div>
-					<div class="dropdown-item" @onclick="@(x => OnClickLoginDropdownLink(LoginUrl("login/")))">ログイン</div>
+					<div class="dropdown-item" @onclick="@(() => OnClickLoginDropdownLink(LoginUrl("register/")))">新規ユーザー登録</div>
+					<div class="dropdown-item" @onclick="@(() => OnClickLoginDropdownLink(LoginUrl("login/")))">ログイン</div>
 				</NotAuthorized>
 			</AuthorizeView>
 		</div>
