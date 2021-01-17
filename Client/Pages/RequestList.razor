@@ -75,7 +75,7 @@
 						<td class="req-list-td">@requestSong.Comment</td>
 						<td class="req-list-td">
 							<select @onchange="e => OnChangeListAction(requestSong, e)">
-								<option selected>リスト操作</option>
+								<option>リスト操作</option>
 								<option value="@LIST_ACTION_UP">上へ</option>
 								<option value="@LIST_ACTION_DOWN">下へ</option>
 								<option value="@LIST_ACTION_NEXT">次に再生</option>
@@ -234,10 +234,14 @@ else
 	{
 		try
 		{
+			actionResult = null;
 			switch (e.Value)
 			{
 				case LIST_ACTION_UP:
 					ClientCommon.ThrowIfError(await RequestSongService.MoveUpRequestSongAsync(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_DOWN:
+					ClientCommon.ThrowIfError(await RequestSongService.MoveDownRequestSongAsync(requestSong.RequestSongId));
 					break;
 				default:
 					return;
@@ -249,6 +253,9 @@ else
 			actionResult = excep.Message;
 		}
 		StateHasChanged();
+
+		// 再描画後も select の内容が維持されているのでクリアする
+		await JSRuntime.InvokeVoidAsync("ClearSelectSelections");
 	}
 
 }

@@ -76,6 +76,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_AUTH = "auth/";
 		public const String URL_CURRENT_USER = "currentuser/";
 		public const String URL_DELETE_ALL = "deleteall/";
+		public const String URL_DOWN = "down/";
 		public const String EXTEND = "extend/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
 		public const String URL_ID = "id/";

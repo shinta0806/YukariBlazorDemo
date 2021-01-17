@@ -208,10 +208,54 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 予約を下へ（ソート番号を小さく）
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_DOWN + "{requestSongId?}")]
+		public IActionResult MoveDownRequestSong(String? requestSongId, [FromBody] Int32 dummy)
+		{
+			try
+			{
+				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
+				{
+					return BadRequest();
+				}
+
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+
+				// 移動対象の予約
+				RequestSong? requestSong = requestSongs.FirstOrDefault(x => x.RequestSongId == requestSongIdNum);
+				if (requestSong == null)
+				{
+					return NotAcceptable();
+				}
+
+				// 交換対象の予約
+				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort < requestSong.Sort).OrderByDescending(x => x.Sort).FirstOrDefault();
+				if (exchangeSong == null)
+				{
+					return NotAcceptable();
+				}
+
+				// 交換（順番入れ替え）
+				(requestSong.Sort, exchangeSong.Sort) = (exchangeSong.Sort, requestSong.Sort);
+				requestSongContext.SaveChanges();
+
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("予約を下へサーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// 予約を上へ（ソート番号を大きく）
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_UP + "{requestSongId?}")]
-		public IActionResult MoveUpRequestSong(String? requestSongId)
+		public IActionResult MoveUpRequestSong(String? requestSongId, [FromBody] Int32 dummy)
 		{
 			try
 			{

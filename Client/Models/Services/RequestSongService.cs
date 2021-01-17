@@ -93,6 +93,28 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// 予約を下へ
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> MoveDownRequestSongAsync(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_DOWN + requestSongId, 0);
+			if (response.IsSuccessStatusCode)
+			{
+				return String.Empty;
+			}
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.InternalServerError:
+					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+				case HttpStatusCode.NotAcceptable:
+					return "下へ移動できません。";
+				default:
+					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// 予約を上へ
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
@@ -108,7 +130,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 				case HttpStatusCode.InternalServerError:
 					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
 				case HttpStatusCode.NotAcceptable:
-					return "指定された予約が無いか、または、上へ移動できません。";
+					return "上へ移動できません。";
 				default:
 					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
 			}
