@@ -138,7 +138,7 @@
 			}
 
 			// 削除
-			String errorMessage = await RequestSongService.DeleteAllAsync();
+			String errorMessage = await RequestSongService.DeleteRequestSongAtOnceAsync(YbdConstants.REQUEST_PARAM_VALUE_ALL);
 			deleteAllRequestsResult = ResultHtml("削除しました。", errorMessage);
 			StateHasChanged();
 		}

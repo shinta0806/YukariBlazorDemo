@@ -120,11 +120,51 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 予約を削除
 		// --------------------------------------------------------------------
-		[HttpDelete, Route(YbdConstants.URL_REQUEST + "{id?}")]
-		public IActionResult DeleteRequest()
+		[HttpDelete, Route(YbdConstants.URL_REQUEST + "{requestSongId?}")]
+		public IActionResult DeleteRequest(String? requestSongId)
 		{
 			try
 			{
+				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
+				{
+					return BadRequest();
+				}
+
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+
+				// 削除対象の予約
+				RequestSong? deleteSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
+				if (deleteSong == null)
+				{
+					return NotAcceptable();
+				}
+				requestSongs.Remove(deleteSong);
+				requestSongContext.SaveChanges();
+
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("予約削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を一括削除
+		// --------------------------------------------------------------------
+		[HttpDelete, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_AT_ONCE + "{param?}")]
+		public IActionResult DeleteRequestAtOnce(String? param)
+		{
+			try
+			{
+				if (param != YbdConstants.REQUEST_PARAM_VALUE_ALL)
+				{
+					return BadRequest();
+				}
+
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 				if (requestSongs.Count() == 0)
 				{
@@ -138,7 +178,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("予約全削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("予約一括削除サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
@@ -223,14 +263,14 @@ namespace YukariBlazorDemo.Server.Controllers
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				// 移動対象の予約
-				RequestSong? requestSong = requestSongs.FirstOrDefault(x => x.RequestSongId == requestSongIdNum);
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
 				if (requestSong == null)
 				{
 					return NotAcceptable();
 				}
 
 				// 交換対象の予約
-				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort < requestSong.Sort).OrderByDescending(x => x.Sort).FirstOrDefault();
+				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort < requestSong.Sort).OrderByDescending(x => x.Sort).SingleOrDefault();
 				if (exchangeSong == null)
 				{
 					return NotAcceptable();
@@ -267,14 +307,14 @@ namespace YukariBlazorDemo.Server.Controllers
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				// 移動対象の予約
-				RequestSong? requestSong = requestSongs.FirstOrDefault(x => x.RequestSongId == requestSongIdNum);
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
 				if (requestSong == null)
 				{
 					return NotAcceptable();
 				}
 
 				// 交換対象の予約
-				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort > requestSong.Sort).OrderBy(x => x.Sort).FirstOrDefault();
+				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort > requestSong.Sort).OrderBy(x => x.Sort).SingleOrDefault();
 				if (exchangeSong == null)
 				{
 					return NotAcceptable();

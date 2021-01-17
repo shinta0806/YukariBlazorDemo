@@ -57,12 +57,34 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// 予約をすべて削除
+		// 予約を削除
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<String> DeleteAllAsync()
+		public async Task<String> DeleteRequestSongAsync(Int32 requestSongId)
 		{
-			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + "-1/");
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId);
+			if (response.IsSuccessStatusCode)
+			{
+				return String.Empty;
+			}
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.BadRequest:
+					return "正しい削除指定ができませんでした。";
+				case HttpStatusCode.NotAcceptable:
+					return "予約がありません。";
+				default:
+					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を一括削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> DeleteRequestSongAtOnceAsync(String param)
+		{
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_AT_ONCE + param);
 			if (response.IsSuccessStatusCode)
 			{
 				return String.Empty;

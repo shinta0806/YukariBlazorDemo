@@ -75,7 +75,7 @@
 						<td class="req-list-td">@requestSong.Comment</td>
 						<td class="req-list-td">
 							<select @onchange="e => OnChangeListAction(requestSong, e)">
-								<option>リスト操作</option>
+								<option>予約操作</option>
 								<option value="@LIST_ACTION_UP">上へ</option>
 								<option value="@LIST_ACTION_DOWN">下へ</option>
 								<option value="@LIST_ACTION_NEXT">次に再生</option>
@@ -242,6 +242,9 @@ else
 					break;
 				case LIST_ACTION_DOWN:
 					ClientCommon.ThrowIfError(await RequestSongService.MoveDownRequestSongAsync(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_DELETE:
+					ClientCommon.ThrowIfError(await RequestSongService.DeleteRequestSongAsync(requestSong.RequestSongId));
 					break;
 				default:
 					return;

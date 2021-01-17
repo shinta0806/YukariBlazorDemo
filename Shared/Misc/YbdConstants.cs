@@ -73,9 +73,9 @@ namespace YukariBlazorDemo.Shared.Misc
 		// --------------------------------------------------------------------
 
 		public const String URL_API = "api/";
+		public const String URL_AT_ONCE = "atonce/";
 		public const String URL_AUTH = "auth/";
 		public const String URL_CURRENT_USER = "currentuser/";
-		public const String URL_DELETE_ALL = "deleteall/";
 		public const String URL_DOWN = "down/";
 		public const String EXTEND = "extend/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
@@ -134,6 +134,13 @@ namespace YukariBlazorDemo.Shared.Misc
 
 		// 結果の数パラメーター
 		public const String RESULT_PARAM_NAME_COUNT = "count";
+
+		// --------------------------------------------------------------------
+		// 予約関連
+		// --------------------------------------------------------------------
+
+		// 予約をすべて削除
+		public const String REQUEST_PARAM_VALUE_ALL = "all";
 
 		// --------------------------------------------------------------------
 		// 認証関連
