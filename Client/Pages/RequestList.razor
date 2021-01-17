@@ -113,6 +113,10 @@ else
 	public async Task OnSse(String data)
 	{
 		ClientCommon.DebugWriteLine("OnSse() " + data);
+		if (data != YbdConstants.SSE_DATA_REQUEST_CHANGED)
+		{
+			return;
+		}
 		await GetRequestAsync();
 		StateHasChanged();
 	}

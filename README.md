@@ -109,7 +109,7 @@ Player ページでは、予約した曲を再生します。
 - C# 9.0 + nullable
 - REST API
 - ローカルストレージ (localStorage / Web Storage)
-- JavaScript 相互運用
+- JavaScript (JS) 相互運用
 
 # 謝辞
 

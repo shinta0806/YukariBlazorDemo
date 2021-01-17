@@ -132,6 +132,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				requestSongContext.Database.EnsureDeleted();
 				requestSongContext.Database.EnsureCreated();
+
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
 				return Ok();
 			}
 			catch (Exception excep)
