@@ -249,7 +249,6 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				Debug.WriteLine("GetPublicUserInfo() id: " + id);
 				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
 				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == id);
 				PublicUserInfo userInfo = new PublicUserInfo();

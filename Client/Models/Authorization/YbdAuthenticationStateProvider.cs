@@ -51,7 +51,6 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			private set
 			{
 				mLoginUserInfo = value;
-				ClientCommon.DebugWriteLine("LoginUserInfo setter() id: " + mLoginUserInfo?.Id);
 				if (StateChanged != null)
 				{
 					StateChanged();
@@ -70,7 +69,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// 認証ヘッダーが無い場合は、ローカルストレージの情報に応じて認証ヘッダーを設定する
 		// ＜返値＞ true: 既に付与済み、または、付与した, false: 付与できなかった
 		// --------------------------------------------------------------------
-		public async Task<Boolean> AddAuthorizationHeaderIfCanAsync()
+		public async ValueTask<Boolean> AddAuthorizationHeaderIfCanAsync()
 		{
 			if (mHttpClient.DefaultRequestHeaders.Authorization != null)
 			{
@@ -190,7 +189,6 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			// 認証ヘッダーを設定
 			header = new AuthenticationHeaderValue("Bearer", token);
 			mHttpClient.DefaultRequestHeaders.Authorization = header;
-			ClientCommon.DebugWriteLine("SetAuthorizationHeaderAndPropertyAsync() header set: " + token);
 
 			// 認証ヘッダー更新後に LoginUserInfo 設定
 			LoginUserInfo = loginUserInfo;

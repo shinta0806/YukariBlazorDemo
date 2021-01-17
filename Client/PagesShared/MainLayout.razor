@@ -132,7 +132,6 @@
 	private void UpdateId()
 	{
 		id = AuthService.GetLoginUserInfo()?.Id;
-		ClientCommon.DebugWriteLine("UpdateId() id: " + id);
 		StateHasChanged();
 	}
 
