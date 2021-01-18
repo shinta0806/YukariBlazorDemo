@@ -243,6 +243,9 @@ else
 				case LIST_ACTION_DOWN:
 					ClientCommon.ThrowIfError(await RequestSongService.MoveDownRequestSongAsync(requestSong.RequestSongId));
 					break;
+				case LIST_ACTION_NEXT:
+					ClientCommon.ThrowIfError(await RequestSongService.MoveNextRequestSongAsync(requestSong.RequestSongId));
+					break;
 				case LIST_ACTION_DELETE:
 					ClientCommon.ThrowIfError(await RequestSongService.DeleteRequestSongAsync(requestSong.RequestSongId));
 					break;
