@@ -149,6 +149,8 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			switch (response.StatusCode)
 			{
+				case HttpStatusCode.Conflict:
+					return "再生中です。";
 				case HttpStatusCode.InternalServerError:
 					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
 				case HttpStatusCode.NotAcceptable:

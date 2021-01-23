@@ -312,28 +312,47 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					return NotAcceptable();
 				}
+				if (requestSong.PlayStatus == PlayStatus.Playing || requestSong.PlayStatus == PlayStatus.Pause)
+				{
+					return Conflict();
+				}
 
-				// 次の位置
 				Int32 next;
 				RequestSong? playingSong = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
-				if (playingSong != null)
+				if (playingSong != null && playingSong.Sort > requestSong.Sort)
 				{
-					next = playingSong.Sort + 1;
+					// 移動対象の方が下にいるので、移動対象を上へ、他を下へ移動
+					next = playingSong.Sort;
+					IQueryable<RequestSong> downs = requestSongs.Where(x => requestSong.Sort < x.Sort && x.Sort <= next);
+					foreach (RequestSong down in downs)
+					{
+						down.Sort--;
+					}
 				}
 				else
 				{
-					next = 1;
-				}
-
-				// 他の曲を繰り下げ
-				IQueryable<RequestSong> downs = requestSongs.Where(x => next <= x.Sort && x.Sort < requestSong.Sort);
-				foreach (RequestSong down in downs)
-				{
-					down.Sort++;
+					// 移動対象の方が上にいるので、移動対象を下へ、他を上へ移動
+					if (playingSong != null)
+					{
+						next = playingSong.Sort + 1;
+					}
+					else
+					{
+						next = 1;
+					}
+					IQueryable<RequestSong> ups = requestSongs.Where(x => next <= x.Sort && x.Sort < requestSong.Sort);
+					foreach (RequestSong down in ups)
+					{
+						down.Sort++;
+					}
 				}
 
 				// 対象を次の位置へ
 				requestSong.Sort = next;
+				if (requestSong.PlayStatus == PlayStatus.Played)
+				{
+					requestSong.PlayStatus = PlayStatus.Unplayed;
+				}
 
 				requestSongContext.SaveChanges();
 				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
