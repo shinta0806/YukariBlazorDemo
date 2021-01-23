@@ -270,7 +270,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// 交換対象の予約
-				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort < requestSong.Sort).OrderByDescending(x => x.Sort).SingleOrDefault();
+				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort < requestSong.Sort).OrderByDescending(x => x.Sort).FirstOrDefault();
 				if (exchangeSong == null)
 				{
 					return NotAcceptable();
@@ -370,7 +370,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// 交換対象の予約
-				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort > requestSong.Sort).OrderBy(x => x.Sort).SingleOrDefault();
+				RequestSong? exchangeSong = requestSongs.Where(x => x.Sort > requestSong.Sort).OrderBy(x => x.Sort).FirstOrDefault();
 				if (exchangeSong == null)
 				{
 					return NotAcceptable();
