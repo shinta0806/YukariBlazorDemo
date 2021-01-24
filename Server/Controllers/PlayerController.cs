@@ -145,6 +145,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 		}
 
+#if false
 		// --------------------------------------------------------------------
 		// 再生済にする
 		// --------------------------------------------------------------------
@@ -171,6 +172,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				return InternalServerError();
 			}
 		}
+#endif
 
 		// --------------------------------------------------------------------
 		// 前の曲を再生

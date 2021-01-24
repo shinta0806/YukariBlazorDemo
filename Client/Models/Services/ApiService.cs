@@ -10,12 +10,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 using YukariBlazorDemo.Client.Models.Misc;
-using YukariBlazorDemo.Shared;
 using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Client.Models.Services
@@ -72,6 +72,29 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// statusCode に対応するデフォルトのエラーメッセージ
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		protected String DefaultErrorMessage(HttpStatusCode statusCode)
+		{
+			if (IsSuccessStatusCode(statusCode))
+			{
+				return String.Empty;
+			}
+			switch (statusCode)
+			{
+				case HttpStatusCode.BadRequest:
+					return ClientConstants.ERROR_MESSAGE_BAD_REQUEST;
+				case HttpStatusCode.InternalServerError:
+					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
+				case HttpStatusCode.Unauthorized:
+					return ClientConstants.ERROR_MESSAGE_UNAUTHORIZED;
+				default:
+					return ClientConstants.ERROR_MESSAGE_UNEXPECTED + "（" + statusCode.ToString() + "）";
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
 		// --------------------------------------------------------------------
 		protected async Task<(T[], Int32)> GetArrayAsync<T>(String leafUrl, String? query = null)
@@ -97,6 +120,14 @@ namespace YukariBlazorDemo.Client.Models.Services
 				return (new T[0], 0);
 			}
 			return (results, numResults);
+		}
+
+		// --------------------------------------------------------------------
+		// HTTP 応答が成功したかどうか
+		// --------------------------------------------------------------------
+		protected Boolean IsSuccessStatusCode(HttpStatusCode statusCode)
+		{
+			return HttpStatusCode.OK <= statusCode && statusCode < HttpStatusCode.MultipleChoices;
 		}
 
 		// ====================================================================

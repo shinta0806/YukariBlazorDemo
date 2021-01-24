@@ -45,14 +45,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> AddRequestSongAsync(RequestSong requestSong)
 		{
 			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -63,18 +59,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> DeleteRequestSongAsync(Int32 requestSongId)
 		{
 			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
-				case HttpStatusCode.BadRequest:
-					return "正しい削除指定ができませんでした。";
 				case HttpStatusCode.NotAcceptable:
 					return "予約がありません。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -85,16 +75,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> DeleteRequestSongAtOnceAsync(String param)
 		{
 			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_AT_ONCE + param);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:
 					return "予約がありません。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -120,19 +106,14 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> MoveDownRequestSongAsync(Int32 requestSongId)
 		{
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_DOWN + requestSongId, 0);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_DOWN);
 			switch (response.StatusCode)
 			{
-				case HttpStatusCode.InternalServerError:
-					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
 				case HttpStatusCode.NotAcceptable:
 					return "下へ移動できません。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -142,21 +123,16 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> MoveNextRequestSongAsync(Int32 requestSongId)
 		{
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_NEXT + requestSongId, 0);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_NEXT);
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.Conflict:
 					return "再生中です。";
-				case HttpStatusCode.InternalServerError:
-					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
 				case HttpStatusCode.NotAcceptable:
 					return "移動できません。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -166,19 +142,14 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> MoveUpRequestSongAsync(Int32 requestSongId)
 		{
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_UP + requestSongId, 0);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_UP);
 			switch (response.StatusCode)
 			{
-				case HttpStatusCode.InternalServerError:
-					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
 				case HttpStatusCode.NotAcceptable:
 					return "上へ移動できません。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 	}

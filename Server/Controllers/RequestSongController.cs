@@ -249,10 +249,10 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// 予約を下へ（ソート番号を小さく）
+		// 指定曲に対する操作
 		// --------------------------------------------------------------------
-		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_DOWN + "{requestSongId?}")]
-		public IActionResult MoveDownRequestSong(String? requestSongId, [FromBody] Int32 dummy)
+		[HttpPost, Route(YbdConstants.URL_REQUEST + "{requestSongId}")]
+		public IActionResult ManageRequestSong(String requestSongId, [FromBody] String? command)
 		{
 			try
 			{
@@ -263,8 +263,51 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
-				// 移動対象の予約
+				// 操作対象の予約
 				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
+				if (requestSong == null)
+				{
+					return NotAcceptable();
+				}
+
+				IActionResult result;
+				switch (command)
+				{
+					case YbdConstants.REQUEST_PARAM_VALUE_UP:
+						result = MoveUpRequestSong(requestSongs, requestSong);
+						break;
+					default:
+						return BadRequest();
+				}
+				if (result is not OkResult)
+				{
+					return result;
+				}
+
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("指定曲操作サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+#if false
+		// --------------------------------------------------------------------
+		// 予約を下へ（ソート番号を小さく）
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_DOWN)]
+		public IActionResult MoveDownRequestSong([FromBody] Int32 requestSongId)
+		{
+			try
+			{
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+
+				// 移動対象の予約
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongId);
 				if (requestSong == null)
 				{
 					return NotAcceptable();
@@ -295,20 +338,15 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 予約を次の再生位置へ
 		// --------------------------------------------------------------------
-		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_NEXT + "{requestSongId?}")]
-		public IActionResult MoveNextRequestSong(String? requestSongId, [FromBody] Int32 dummy)
+		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_NEXT)]
+		public IActionResult MoveNextRequestSong([FromBody] Int32 requestSongId)
 		{
 			try
 			{
-				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
-				{
-					return BadRequest();
-				}
-
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				// 移動対象の予約
-				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongId);
 				if (requestSong == null)
 				{
 					return NotAcceptable();
@@ -370,20 +408,15 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 予約を上へ（ソート番号を大きく）
 		// --------------------------------------------------------------------
-		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_UP + "{requestSongId?}")]
-		public IActionResult MoveUpRequestSong(String? requestSongId, [FromBody] Int32 dummy)
+		[HttpPost, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_UP)]
+		public IActionResult MoveUpRequestSong([FromBody] Int32 requestSongId)
 		{
 			try
 			{
-				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
-				{
-					return BadRequest();
-				}
-
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				// 移動対象の予約
-				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongId);
 				if (requestSong == null)
 				{
 					return NotAcceptable();
@@ -410,6 +443,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				return InternalServerError();
 			}
 		}
+#endif
 
 		// ====================================================================
 		// DI
@@ -420,6 +454,23 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 		// private メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 予約を上へ（ソート番号を大きく）
+		// --------------------------------------------------------------------
+		private IActionResult MoveUpRequestSong(DbSet<RequestSong> requestSongs, RequestSong requestSong)
+		{
+			// 交換対象の予約
+			RequestSong? exchangeSong = requestSongs.Where(x => x.Sort > requestSong.Sort).OrderBy(x => x.Sort).FirstOrDefault();
+			if (exchangeSong == null)
+			{
+				return NotAcceptable();
+			}
+
+			// 交換（順番入れ替え）
+			(requestSong.Sort, exchangeSong.Sort) = (exchangeSong.Sort, requestSong.Sort);
+			return Ok();
+		}
 
 		// --------------------------------------------------------------------
 		// Server-Sent Events で通知

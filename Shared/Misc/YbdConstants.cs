@@ -76,7 +76,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_AT_ONCE = "atonce/";
 		public const String URL_AUTH = "auth/";
 		public const String URL_CURRENT_USER = "currentuser/";
-		public const String URL_DOWN = "down/";
+		//public const String URL_DOWN = "down/";
 		public const String URL_EXTEND = "extend/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
 		public const String URL_ID = "id/";
@@ -90,7 +90,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_NEXT = "next/";
 		public const String URL_PASSWORD = "password/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
-		public const String URL_PLAYED = "played/";
+		//public const String URL_PLAYED = "played/";
 		public const String URL_PLAYER = "player/";
 		public const String URL_PLAYING = "playing/";
 		public const String URL_PREV = "prev/";
@@ -101,7 +101,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_SSE = "sse/";
 		public const String URL_STATUS = "status/";
 		public const String URL_THUMBNAIL = "thumbnail/";
-		public const String URL_UP = "up/";
+		//public const String URL_UP = "up/";
 		public const String URL_USERS = "users/";
 		public const String URL_WORD = "word/";
 
@@ -139,6 +139,21 @@ namespace YukariBlazorDemo.Shared.Misc
 		// --------------------------------------------------------------------
 		// 予約関連
 		// --------------------------------------------------------------------
+
+		// 予約を上へ
+		public const String REQUEST_PARAM_VALUE_UP = "up";
+
+		// 予約を下へ
+		public const String REQUEST_PARAM_VALUE_DOWN = "down";
+
+		// 予約を次に再生
+		public const String REQUEST_PARAM_VALUE_NEXT = "next";
+
+		// 未再生にする
+		public const String REQUEST_PARAM_VALUE_UNPLAYED = "unplayed";
+
+		// 再生済にする
+		public const String REQUEST_PARAM_VALUE_PLAYED = "played";
 
 		// 予約をすべて削除
 		public const String REQUEST_PARAM_VALUE_ALL = "all";
