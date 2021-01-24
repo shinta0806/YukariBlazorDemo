@@ -72,8 +72,9 @@ namespace YukariBlazorDemo.Shared.Misc
 		// API 等 URL
 		// --------------------------------------------------------------------
 
+		public const String URL_ALL = "all/";
 		public const String URL_API = "api/";
-		public const String URL_AT_ONCE = "atonce/";
+		//public const String URL_AT_ONCE = "atonce/";
 		public const String URL_AUTH = "auth/";
 		public const String URL_CURRENT_USER = "currentuser/";
 		//public const String URL_DOWN = "down/";
@@ -154,9 +155,6 @@ namespace YukariBlazorDemo.Shared.Misc
 
 		// 再生済にする
 		public const String REQUEST_PARAM_VALUE_PLAYED = "played";
-
-		// 予約をすべて削除
-		public const String REQUEST_PARAM_VALUE_ALL = "all";
 
 		// --------------------------------------------------------------------
 		// 認証関連

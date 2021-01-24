@@ -69,12 +69,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// 予約を一括削除
+		// 予約をすべて削除
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<String> DeleteRequestSongAtOnceAsync(String param)
+		public async Task<String> DeleteRequestSongAllAsync()
 		{
-			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_AT_ONCE + param);
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_ALL);
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:

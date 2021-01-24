@@ -145,34 +145,49 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 		}
 
-#if false
 		// --------------------------------------------------------------------
-		// 再生済にする
+		// 指定曲に対する操作
 		// --------------------------------------------------------------------
-		[HttpPost, Route(YbdConstants.URL_PLAYED)]
-		public IActionResult Played([FromBody] Int32 requestSongId)
+		[HttpPost, Route(YbdConstants.URL_REQUEST + "{requestSongId}")]
+		public IActionResult Played(String requestSongId, [FromBody] String? command)
 		{
 			try
 			{
+				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
+				{
+					return BadRequest();
+				}
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
-				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongId);
+
+				// 操作対象の予約
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
 				if (requestSong == null)
 				{
 					return NotAcceptable();
 				}
 
-				requestSong.PlayStatus = PlayStatus.Played;
+				switch (command)
+				{
+					case YbdConstants.REQUEST_PARAM_VALUE_PLAYED:
+						requestSong.PlayStatus = PlayStatus.Played;
+						break;
+					case YbdConstants.REQUEST_PARAM_VALUE_UNPLAYED:
+						requestSong.PlayStatus = PlayStatus.Unplayed;
+						break;
+					default:
+						return BadRequest();
+				}
+
 				requestSongContext.SaveChanges();
 				return Ok();
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("再生済サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("指定曲操作サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
 		}
-#endif
 
 		// --------------------------------------------------------------------
 		// 前の曲を再生

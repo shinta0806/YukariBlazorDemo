@@ -260,6 +260,9 @@ else
 				case LIST_ACTION_PLAYED:
 					ClientCommon.ThrowIfError(await PlayerService.Played(requestSong.RequestSongId));
 					break;
+				case LIST_ACTION_UNPLAYED:
+					ClientCommon.ThrowIfError(await PlayerService.Unplayed(requestSong.RequestSongId));
+					break;
 				case LIST_ACTION_DELETE:
 					ClientCommon.ThrowIfError(await RequestSongService.DeleteRequestSongAsync(requestSong.RequestSongId));
 					break;
