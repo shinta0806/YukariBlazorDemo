@@ -92,7 +92,7 @@
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 
@@ -138,13 +138,13 @@
 			}
 
 			// 削除
-			String errorMessage = await RequestSongService.DeleteAllAsync();
+			String errorMessage = await RequestSongService.DeleteRequestSongAllAsync();
 			deleteAllRequestsResult = ResultHtml("削除しました。", errorMessage);
 			StateHasChanged();
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 
@@ -196,7 +196,7 @@
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 

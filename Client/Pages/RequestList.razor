@@ -1,5 +1,6 @@
 ﻿@page "/{Query?}"
 @inject IJSRuntime JSRuntime
+@inject PlayerService PlayerService
 @inject RequestSongService RequestSongService
 @using System
 @using System.IO
@@ -25,6 +26,7 @@
 					<th class="req-list-th">曲名</th>
 					<th class="req-list-th">予約者</th>
 					<th class="req-list-th">コメント</th>
+					<th class="req-list-th">操作</th>
 				</tr>
 
 				@foreach (RequestSong requestSong in requestSongs)
@@ -72,9 +74,25 @@
 							<div class="center">@requestSong.UserName</div>
 						</td>
 						<td class="req-list-td">@requestSong.Comment</td>
+						<td class="req-list-td">
+							<select @onchange="e => OnChangeListAction(requestSong, e)">
+								<option>予約操作</option>
+								<option disabled>-----</option>
+								<option value="@LIST_ACTION_UP">上へ</option>
+								<option value="@LIST_ACTION_DOWN">下へ</option>
+								<option value="@LIST_ACTION_NEXT">次に再生</option>
+								<option disabled>-----</option>
+								<option value="@LIST_ACTION_UNPLAYED">未再生にする</option>
+								<option value="@LIST_ACTION_PLAYED">再生済にする</option>
+								<option disabled>-----</option>
+								<option value="@LIST_ACTION_DELETE">削除</option>
+							</select>
+						</td>
 					</tr>
 				}
 			</table>
+
+			<div id="action-result" class="error-message">@actionResult</div>
 
 			@((MarkupString)ClientCommon.GeneratePageNavigation((numRequests + YbdConstants.PAGE_SIZE - 1)/ YbdConstants.PAGE_SIZE, currentPage, "/"))
 		}
@@ -138,7 +156,7 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 
@@ -158,9 +176,31 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
+
+	// ====================================================================
+	// private 定数
+	// ====================================================================
+
+	// 上へ
+	private const String LIST_ACTION_UP = "up";
+
+	// 下へ
+	private const String LIST_ACTION_DOWN = "down";
+
+	// 次に再生
+	private const String LIST_ACTION_NEXT = "next";
+
+	// 未再生にする
+	private const String LIST_ACTION_UNPLAYED = "unplayed";
+
+	// 再生済にする
+	private const String LIST_ACTION_PLAYED = "played";
+
+	// 削除
+	private const String LIST_ACTION_DELETE = "delete";
 
 	// ====================================================================
 	// private 変数
@@ -182,6 +222,9 @@ else
 	// 現在表示中のページ
 	private Int32 currentPage;
 
+	// 操作結果
+	private String? actionResult;
+
 	// ====================================================================
 	// private 関数
 	// ====================================================================
@@ -194,6 +237,54 @@ else
 		Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(Query);
 		currentPage = YbdCommon.GetPageFromQueryParameters(parameters);
 		(requestSongs, numRequests) = await RequestSongService.GetRequestSongsAsync(Query);
+	}
+
+	// --------------------------------------------------------------------
+	// リスト操作
+	// --------------------------------------------------------------------
+	private async Task OnChangeListAction(RequestSong requestSong, ChangeEventArgs e)
+	{
+		try
+		{
+			actionResult = null;
+			switch (e.Value)
+			{
+				case LIST_ACTION_UP:
+					ClientCommon.ThrowIfError(await RequestSongService.MoveUpRequestSongAsync(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_DOWN:
+					ClientCommon.ThrowIfError(await RequestSongService.MoveDownRequestSongAsync(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_NEXT:
+					ClientCommon.ThrowIfError(await RequestSongService.MoveNextRequestSongAsync(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_PLAYED:
+					ClientCommon.ThrowIfError(await PlayerService.Played(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_UNPLAYED:
+					ClientCommon.ThrowIfError(await PlayerService.Unplayed(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_DELETE:
+					Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "予約「" + requestSong.SongName + "」を削除してもよろしいですか？");
+					if (!confirm)
+					{
+						return;
+					}
+					ClientCommon.ThrowIfError(await RequestSongService.DeleteRequestSongAsync(requestSong.RequestSongId));
+					break;
+				default:
+					return;
+			}
+			await GetRequestAsync();
+		}
+		catch (Exception excep)
+		{
+			actionResult = excep.Message;
+		}
+		StateHasChanged();
+
+		// 再描画後も select の内容が維持されているのでクリアする
+		await JSRuntime.InvokeVoidAsync("ClearSelectSelections");
 	}
 
 }

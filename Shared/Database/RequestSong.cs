@@ -30,7 +30,7 @@ namespace YukariBlazorDemo.Shared.Database
 		// 元の曲情報（サムネイル等）を参照する際に必要
 		public String AvailableSongId { get; set; } = String.Empty;
 
-		// ソート方法
+		// ソート順
 		public Int32 Sort { get; set; }
 
 		// 予約者のユーザー ID（ログインユーザーの場合のみ）

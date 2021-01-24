@@ -116,12 +116,25 @@ namespace YukariBlazorDemo.Client.Models.Misc
 
 		// --------------------------------------------------------------------
 		// クライアント側のエラーページに遷移
+		// 致命的なエラーの場合に使用する想定
+		// 致命的でないエラーの場合は本関数は呼ばず、各ページ内に想定されているエラーメッセージを表示する
 		// --------------------------------------------------------------------
-		public static void NavigateToClientError(NavigationManager navigationManager, Exception excep)
+		public static void NavigateToClientFatalError(NavigationManager navigationManager, Exception excep)
 		{
 			navigationManager.NavigateTo("/clienterror/" + ClientConstants.ERROR_PARAM_NAME_TYPE + "=" + excep.GetType().Name
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_MESSAGE + "=" + Uri.EscapeDataString(excep.Message)
 					+ "&" + ClientConstants.ERROR_PARAM_NAME_TRACE + "=" + Uri.EscapeDataString(excep.StackTrace ?? String.Empty));
+		}
+
+		// --------------------------------------------------------------------
+		// メッセージが空でなければ例外にする
+		// --------------------------------------------------------------------
+		public static void ThrowIfError(String message)
+		{
+			if (!String.IsNullOrEmpty(message))
+			{
+				throw new Exception(message);
+			}
 		}
 
 		// ====================================================================
@@ -144,7 +157,7 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		private const Int32 NUM_NAVI_PAGE_BUTTONS = 3;
 
 		// ====================================================================
-		// public static メンバー関数
+		// private static メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------

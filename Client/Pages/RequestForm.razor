@@ -145,7 +145,7 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 
@@ -179,7 +179,7 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 
@@ -224,7 +224,7 @@ else
 	{
 		try
 		{
-			String message = await RequestSongService.AddRequestAsync(requestSong);
+			String message = await RequestSongService.AddRequestSongAsync(requestSong);
 			if (!String.IsNullOrEmpty(message))
 			{
 				requestResult = message;
@@ -236,7 +236,7 @@ else
 		}
 		catch (Exception excep)
 		{
-			ClientCommon.NavigateToClientError(NavigationManager, excep);
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
 

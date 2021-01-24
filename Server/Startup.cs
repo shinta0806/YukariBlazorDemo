@@ -334,9 +334,11 @@ namespace YukariBlazorDemo.Server
 					CreateMovieThumbnail(FILE_NAME_TEMPLE, "Temple.png"),
 					CreateMovieThumbnail(FILE_NAME_REMOTE, "Remote.png"),
 					CreateMovieThumbnail(FILE_NAME_SHIH_TZU, "ShihTzu.png"),
+					CreateMovieThumbnail(FILE_NAME_MAMESHIBA, "Mame.png"),
 					CreateMovieThumbnail(FILE_NAME_YORKSHIRE_TERRIER, "YorkshireTerrier.png"),
 					CreateMovieThumbnail(FILE_NAME_CORGI, "Corgi.png"),
 					CreateMovieThumbnail(FILE_NAME_GOLDEN_RETRIEVER, "GoldenRetriever.png"),
+					CreateMovieThumbnail(FILE_NAME_COMMON_SNAPDRAGON, "CommonSnapdragon.png"),
 				};
 				thumbnailContext.Thumbnails.AddRange(thumbnails.Where(x => x != null)!);
 				thumbnailContext.SaveChanges();

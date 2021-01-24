@@ -53,16 +53,29 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> NextAsync()
 		{
 			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_NEXT, 0);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:
 					return "次の曲を再生できませんでした。未再生の曲があるか確認してください。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 指定の曲を再生済にする
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> Played(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_PLAYED);
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.NotAcceptable:
+					return "対象の曲がありません。";
+				default:
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -73,16 +86,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> PlayOrPauseAsync()
 		{
 			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAY_OR_PAUSE, 0);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:
 					return "再生／一時停止できませんでした。曲が予約されているか確認してください。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -93,16 +102,29 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> PrevAsync()
 		{
 			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PREV, 0);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:
 					return "前の曲を再生できませんでした。再生済みの曲があるか確認してください。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 指定の曲を未再生にする
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> Unplayed(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_UNPLAYED);
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.NotAcceptable:
+					return "対象の曲がありません。";
+				default:
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 	}

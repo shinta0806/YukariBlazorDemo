@@ -118,6 +118,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			// ローカルストレージに認証状態を保存
 			await mLocalStorage.SetItemAsync(ITEM_NAME_TOKEN, token);
 			await mLocalStorage.SetItemAsync(ITEM_NAME_LOGIN_INFO, loginUserInfo);
+			ClientCommon.DebugWriteLine("SetStateLoginAsync() " + token);
 
 			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 		}

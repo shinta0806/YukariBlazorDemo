@@ -25,7 +25,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 
@@ -352,7 +351,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// トークンの有効期限を延長
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認でき、有効な場合は有効期限を延長できる
 		// --------------------------------------------------------------------
-		[HttpPost, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.EXTEND)]
+		[HttpPost, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND)]
 		public IActionResult Extend([FromBody] Int32 dummy)
 		{
 			try
@@ -641,7 +640,6 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		// authorization ヘッダー
 		private const String HEADER_NAME_AUTHORIZATION = "authorization";
-
 
 		// ====================================================================
 		// private メンバー関数

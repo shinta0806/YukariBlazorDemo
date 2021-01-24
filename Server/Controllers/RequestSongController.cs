@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using Lib.AspNetCore.ServerSentEvents;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -18,7 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
+
 using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
@@ -120,8 +121,51 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 予約を削除
 		// --------------------------------------------------------------------
-		[HttpDelete, Route(YbdConstants.URL_REQUEST + "{id?}")]
-		public IActionResult DeleteRequest()
+		[HttpDelete, Route(YbdConstants.URL_REQUEST + "{requestSongId?}")]
+		public IActionResult DeleteRequest(String? requestSongId)
+		{
+			try
+			{
+				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
+				{
+					return BadRequest();
+				}
+
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+
+				// 削除対象の予約
+				RequestSong? deleteSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
+				if (deleteSong == null)
+				{
+					return NotAcceptable();
+				}
+
+				// 削除対象より上にある予約を下へ
+				IQueryable<RequestSong> downs = requestSongs.Where(x => x.Sort > deleteSong.Sort);
+				foreach (RequestSong down in downs)
+				{
+					down.Sort--;
+				}
+
+				requestSongs.Remove(deleteSong);
+				requestSongContext.SaveChanges();
+
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("予約削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 予約をすべて削除
+		// --------------------------------------------------------------------
+		[HttpDelete, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_ALL)]
+		public IActionResult DeleteRequestAtOnce()
 		{
 			try
 			{
@@ -138,7 +182,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("予約全削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("予約一括削除サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
@@ -207,6 +251,59 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 		}
 
+		// --------------------------------------------------------------------
+		// 指定曲に対する操作
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_REQUEST + "{requestSongId}")]
+		public IActionResult ManageRequestSong(String requestSongId, [FromBody] String? command)
+		{
+			try
+			{
+				if (!Int32.TryParse(requestSongId, out Int32 requestSongIdNum))
+				{
+					return BadRequest();
+				}
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+
+				// 操作対象の予約
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongIdNum);
+				if (requestSong == null)
+				{
+					return NotAcceptable();
+				}
+
+				IActionResult result;
+				switch (command)
+				{
+					case YbdConstants.REQUEST_PARAM_VALUE_UP:
+						result = MoveUpRequestSong(requestSongs, requestSong);
+						break;
+					case YbdConstants.REQUEST_PARAM_VALUE_DOWN:
+						result = MoveDownRequestSong(requestSongs, requestSong);
+						break;
+					case YbdConstants.REQUEST_PARAM_VALUE_NEXT:
+						result = MoveNextRequestSong(requestSongs, requestSong);
+						break;
+					default:
+						return BadRequest();
+				}
+				if (result is not OkResult)
+				{
+					return result;
+				}
+
+				requestSongContext.SaveChanges();
+				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("指定曲操作サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
 		// ====================================================================
 		// DI
 		// ====================================================================
@@ -216,6 +313,91 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 		// private メンバー関数
 		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// 予約を下へ（ソート番号を小さく）
+		// --------------------------------------------------------------------
+		private IActionResult MoveDownRequestSong(DbSet<RequestSong> requestSongs, RequestSong requestSong)
+		{
+			// 交換対象の予約
+			RequestSong? exchangeSong = requestSongs.Where(x => x.Sort < requestSong.Sort).OrderByDescending(x => x.Sort).FirstOrDefault();
+			if (exchangeSong == null)
+			{
+				return NotAcceptable();
+			}
+
+			// 交換（順番入れ替え）
+			(requestSong.Sort, exchangeSong.Sort) = (exchangeSong.Sort, requestSong.Sort);
+			return Ok();
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を次の再生位置へ
+		// --------------------------------------------------------------------
+		private IActionResult MoveNextRequestSong(DbSet<RequestSong> requestSongs, RequestSong requestSong)
+		{
+			// 再生中の曲は次にできない
+			if (requestSong.PlayStatus == PlayStatus.Playing || requestSong.PlayStatus == PlayStatus.Pause)
+			{
+				return Conflict();
+			}
+
+			Int32 next;
+			RequestSong? playingSong = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
+			if (playingSong != null && playingSong.Sort > requestSong.Sort)
+			{
+				// 移動対象の方が下にいるので、移動対象を上へ、他を下へ移動
+				next = playingSong.Sort;
+				IQueryable<RequestSong> downs = requestSongs.Where(x => requestSong.Sort < x.Sort && x.Sort <= next);
+				foreach (RequestSong down in downs)
+				{
+					down.Sort--;
+				}
+			}
+			else
+			{
+				// 移動対象の方が上にいるので、移動対象を下へ、他を上へ移動
+				if (playingSong != null)
+				{
+					next = playingSong.Sort + 1;
+				}
+				else
+				{
+					next = 1;
+				}
+				IQueryable<RequestSong> ups = requestSongs.Where(x => next <= x.Sort && x.Sort < requestSong.Sort);
+				foreach (RequestSong down in ups)
+				{
+					down.Sort++;
+				}
+			}
+
+			// 対象を次の位置へ
+			requestSong.Sort = next;
+			if (requestSong.PlayStatus == PlayStatus.Played)
+			{
+				requestSong.PlayStatus = PlayStatus.Unplayed;
+			}
+
+			return Ok();
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を上へ（ソート番号を大きく）
+		// --------------------------------------------------------------------
+		private IActionResult MoveUpRequestSong(DbSet<RequestSong> requestSongs, RequestSong requestSong)
+		{
+			// 交換対象の予約
+			RequestSong? exchangeSong = requestSongs.Where(x => x.Sort > requestSong.Sort).OrderBy(x => x.Sort).FirstOrDefault();
+			if (exchangeSong == null)
+			{
+				return NotAcceptable();
+			}
+
+			// 交換（順番入れ替え）
+			(requestSong.Sort, exchangeSong.Sort) = (exchangeSong.Sort, requestSong.Sort);
+			return Ok();
+		}
 
 		// --------------------------------------------------------------------
 		// Server-Sent Events で通知

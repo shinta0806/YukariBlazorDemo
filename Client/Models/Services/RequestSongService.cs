@@ -42,36 +42,45 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// 予約を追加
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<String> AddRequestAsync(RequestSong requestSong)
+		public async Task<String> AddRequestSongAsync(RequestSong requestSong)
 		{
 			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
 			switch (response.StatusCode)
 			{
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
 		// --------------------------------------------------------------------
-		// 予約をすべて削除
+		// 予約を削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		public async Task<String> DeleteAllAsync()
+		public async Task<String> DeleteRequestSongAsync(Int32 requestSongId)
 		{
-			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + "-1/");
-			if (response.IsSuccessStatusCode)
-			{
-				return String.Empty;
-			}
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId);
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:
 					return "予約がありません。";
 				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+					return DefaultErrorMessage(response.StatusCode);
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 予約をすべて削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> DeleteRequestSongAllAsync()
+		{
+			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_ALL);
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.NotAcceptable:
+					return "予約がありません。";
+				default:
+					return DefaultErrorMessage(response.StatusCode);
 			}
 		}
 
@@ -89,6 +98,59 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<(String[], Int32)> GetUserNamesAsync()
 		{
 			return await GetArrayAsync<String>(YbdConstants.URL_GUEST_USER_NAMES);
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を下へ
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> MoveDownRequestSongAsync(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_DOWN);
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.NotAcceptable:
+					return "下へ移動できません。";
+				default:
+					return DefaultErrorMessage(response.StatusCode);
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を次の再生位置へ
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> MoveNextRequestSongAsync(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_NEXT);
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.Conflict:
+					return "再生中です。";
+				case HttpStatusCode.NotAcceptable:
+					return "移動できません。";
+				default:
+					return DefaultErrorMessage(response.StatusCode);
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 予約を上へ
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> MoveUpRequestSongAsync(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
+					YbdConstants.REQUEST_PARAM_VALUE_UP);
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.NotAcceptable:
+					return "上へ移動できません。";
+				default:
+					return DefaultErrorMessage(response.StatusCode);
+			}
 		}
 	}
 }
