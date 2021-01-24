@@ -77,6 +77,7 @@
 						<td class="req-list-td">
 							<select @onchange="e => OnChangeListAction(requestSong, e)">
 								<option>予約操作</option>
+								<option disabled>-----</option>
 								<option value="@LIST_ACTION_UP">上へ</option>
 								<option value="@LIST_ACTION_DOWN">下へ</option>
 								<option value="@LIST_ACTION_NEXT">次に再生</option>
@@ -264,6 +265,11 @@ else
 					ClientCommon.ThrowIfError(await PlayerService.Unplayed(requestSong.RequestSongId));
 					break;
 				case LIST_ACTION_DELETE:
+					Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "予約「" + requestSong.SongName + "」を削除してもよろしいですか？");
+					if (!confirm)
+					{
+						return;
+					}
 					ClientCommon.ThrowIfError(await RequestSongService.DeleteRequestSongAsync(requestSong.RequestSongId));
 					break;
 				default:

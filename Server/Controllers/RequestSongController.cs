@@ -139,6 +139,14 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					return NotAcceptable();
 				}
+
+				// 削除対象より上にある予約を下へ
+				IQueryable<RequestSong> downs = requestSongs.Where(x => x.Sort > deleteSong.Sort);
+				foreach (RequestSong down in downs)
+				{
+					down.Sort--;
+				}
+
 				requestSongs.Remove(deleteSong);
 				requestSongContext.SaveChanges();
 

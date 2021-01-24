@@ -25,7 +25,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 
@@ -641,7 +640,6 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		// authorization ヘッダー
 		private const String HEADER_NAME_AUTHORIZATION = "authorization";
-
 
 		// ====================================================================
 		// private メンバー関数
