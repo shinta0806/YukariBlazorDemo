@@ -67,6 +67,28 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// 指定の曲を再生済にする
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> Played(Int32 requestSongId)
+		{
+			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAYED, requestSongId);
+			if (response.IsSuccessStatusCode)
+			{
+				return String.Empty;
+			}
+			switch (response.StatusCode)
+			{
+				case HttpStatusCode.BadRequest:
+					return "対象の曲が指定されていません。";
+				case HttpStatusCode.NotAcceptable:
+					return "対象の曲がありません。";
+				default:
+					return ClientConstants.ERROR_MESSAGE_UNEXPECTED;
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// 現在の曲を再生または一時停止する
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------

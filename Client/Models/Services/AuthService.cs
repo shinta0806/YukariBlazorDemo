@@ -100,7 +100,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> ExtendAsync()
 		{
 			(HttpStatusCode statusCode, String content)
-					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.EXTEND, 0);
+					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND, 0);
 			if (!IsSuccessStatusCode(statusCode))
 			{
 				switch (statusCode)

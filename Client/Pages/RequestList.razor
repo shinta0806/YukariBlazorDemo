@@ -1,5 +1,6 @@
 ﻿@page "/{Query?}"
 @inject IJSRuntime JSRuntime
+@inject PlayerService PlayerService
 @inject RequestSongService RequestSongService
 @using System
 @using System.IO
@@ -79,6 +80,10 @@
 								<option value="@LIST_ACTION_UP">上へ</option>
 								<option value="@LIST_ACTION_DOWN">下へ</option>
 								<option value="@LIST_ACTION_NEXT">次に再生</option>
+								<option disabled>-----</option>
+								<option value="@LIST_ACTION_UNPLAYED">未再生にする</option>
+								<option value="@LIST_ACTION_PLAYED">再生済にする</option>
+								<option disabled>-----</option>
 								<option value="@LIST_ACTION_DELETE">削除</option>
 							</select>
 						</td>
@@ -187,6 +192,12 @@ else
 	// 次に再生
 	private const String LIST_ACTION_NEXT = "next";
 
+	// 未再生にする
+	private const String LIST_ACTION_UNPLAYED = "unplayed";
+
+	// 再生済にする
+	private const String LIST_ACTION_PLAYED = "played";
+
 	// 削除
 	private const String LIST_ACTION_DELETE = "delete";
 
@@ -245,6 +256,9 @@ else
 					break;
 				case LIST_ACTION_NEXT:
 					ClientCommon.ThrowIfError(await RequestSongService.MoveNextRequestSongAsync(requestSong.RequestSongId));
+					break;
+				case LIST_ACTION_PLAYED:
+					ClientCommon.ThrowIfError(await PlayerService.Played(requestSong.RequestSongId));
 					break;
 				case LIST_ACTION_DELETE:
 					ClientCommon.ThrowIfError(await RequestSongService.DeleteRequestSongAsync(requestSong.RequestSongId));

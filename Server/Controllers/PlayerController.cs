@@ -146,6 +146,33 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 再生済にする
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_PLAYED)]
+		public IActionResult Played([FromBody] Int32 requestSongId)
+		{
+			try
+			{
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+				RequestSong? requestSong = requestSongs.SingleOrDefault(x => x.RequestSongId == requestSongId);
+				if (requestSong == null)
+				{
+					return NotAcceptable();
+				}
+
+				requestSong.PlayStatus = PlayStatus.Played;
+				requestSongContext.SaveChanges();
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("再生済サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// 前の曲を再生
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_PREV)]
