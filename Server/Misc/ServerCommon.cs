@@ -31,7 +31,7 @@ namespace YukariBlazorDemo.Server.Misc
 		// --------------------------------------------------------------------
 		public static SymmetricSecurityKey CreateSymmetricSecurityKey()
 		{
-			return new SymmetricSecurityKey(mTokenSecretKey);
+			return new SymmetricSecurityKey(_tokenSecretKey);
 		}
 
 		// --------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace YukariBlazorDemo.Server.Misc
 		// --------------------------------------------------------------------
 		public static Boolean IsTokenSecretKeyValid()
 		{
-			return mTokenSecretKey.Length >= ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN;
+			return _tokenSecretKey.Length >= ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN;
 		}
 
 		// --------------------------------------------------------------------
@@ -128,7 +128,7 @@ namespace YukariBlazorDemo.Server.Misc
 			if (File.Exists(FILE_NAME_TOKEN_SECRET_KEY))
 			{
 				// 秘密鍵が存在しているので読み込む
-				mTokenSecretKey = Encoding.UTF8.GetBytes(File.ReadAllText(FILE_NAME_TOKEN_SECRET_KEY, Encoding.UTF8));
+				_tokenSecretKey = Encoding.UTF8.GetBytes(File.ReadAllText(FILE_NAME_TOKEN_SECRET_KEY, Encoding.UTF8));
 				return;
 			}
 
@@ -138,7 +138,7 @@ namespace YukariBlazorDemo.Server.Misc
 			generator.GetBytes(source);
 			String keyString = Convert.ToBase64String(source);
 			File.WriteAllText(FILE_NAME_TOKEN_SECRET_KEY, keyString, Encoding.UTF8);
-			mTokenSecretKey = Encoding.UTF8.GetBytes(keyString);
+			_tokenSecretKey = Encoding.UTF8.GetBytes(keyString);
 		}
 
 		// --------------------------------------------------------------------
@@ -172,6 +172,6 @@ namespace YukariBlazorDemo.Server.Misc
 		// ====================================================================
 
 		// トークン生成用の秘密鍵
-		private static Byte[] mTokenSecretKey = new Byte[0];
+		private static Byte[] _tokenSecretKey = new Byte[0];
 	}
 }

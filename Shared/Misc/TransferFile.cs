@@ -19,7 +19,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		// ====================================================================
 
 		// 転送するファイルのデータ
-		public Byte[] Content { get; set; } = new Byte[0];
+		public Byte[] Content { get; set; } = Array.Empty<Byte>();
 
 		// 形式
 		public String Mime { get; set; } = String.Empty;

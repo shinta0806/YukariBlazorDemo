@@ -33,10 +33,10 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// --------------------------------------------------------------------
 		// コンストラクター
 		// --------------------------------------------------------------------
-		public YbdAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage /*AuthService authService*/)
+		public YbdAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
 		{
-			mHttpClient = httpClient;
-			mLocalStorage = localStorage;
+			_httpClient = httpClient;
+			_localStorage = localStorage;
 		}
 
 		// ====================================================================
@@ -44,17 +44,14 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// ====================================================================
 
 		// ログインしているユーザーの情報
-		private PublicUserInfo? mLoginUserInfo;
+		private PublicUserInfo? _loginUserInfo;
 		public PublicUserInfo? LoginUserInfo
 		{
-			get => mLoginUserInfo;
+			get => _loginUserInfo;
 			private set
 			{
-				mLoginUserInfo = value;
-				if (StateChanged != null)
-				{
-					StateChanged();
-				}
+				_loginUserInfo = value;
+				StateChanged?.Invoke();
 			}
 		}
 
@@ -71,7 +68,7 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// --------------------------------------------------------------------
 		public async ValueTask<Boolean> AddAuthorizationHeaderIfCanAsync()
 		{
-			if (mHttpClient.DefaultRequestHeaders.Authorization != null)
+			if (_httpClient.DefaultRequestHeaders.Authorization != null)
 			{
 				// 既に認証ヘッダーがある
 				return true;
@@ -116,8 +113,8 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		public async Task SetStateLoginAsync(String token, PublicUserInfo loginUserInfo)
 		{
 			// ローカルストレージに認証状態を保存
-			await mLocalStorage.SetItemAsync(ITEM_NAME_TOKEN, token);
-			await mLocalStorage.SetItemAsync(ITEM_NAME_LOGIN_INFO, loginUserInfo);
+			await _localStorage.SetItemAsync(ITEM_NAME_TOKEN, token);
+			await _localStorage.SetItemAsync(ITEM_NAME_LOGIN_INFO, loginUserInfo);
 			ClientCommon.DebugWriteLine("SetStateLoginAsync() " + token);
 
 			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
@@ -129,8 +126,8 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		public async Task SetStateLogoutAsync()
 		{
 			// ローカルストレージから認証状態を削除
-			await mLocalStorage.RemoveItemAsync(ITEM_NAME_TOKEN);
-			await mLocalStorage.RemoveItemAsync(ITEM_NAME_LOGIN_INFO);
+			await _localStorage.RemoveItemAsync(ITEM_NAME_TOKEN);
+			await _localStorage.RemoveItemAsync(ITEM_NAME_LOGIN_INFO);
 
 			NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 		}
@@ -146,14 +143,14 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		private const String ITEM_NAME_LOGIN_INFO = "logininfo2";
 
 		// ====================================================================
-		// private メンバー変数
+		// DI
 		// ====================================================================
 
 		// HTTP クライアント
-		private HttpClient mHttpClient;
+		private readonly HttpClient _httpClient;
 
 		// ローカルストレージ
-		private ILocalStorageService mLocalStorage;
+		private readonly ILocalStorageService _localStorage;
 
 		// ====================================================================
 		// private メンバー関数
@@ -165,8 +162,8 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		private async Task<(String?, PublicUserInfo?)> LoadLocalStorageAsync()
 		{
 			// GetItemAsync() の返値は定義上 nullable になっていないが実際には nullable
-			String? token = await mLocalStorage.GetItemAsync<String>(ITEM_NAME_TOKEN);
-			PublicUserInfo? loginUserInfo = await mLocalStorage.GetItemAsync<PublicUserInfo>(ITEM_NAME_LOGIN_INFO);
+			String? token = await _localStorage.GetItemAsync<String>(ITEM_NAME_TOKEN);
+			PublicUserInfo? loginUserInfo = await _localStorage.GetItemAsync<PublicUserInfo>(ITEM_NAME_LOGIN_INFO);
 			return (token, loginUserInfo);
 		}
 
@@ -175,12 +172,11 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 		// --------------------------------------------------------------------
 		private async Task<(String? token, PublicUserInfo? loginUserInfo)> SetAuthorizationHeaderAndPropertyAsync()
 		{
-			AuthenticationHeaderValue? header = null;
 			(String? token, PublicUserInfo? loginUserInfo) = await LoadLocalStorageAsync();
 			if (String.IsNullOrEmpty(token) || loginUserInfo == null)
 			{
 				// 認証ヘッダーをクリア
-				mHttpClient.DefaultRequestHeaders.Authorization = null;
+				_httpClient.DefaultRequestHeaders.Authorization = null;
 
 				// 認証ヘッダー更新後に LoginUserInfo 設定
 				LoginUserInfo = null;
@@ -188,8 +184,8 @@ namespace YukariBlazorDemo.Client.Models.Authorization
 			}
 
 			// 認証ヘッダーを設定
-			header = new AuthenticationHeaderValue("Bearer", token);
-			mHttpClient.DefaultRequestHeaders.Authorization = header;
+			AuthenticationHeaderValue header = new AuthenticationHeaderValue("Bearer", token);
+			_httpClient.DefaultRequestHeaders.Authorization = header;
 
 			// 認証ヘッダー更新後に LoginUserInfo 設定
 			LoginUserInfo = loginUserInfo;

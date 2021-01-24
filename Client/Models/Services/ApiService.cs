@@ -31,8 +31,8 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public ApiService(HttpClient httpClient, String baseUrl)
 		{
-			mHttpClient = httpClient;
-			mBaseUrl = baseUrl;
+			_httpClient = httpClient;
+			_baseUrl = baseUrl;
 		}
 
 		// ====================================================================
@@ -47,7 +47,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			String? status;
 			try
 			{
-				status = await mHttpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + mBaseUrl + YbdConstants.URL_STATUS);
+				status = await _httpClient.GetFromJsonAsync<String>(YbdConstants.URL_API + _baseUrl + YbdConstants.URL_STATUS);
 				if (status == null)
 				{
 					status = API_STATUS_ERROR_CANNOT_GET;
@@ -65,7 +65,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// HTTP 通信用
-		protected HttpClient mHttpClient;
+		protected HttpClient _httpClient;
 
 		// ====================================================================
 		// protected メンバー関数
@@ -101,7 +101,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			T[]? results = null;
 			Int32 numResults = 0;
-			using HttpResponseMessage response = await mHttpClient.GetAsync(YbdConstants.URL_API + mBaseUrl + leafUrl + query);
+			using HttpResponseMessage response = await _httpClient.GetAsync(YbdConstants.URL_API + _baseUrl + leafUrl + query);
 			if (response.IsSuccessStatusCode)
 			{
 				Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
@@ -143,6 +143,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// API URL
-		private String mBaseUrl;
+		private String _baseUrl;
 	}
 }

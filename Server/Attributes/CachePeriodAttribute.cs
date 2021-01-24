@@ -26,7 +26,7 @@ namespace YukariBlazorDemo.Server.Attributes
 		// --------------------------------------------------------------------
 		public CachePeriodAttribute(Int32 period)
 		{
-			mPeriod = period;
+			_period = period;
 		}
 
 		// ====================================================================
@@ -39,7 +39,7 @@ namespace YukariBlazorDemo.Server.Attributes
 		// --------------------------------------------------------------------
 		public override void OnResultExecuting(ResultExecutingContext context)
 		{
-			context.HttpContext.Response.Headers["Cache-Control"] = "public, max-age=" + mPeriod.ToString();
+			context.HttpContext.Response.Headers["Cache-Control"] = "public, max-age=" + _period.ToString();
 			base.OnResultExecuting(context);
 		}
 
@@ -48,6 +48,6 @@ namespace YukariBlazorDemo.Server.Attributes
 		// ====================================================================
 
 		// 有効期間 [s]
-		private Int32 mPeriod;
+		private Int32 _period;
 	}
 }

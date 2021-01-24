@@ -74,10 +74,8 @@ namespace YukariBlazorDemo.Shared.Misc
 
 		public const String URL_ALL = "all/";
 		public const String URL_API = "api/";
-		//public const String URL_AT_ONCE = "atonce/";
 		public const String URL_AUTH = "auth/";
 		public const String URL_CURRENT_USER = "currentuser/";
-		//public const String URL_DOWN = "down/";
 		public const String URL_EXTEND = "extend/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
 		public const String URL_ID = "id/";
@@ -91,7 +89,6 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_NEXT = "next/";
 		public const String URL_PASSWORD = "password/";
 		public const String URL_PLAY_OR_PAUSE = "playorpause/";
-		//public const String URL_PLAYED = "played/";
 		public const String URL_PLAYER = "player/";
 		public const String URL_PLAYING = "playing/";
 		public const String URL_PREV = "prev/";
@@ -102,7 +99,6 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_SSE = "sse/";
 		public const String URL_STATUS = "status/";
 		public const String URL_THUMBNAIL = "thumbnail/";
-		//public const String URL_UP = "up/";
 		public const String URL_USERS = "users/";
 		public const String URL_WORD = "word/";
 
@@ -181,6 +177,5 @@ namespace YukariBlazorDemo.Shared.Misc
 
 		// 予約更新
 		public const String SSE_DATA_REQUEST_CHANGED = "RequestChanged";
-
 	}
 }

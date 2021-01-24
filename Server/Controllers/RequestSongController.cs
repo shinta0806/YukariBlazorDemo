@@ -42,7 +42,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		public RequestSongController(IServerSentEventsService serverSentEventsService)
 		{
-			mServerSentEventsService = serverSentEventsService;
+			_serverSentEventsService = serverSentEventsService;
 		}
 
 		// ====================================================================
@@ -308,7 +308,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// DI
 		// ====================================================================
 
-		private readonly IServerSentEventsService mServerSentEventsService;
+		private readonly IServerSentEventsService _serverSentEventsService;
 
 		// ====================================================================
 		// private メンバー関数
@@ -404,7 +404,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		private void SendSse(String data)
 		{
-			mServerSentEventsService.SendEventAsync(data).NoWait();
+			_serverSentEventsService.SendEventAsync(data).NoWait();
 		}
 	}
 }

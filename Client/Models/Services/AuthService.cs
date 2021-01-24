@@ -36,7 +36,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public AuthService(HttpClient httpClient, AuthenticationStateProvider authenticationStateProvider)
 				: base(httpClient, YbdConstants.URL_AUTH)
 		{
-			mAuthenticationStateProvider = authenticationStateProvider;
+			_authenticationStateProvider = authenticationStateProvider;
 		}
 
 		// ====================================================================
@@ -49,16 +49,14 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> AddUserAsync(LoginInfo registerInfo)
 		{
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS, registerInfo);
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS, registerInfo);
 			if (!response.IsSuccessStatusCode)
 			{
-				switch (response.StatusCode)
+				return response.StatusCode switch
 				{
-					case HttpStatusCode.Conflict:
-						return "そのお名前は既に登録されています。";
-					default:
-						return DefaultErrorMessage(response.StatusCode);
-				}
+					HttpStatusCode.Conflict => "そのお名前は既に登録されています。",
+					_ => DefaultErrorMessage(response.StatusCode),
+				};
 			}
 
 			// 成功した場合はログイン状態にする
@@ -71,7 +69,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> DeleteUserAsync(String? id)
 		{
-			using HttpResponseMessage response = await mHttpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS + id);
+			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS + id);
 			switch (response.StatusCode)
 			{
 				case HttpStatusCode.NotAcceptable:
@@ -107,7 +105,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public PublicUserInfo? GetLoginUserInfo()
 		{
-			if (mAuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
 			{
 				return stateProvider.LoginUserInfo;
 			}
@@ -122,7 +120,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			PublicUserInfo? result = null;
 			try
 			{
-				result = await mHttpClient.GetFromJsonAsync<PublicUserInfo>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO + id);
+				result = await _httpClient.GetFromJsonAsync<PublicUserInfo>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO + id);
 			}
 			catch (JsonException)
 			{
@@ -145,7 +143,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<Boolean> IsAdminRegisteredAsync()
 		{
-			return await mHttpClient.GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_ADMIN_REGISTERED);
+			return await _httpClient.GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_ADMIN_REGISTERED);
 		}
 
 		// --------------------------------------------------------------------
@@ -154,7 +152,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> LoginAsync(LoginInfo loginInfo)
 		{
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGIN, loginInfo);
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGIN, loginInfo);
 			if (!response.IsSuccessStatusCode)
 			{
 				switch (response.StatusCode)
@@ -176,7 +174,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> LogoutAsync()
 		{
-			using HttpResponseMessage response = await mHttpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT, 0);
+			using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT, 0);
 			Boolean result = await SetStateLogoutAsync();
 			if (!response.IsSuccessStatusCode || !result)
 			{
@@ -224,7 +222,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public Boolean SetStateChangedHandler(NotifyDelegate notifyDelegate)
 		{
-			if (mAuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
 			{
 				stateProvider.StateChanged = notifyDelegate;
 				return true;
@@ -255,7 +253,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// 認証状態
-		private AuthenticationStateProvider mAuthenticationStateProvider;
+		private AuthenticationStateProvider _authenticationStateProvider;
 
 		// ====================================================================
 		// private メンバー関数
@@ -267,7 +265,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		private async ValueTask<Boolean> AddAuthorizationHeaderIfCanAsync()
 		{
-			if (mAuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
 			{
 				return await stateProvider.AddAuthorizationHeaderIfCanAsync();
 			}
@@ -299,7 +297,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		private async Task<(HttpStatusCode, String)> PostAuthorizedAsJsonAsync<T>(String uri, T obj)
 		{
 			await AddAuthorizationHeaderIfCanAsync();
-			using HttpResponseMessage response = await mHttpClient.PostAsJsonAsync(uri, obj);
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uri, obj);
 			await SetStateLogoutIfUnauthorizedAsync(response);
 			return (response.StatusCode, await GetResponseContent(response));
 		}
@@ -311,7 +309,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		private async Task<(HttpStatusCode, String)> PutAuthorizedAsJsonAsync<T>(String uri, T obj)
 		{
 			await AddAuthorizationHeaderIfCanAsync();
-			using HttpResponseMessage response = await mHttpClient.PutAsJsonAsync(uri, obj);
+			using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uri, obj);
 			await SetStateLogoutIfUnauthorizedAsync(response);
 			return (response.StatusCode, await GetResponseContent(response));
 		}
@@ -348,7 +346,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 
 			// 状態設定
-			YbdAuthenticationStateProvider? stateProvider = mAuthenticationStateProvider as YbdAuthenticationStateProvider;
+			YbdAuthenticationStateProvider? stateProvider = _authenticationStateProvider as YbdAuthenticationStateProvider;
 			if (stateProvider == null)
 			{
 				return "内部エラー。";
@@ -363,7 +361,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		private async ValueTask<Boolean> SetStateLogoutAsync()
 		{
-			if (mAuthenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
 			{
 				// 状態設定
 				await stateProvider.SetStateLogoutAsync();
