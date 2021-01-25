@@ -68,31 +68,39 @@ namespace YukariBlazorDemo.Client.Models.Services
 		protected HttpClient _httpClient;
 
 		// ====================================================================
-		// protected メンバー関数
+		// protected static メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// statusCode に対応するデフォルトのエラーメッセージ
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
-		protected String DefaultErrorMessage(HttpStatusCode statusCode)
+		protected static String DefaultErrorMessage(HttpStatusCode statusCode)
 		{
 			if (IsSuccessStatusCode(statusCode))
 			{
 				return String.Empty;
 			}
-			switch (statusCode)
+			return statusCode switch
 			{
-				case HttpStatusCode.BadRequest:
-					return ClientConstants.ERROR_MESSAGE_BAD_REQUEST;
-				case HttpStatusCode.InternalServerError:
-					return ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR;
-				case HttpStatusCode.Unauthorized:
-					return ClientConstants.ERROR_MESSAGE_UNAUTHORIZED;
-				default:
-					return ClientConstants.ERROR_MESSAGE_UNEXPECTED + "（" + statusCode.ToString() + "）";
-			}
+				HttpStatusCode.BadRequest => ClientConstants.ERROR_MESSAGE_BAD_REQUEST,
+				HttpStatusCode.InternalServerError => ClientConstants.ERROR_MESSAGE_INTERNAL_SERVER_ERROR,
+				HttpStatusCode.Unauthorized => ClientConstants.ERROR_MESSAGE_UNAUTHORIZED,
+				_ => ClientConstants.ERROR_MESSAGE_UNEXPECTED + "（" + statusCode.ToString() + "）",
+			};
 		}
+
+		// --------------------------------------------------------------------
+		// HTTP 応答が成功したかどうか
+		// --------------------------------------------------------------------
+		protected static Boolean IsSuccessStatusCode(HttpStatusCode statusCode)
+		{
+			return HttpStatusCode.OK <= statusCode && statusCode < HttpStatusCode.MultipleChoices;
+		}
+
+		// ====================================================================
+		// protected メンバー関数
+		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
@@ -108,7 +116,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 				results = await response.Content.ReadFromJsonAsync<T[]>();
 				if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
 				{
-					Int32.TryParse(value, out numResults);
+					_ = Int32.TryParse(value, out numResults);
 				}
 				else
 				{
@@ -117,17 +125,9 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			if (results == null)
 			{
-				return (new T[0], 0);
+				return (Array.Empty<T>(), 0);
 			}
 			return (results, numResults);
-		}
-
-		// --------------------------------------------------------------------
-		// HTTP 応答が成功したかどうか
-		// --------------------------------------------------------------------
-		protected Boolean IsSuccessStatusCode(HttpStatusCode statusCode)
-		{
-			return HttpStatusCode.OK <= statusCode && statusCode < HttpStatusCode.MultipleChoices;
 		}
 
 		// ====================================================================

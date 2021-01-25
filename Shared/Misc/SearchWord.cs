@@ -56,7 +56,7 @@ namespace YukariBlazorDemo.Shared.Misc
 				}
 				else if (paramName == YbdConstants.SEARCH_PARAM_NAME_SORT)
 				{
-					Int32.TryParse(paramValue, out Int32 paramValueNum);
+					_ = Int32.TryParse(paramValue, out Int32 paramValueNum);
 					Sort = (SearchResultSort)Math.Clamp(paramValueNum, 0, (Int32)(SearchResultSort.__End__) - 1);
 				}
 				else
@@ -297,13 +297,13 @@ namespace YukariBlazorDemo.Shared.Misc
 		}
 
 		// ====================================================================
-		// private メンバー関数
+		// private static メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// URL パラメーター追加
 		// --------------------------------------------------------------------
-		private void AddString(ref String str, String paramName, String? paramValue)
+		private static void AddString(ref String str, String paramName, String? paramValue)
 		{
 			if (String.IsNullOrEmpty(paramValue))
 			{
@@ -316,6 +316,10 @@ namespace YukariBlazorDemo.Shared.Misc
 			}
 			str += paramName + "=" + Uri.EscapeDataString(paramValue);
 		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// 詳細条件初期化

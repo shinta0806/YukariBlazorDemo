@@ -61,7 +61,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public static Int32 GetPageFromQueryParameters(Dictionary<String, String> parameters)
 		{
 			parameters.TryGetValue(YbdConstants.SEARCH_PARAM_NAME_PAGE, out String? paramValue);
-			Int32.TryParse(paramValue, out Int32 paramValueNum);
+			_ = Int32.TryParse(paramValue, out Int32 paramValueNum);
 			return Math.Max(paramValueNum - 1, 0);
 		}
 
