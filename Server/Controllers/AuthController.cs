@@ -415,6 +415,12 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
+				// 管理者の名前は変更できない
+				if (loginUser.IsAdmin)
+				{
+					return BadRequest();
+				}
+
 				// 同じ名前のユーザーが既に存在している場合は登録できない
 				if (registeredUsers.FirstOrDefault(x => x.Name == newName) != null)
 				{

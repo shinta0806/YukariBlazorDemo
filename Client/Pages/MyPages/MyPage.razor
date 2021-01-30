@@ -22,7 +22,12 @@
 						<tr>
 							<td class="input-td">お名前：</td>
 							<td class="input-td">@userInfo.Name</td>
-							<td class="input-td"><a href="/changeusername/">変更</a></td>
+							<td class="input-td">
+								@if (!userInfo.IsAdmin)
+								{
+									<a href="/changeusername/">変更</a>
+								}
+							</td>
 						</tr>
 						<tr>
 							<td class="input-td">パスワード：</td>
