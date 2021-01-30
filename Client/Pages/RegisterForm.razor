@@ -35,7 +35,7 @@
 
 					@if (IsRegister() && !isAdminRegistered)
 					{
-						<div>管理者が登録されていないため、管理者を登録します。</div>
+						<div class="ok-message">管理者が登録されていないため、管理者を登録します。</div>
 					}
 
 					<table class="input-table">
@@ -44,7 +44,7 @@
 							<td class="input-td">
 								@if (IsRegister() && !isAdminRegistered)
 								{
-									<div>@YbdConstants.ADMIN_NAME<span class="supplement">（管理者の名前は @YbdConstants.ADMIN_NAME で固定です）</span></div>
+									<div>@loginInfo.Name<span class="supplement">（管理者の名前は @loginInfo.Name で固定です）</span></div>
 								}
 								else
 								{
@@ -143,11 +143,30 @@ else
 		try
 		{
 			isAdminRegistered = await AuthService.IsAdminRegisteredAsync();
-			if (IsRegister() && !isAdminRegistered)
-			{
-				loginInfo.Name = YbdConstants.ADMIN_NAME;
-			}
+			SetDefaultName();
 			initialized = true;
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// パラメーター類がセットされた
+	// --------------------------------------------------------------------
+	protected override void OnParametersSet()
+	{
+		try
+		{
+			if (!initialized || prevSetNameKind == Kind)
+			{
+				return;
+			}
+
+			SetDefaultName();
+			prevSetNameKind = Kind;
+			StateHasChanged();
 		}
 		catch (Exception excep)
 		{
@@ -172,6 +191,9 @@ else
 
 	// 多重フォーカス当て防止用（URL パラメーターがあるため String）
 	private String? prevFocusedKind = ClientConstants.INIT_STRING;
+
+	// 多重お名前設定防止用
+	private String? prevSetNameKind = ClientConstants.INIT_STRING;
 
 	// 要素参照用
 	private ElementReference inputName;
@@ -313,6 +335,28 @@ else
 			result = excep.Message;
 			StateHasChanged();
 			return false;
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// お名前の初期値を設定
+	// --------------------------------------------------------------------
+	private void SetDefaultName()
+	{
+		if (IsRegister())
+		{
+			if (isAdminRegistered)
+			{
+				loginInfo.Name = String.Empty;
+			}
+			else
+			{
+				loginInfo.Name = YbdConstants.ADMIN_NAME;
+			}
+		}
+		else
+		{
+			loginInfo.Name = String.Empty;
 		}
 	}
 
