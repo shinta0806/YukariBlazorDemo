@@ -29,18 +29,6 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// ETag をパラメーター名と値に分離
-		// --------------------------------------------------------------------
-		public static Dictionary<String, String> AnalyzeEntityTag(EntityTagHeaderValue? eTag)
-		{
-			if (eTag == null)
-			{
-				return new();
-			}
-			return YbdCommon.AnalyzeQuery(eTag.Tag.Trim('"'));
-		}
-
-		// --------------------------------------------------------------------
 		// 確認用ダイアログを表示
 		// --------------------------------------------------------------------
 		public static async Task<Boolean> ConfirmAsync(IJSRuntime jsRuntime, String message)

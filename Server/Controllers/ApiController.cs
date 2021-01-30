@@ -60,6 +60,14 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// 応答ヘッダーにアイテム総数を追加
+		// --------------------------------------------------------------------
+		protected void AddTotalCountToHeader(Int32 totalCount)
+		{
+			Response.Headers.Add(YbdConstants.HEADER_NAME_TOTAL_COUNT, new StringValues(totalCount.ToString()));
+		}
+
+		// --------------------------------------------------------------------
 		// データベースコンテキスト生成
 		// ＜例外＞ Exception
 		// --------------------------------------------------------------------
@@ -125,14 +133,6 @@ namespace YukariBlazorDemo.Server.Controllers
 		protected EntityTagHeaderValue GenerateEntityTag(Double lastModified)
 		{
 			return new EntityTagHeaderValue("\"" + lastModified.ToString() + "\"");
-		}
-
-		// --------------------------------------------------------------------
-		// ETag 生成（パラメーター 1 つ）
-		// --------------------------------------------------------------------
-		protected EntityTagHeaderValue GenerateEntityTag(Double lastModified, String paramName, String paramValue)
-		{
-			return new EntityTagHeaderValue("\"" + lastModified.ToString() + "&" + paramName + "=" + paramValue + "\"");
 		}
 
 		// --------------------------------------------------------------------

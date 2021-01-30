@@ -205,11 +205,15 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+
+				// 追加ヘッダー
+				AddTotalCountToHeader(requestSongs.Count());
+
+				// 予約一覧
 				Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(query);
 				Int32 page = YbdCommon.GetPageFromQueryParameters(parameters);
-				Int32 numResults = requestSongs.Count();
 				RequestSong[] results = requestSongs.OrderByDescending(x => x.Sort).Skip(YbdConstants.PAGE_SIZE * page).Take(YbdConstants.PAGE_SIZE).ToArray();
-				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified));
 				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)
@@ -237,10 +241,13 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
-
 				String[] results = requestSongs.Where(x => x.UserId == String.Empty).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
-				Int32 numResults = results.Length;
-				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
+
+				// 追加ヘッダー
+				AddTotalCountToHeader(results.Length);
+
+				// 予約者名一覧
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified));
 				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}
 			catch (Exception excep)

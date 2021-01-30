@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -108,26 +109,26 @@ namespace YukariBlazorDemo.Client.Models.Services
 		protected async Task<(T[], Int32)> GetArrayAsync<T>(String leafUrl, String? query = null)
 		{
 			T[]? results = null;
-			Int32 numResults = 0;
+			Int32 totalCount = 0;
 			using HttpResponseMessage response = await _httpClient.GetAsync(YbdConstants.URL_API + _baseUrl + leafUrl + query);
 			if (response.IsSuccessStatusCode)
 			{
-				Dictionary<String, String> parameters = ClientCommon.AnalyzeEntityTag(response.Headers.ETag);
 				results = await response.Content.ReadFromJsonAsync<T[]>();
-				if (parameters.TryGetValue(YbdConstants.RESULT_PARAM_NAME_COUNT, out String? value))
+				if (response.Headers.TryGetValues(YbdConstants.HEADER_NAME_TOTAL_COUNT, out IEnumerable<String>? totalCounts))
 				{
-					_ = Int32.TryParse(value, out numResults);
+					_ = Int32.TryParse(totalCounts.FirstOrDefault(), out totalCount);
 				}
 				else
 				{
-					numResults = results?.Length ?? 0;
+					totalCount = results?.Length ?? 0;
 				}
+				ClientCommon.DebugWriteLine("GetArrayAsync() numResults: " + totalCount);
 			}
 			if (results == null)
 			{
 				return (Array.Empty<T>(), 0);
 			}
-			return (results, numResults);
+			return (results, totalCount);
 		}
 
 		// ====================================================================

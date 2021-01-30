@@ -127,11 +127,8 @@ namespace YukariBlazorDemo.Shared.Misc
 		// 表示ページを指定する URL パラメーター
 		public const String SEARCH_PARAM_NAME_PAGE = "page";
 
-		// 1 ページ当たりの結果の数
-		public const Int32 PAGE_SIZE = 20;
-
 		// 結果の数パラメーター
-		public const String RESULT_PARAM_NAME_COUNT = "count";
+		//public const String RESULT_PARAM_NAME_COUNT = "count";
 
 		// --------------------------------------------------------------------
 		// 予約関連
@@ -177,5 +174,16 @@ namespace YukariBlazorDemo.Shared.Misc
 
 		// 予約更新
 		public const String SSE_DATA_REQUEST_CHANGED = "RequestChanged";
+
+		// --------------------------------------------------------------------
+		// ページ送り
+		// --------------------------------------------------------------------
+
+		// アイテム総数を示すヘッダー名
+		public const String HEADER_NAME_TOTAL_COUNT = "Total-Count";
+
+		// 1 ページ当たりの結果の数
+		public const Int32 PAGE_SIZE = 20;
+
 	}
 }
