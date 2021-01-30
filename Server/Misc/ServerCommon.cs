@@ -172,6 +172,6 @@ namespace YukariBlazorDemo.Server.Misc
 		// ====================================================================
 
 		// トークン生成用の秘密鍵
-		private static Byte[] _tokenSecretKey = new Byte[0];
+		private static Byte[] _tokenSecretKey = Array.Empty<Byte>();
 	}
 }

@@ -352,7 +352,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認でき、有効な場合は有効期限を延長できる
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND)]
-		public IActionResult Extend([FromBody] Int32 dummy)
+		public IActionResult Extend([FromBody] Int32 _)
 		{
 			try
 			{
@@ -382,7 +382,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ログアウト時のサーバー側の処理
 		// --------------------------------------------------------------------
 		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT)]
-		public IActionResult Logout([FromBody] Int32 dummy)
+		public IActionResult Logout([FromBody] Int32 _)
 		{
 			try
 			{
@@ -642,13 +642,13 @@ namespace YukariBlazorDemo.Server.Controllers
 		private const String HEADER_NAME_AUTHORIZATION = "authorization";
 
 		// ====================================================================
-		// private メンバー関数
+		// private static メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// 認証トークン文字列生成
 		// --------------------------------------------------------------------
-		private String GenerateToken(String id)
+		private static String GenerateToken(String id)
 		{
 			SymmetricSecurityKey key = ServerCommon.CreateSymmetricSecurityKey();
 			SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -663,10 +663,45 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// ユーザー ID と認証トークンセットの文字列生成
 		// --------------------------------------------------------------------
-		private String GenerateIdAndTokenString(String id)
+		private static String GenerateIdAndTokenString(String id)
 		{
 			return id + YbdConstants.TOKEN_DELIM + GenerateToken(id);
 		}
+
+		// --------------------------------------------------------------------
+		// 登録情報のパスワードをハッシュ化
+		// --------------------------------------------------------------------
+		private static void HashPassword(RegisteredUser user)
+		{
+			// ソルトの作成
+			user.Salt = new Byte[SALT_LENGTH / BITS_PER_BYTE];
+			using RandomNumberGenerator generator = RandomNumberGenerator.Create();
+			generator.GetBytes(user.Salt);
+
+			// ハッシュ化
+			user.Password = HashPassword(user.Password, user.Salt);
+		}
+
+		// --------------------------------------------------------------------
+		// 指定されたソルトでパスワードをハッシュ化
+		// --------------------------------------------------------------------
+		private static String HashPassword(String password, Byte[] salt)
+		{
+			Byte[] hash = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, ITERATION_COUNT, HASH_LENGTH / BITS_PER_BYTE);
+			return Convert.ToBase64String(hash);
+		}
+
+		// --------------------------------------------------------------------
+		// 管理者が登録されているか
+		// --------------------------------------------------------------------
+		private static Boolean IsAdminRegistered(DbSet<RegisteredUser> registeredUsers)
+		{
+			return registeredUsers.FirstOrDefault(x => x.IsAdmin) != null;
+		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// ヘッダーの認証トークンから Id を取得
@@ -699,37 +734,6 @@ namespace YukariBlazorDemo.Server.Controllers
 				// トークンの有効期限切れ等の場合は例外となる
 				return null;
 			}
-		}
-
-		// --------------------------------------------------------------------
-		// 登録情報のパスワードをハッシュ化
-		// --------------------------------------------------------------------
-		private void HashPassword(RegisteredUser user)
-		{
-			// ソルトの作成
-			user.Salt = new Byte[SALT_LENGTH / BITS_PER_BYTE];
-			using RandomNumberGenerator generator = RandomNumberGenerator.Create();
-			generator.GetBytes(user.Salt);
-
-			// ハッシュ化
-			user.Password = HashPassword(user.Password, user.Salt);
-		}
-
-		// --------------------------------------------------------------------
-		// 指定されたソルトでパスワードをハッシュ化
-		// --------------------------------------------------------------------
-		private String HashPassword(String password, Byte[] salt)
-		{
-			Byte[] hash = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, ITERATION_COUNT, HASH_LENGTH / BITS_PER_BYTE);
-			return Convert.ToBase64String(hash);
-		}
-
-		// --------------------------------------------------------------------
-		// 管理者が登録されているか
-		// --------------------------------------------------------------------
-		private Boolean IsAdminRegistered(DbSet<RegisteredUser> registeredUsers)
-		{
-			return registeredUsers.FirstOrDefault(x => x.IsAdmin) != null;
 		}
 
 		// --------------------------------------------------------------------

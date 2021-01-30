@@ -143,6 +143,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// API URL
-		private String _baseUrl;
+		private readonly String _baseUrl;
 	}
 }

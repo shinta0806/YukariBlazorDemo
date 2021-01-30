@@ -93,13 +93,13 @@ namespace YukariBlazorDemo.Server.Controllers
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				Int32 sort;
-				if (requestSongs.Count() == 0)
+				if (requestSongs.Any())
 				{
-					sort = 1;
+					sort = requestSongs.Max(x => x.Sort) + 1;
 				}
 				else
 				{
-					sort = requestSongs.Max(x => x.Sort) + 1;
+					sort = 1;
 				}
 
 				// 追加する曲の位置は最後
@@ -170,7 +170,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			try
 			{
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
-				if (requestSongs.Count() == 0)
+				if (!requestSongs.Any())
 				{
 					return NotAcceptable();
 				}
@@ -239,7 +239,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 
 				String[] results = requestSongs.Where(x => x.UserId == String.Empty).Select(x => x.UserName).GroupBy(y => y).Select(z => z.Key).ToArray();
-				Int32 numResults = results.Count();
+				Int32 numResults = results.Length;
 				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified), YbdConstants.RESULT_PARAM_NAME_COUNT, numResults.ToString());
 				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
 			}

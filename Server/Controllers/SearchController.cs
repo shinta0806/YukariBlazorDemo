@@ -196,13 +196,13 @@ namespace YukariBlazorDemo.Server.Controllers
 		private const Char ZENKAKU_SPACE = '　';
 
 		// ====================================================================
-		// private メンバー関数
+		// private static メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// AnyWord 検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchByAnyWord(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchByAnyWord(IQueryable<AvailableSong> records, String word)
 		{
 			// String.Contains() が StringComparison.OrdinalIgnoreCase 付きで動作しないため、EF.Functions.Like() を使う
 			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
@@ -221,7 +221,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 歌手名検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchByArtistName(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchByArtistName(IQueryable<AvailableSong> records, String word)
 		{
 			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
 			return records.Where(x => EF.Functions.Like(x.ArtistName, $"%{word}%")
@@ -231,7 +231,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 制作会社検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchByMaker(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchByMaker(IQueryable<AvailableSong> records, String word)
 		{
 			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
 			return records.Where(x => EF.Functions.Like(x.MakerName, $"%{word}%")
@@ -241,7 +241,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// パス検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchByPath(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchByPath(IQueryable<AvailableSong> records, String word)
 		{
 			return records.Where(x => EF.Functions.Like(x.Path, $"%{word}%"));
 		}
@@ -249,7 +249,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 曲名検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchBySongName(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchBySongName(IQueryable<AvailableSong> records, String word)
 		{
 			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
 			return records.Where(x => EF.Functions.Like(x.SongName, $"%{word}%")
@@ -259,7 +259,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// タイアップ名検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchByTieUpName(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchByTieUpName(IQueryable<AvailableSong> records, String word)
 		{
 			Boolean isRuby = YbdCommon.IsRuby(word, out String ruby);
 			return records.Where(x => EF.Functions.Like(x.TieUpName, $"%{word}%")
@@ -269,7 +269,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// カラオケ動画制作者検索
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SearchByWorker(IQueryable<AvailableSong> records, String word)
+		private static IQueryable<AvailableSong> SearchByWorker(IQueryable<AvailableSong> records, String word)
 		{
 			return records.Where(x => EF.Functions.Like(x.Worker, $"%{word}%"));
 		}
@@ -277,28 +277,29 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 検索結果のソート
 		// --------------------------------------------------------------------
-		private IQueryable<AvailableSong> SortSearchResult(IQueryable<AvailableSong> result, SearchResultSort sort)
+		private static IQueryable<AvailableSong> SortSearchResult(IQueryable<AvailableSong> result, SearchResultSort sort)
 		{
-			switch (sort)
+			return sort switch
 			{
-				case SearchResultSort.SongName:
-					return result.OrderBy(x => x.SongName);
-				case SearchResultSort.ArtistName:
-					return result.OrderBy(x => x.ArtistName);
-				case SearchResultSort.FileSize:
-					return result.OrderByDescending(x => x.FileSize);
-				default:
-					return result.OrderByDescending(x => x.LastModified);
-			}
+				SearchResultSort.SongName => result.OrderBy(x => x.SongName),
+				SearchResultSort.ArtistName => result.OrderBy(x => x.ArtistName),
+				SearchResultSort.FileSize => result.OrderByDescending(x => x.FileSize),
+				_ => result.OrderByDescending(x => x.LastModified),
+			};
 		}
 
 		// --------------------------------------------------------------------
 		// 検索キーワードを全角・半角スペースで分割
 		// --------------------------------------------------------------------
-		private String[] SplitKeyword(String keyword)
+		private static String[] SplitKeyword(String keyword)
 		{
 			keyword = keyword.Replace(ZENKAKU_SPACE, HANKAKU_SPACE);
 			return keyword.Split(HANKAKU_SPACE, StringSplitOptions.RemoveEmptyEntries);
 		}
+
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
 	}
 }

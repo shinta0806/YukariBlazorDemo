@@ -31,7 +31,7 @@ namespace YukariBlazorDemo.Server.Database
 
 		// サムネイル画像データ
 		[Required]
-		public Byte[] Bitmap { get; set; } = new Byte[0];
+		public Byte[] Bitmap { get; set; } = Array.Empty<Byte>();
 
 		// サムネイル画像形式
 		[Required]

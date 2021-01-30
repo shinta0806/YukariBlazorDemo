@@ -74,7 +74,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// 現在の曲を再生または一時停止する
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_PLAY_OR_PAUSE)]
-		public IActionResult PlayOrPause([FromBody] Int32 dummy)
+		public IActionResult PlayOrPause([FromBody] Int32 _)
 		{
 			try
 			{

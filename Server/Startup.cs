@@ -145,13 +145,13 @@ namespace YukariBlazorDemo.Server
 		private const String FILE_NAME_COMMON_SNAPDRAGON = @"E:\AddSong2\CSD.mp4";
 
 		// ====================================================================
-		// private メンバー関数
+		// private static メンバー関数
 		// ====================================================================
 
 		// --------------------------------------------------------------------
 		// 歌唱花子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistKHanako()
+		private static NameAndRuby ArtistKHanako()
 		{
 			return new NameAndRuby("歌唱花子", "カショウハナコ");
 		}
@@ -159,7 +159,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 歌唱川子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistKKawako()
+		private static NameAndRuby ArtistKKawako()
 		{
 			return new NameAndRuby("歌唱川子", "カショウカワコ");
 		}
@@ -167,7 +167,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 歌唱空子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistKSorako()
+		private static NameAndRuby ArtistKSorako()
 		{
 			return new NameAndRuby("歌唱空子", "カショウソラコ");
 		}
@@ -175,7 +175,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 歌唱谷子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistKTaniko()
+		private static NameAndRuby ArtistKTaniko()
 		{
 			return new NameAndRuby("歌唱谷子", "カショウタニコ");
 		}
@@ -183,7 +183,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 歌唱海子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistKUmiko()
+		private static NameAndRuby ArtistKUmiko()
 		{
 			return new NameAndRuby("歌唱海子", "カショウウミコ");
 		}
@@ -191,7 +191,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 歌唱山子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistKYamako()
+		private static NameAndRuby ArtistKYamako()
 		{
 			return new NameAndRuby("歌唱山子", "カショウヤマコ");
 		}
@@ -199,7 +199,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 中声出子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistNDasuko()
+		private static NameAndRuby ArtistNDasuko()
 		{
 			return new NameAndRuby("中声出子", "ナカゴエダスコ");
 		}
@@ -207,7 +207,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 中声出男
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistNDasuo()
+		private static NameAndRuby ArtistNDasuo()
 		{
 			return new NameAndRuby("中声出男", "ナカゴエダスオ");
 		}
@@ -215,7 +215,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 大声出子
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistODasuko()
+		private static NameAndRuby ArtistODasuko()
 		{
 			return new NameAndRuby("大声出子", "オオゴエダスコ");
 		}
@@ -223,7 +223,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 大声出男
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistODasuo()
+		private static NameAndRuby ArtistODasuo()
 		{
 			return new NameAndRuby("大声出男", "オオゴエダスオ");
 		}
@@ -231,7 +231,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 唱和坊主
 		// --------------------------------------------------------------------
-		private NameAndRuby ArtistSBouzu()
+		private static NameAndRuby ArtistSBouzu()
 		{
 			return new NameAndRuby("唱和坊主", "ショウワボウズ");
 		}
@@ -239,7 +239,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 必要に応じてデータベースを生成
 		// --------------------------------------------------------------------
-		private void CreateDatabaseIfNeeded()
+		private static void CreateDatabaseIfNeeded()
 		{
 			// 予約可能な曲の一覧
 			using AvailableSongContext availableSongContext = new();
@@ -248,7 +248,7 @@ namespace YukariBlazorDemo.Server
 			{
 				throw new Exception();
 			}
-			if (availableSongContext.AvailableSongs.Count() == 0)
+			if (!availableSongContext.AvailableSongs.Any())
 			{
 				String idPrefix = Environment.TickCount.ToString() + "-";
 				Int32 idSuffix = 1;
@@ -315,7 +315,7 @@ namespace YukariBlazorDemo.Server
 			{
 				throw new Exception();
 			}
-			if (thumbnailContext.Thumbnails.Count() == 0)
+			if (!thumbnailContext.Thumbnails.Any())
 			{
 				// サムネイルのサンプルデータ作成
 				// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
@@ -356,7 +356,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 動画サムネイル生成
 		// --------------------------------------------------------------------
-		private Thumbnail? CreateMovieThumbnail(String songPath, String imageFileName)
+		private static Thumbnail? CreateMovieThumbnail(String songPath, String imageFileName)
 		{
 			return CreateThumbnail(songPath, ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName, MOVIE_THUMB_WIDTH_MAX, MOVIE_THUMB_HEIGHT_MAX);
 		}
@@ -364,7 +364,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// サムネイル生成
 		// --------------------------------------------------------------------
-		private Thumbnail? CreateThumbnail(String moviePath, String imageFileName, Int32 maxWidth, Int32 maxHeight)
+		private static Thumbnail? CreateThumbnail(String moviePath, String imageFileName, Int32 maxWidth, Int32 maxHeight)
 		{
 			try
 			{
@@ -388,7 +388,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// ユーザー画像サムネイル生成
 		// --------------------------------------------------------------------
-		private Thumbnail? CreateUserThumbnail(String imageFileName)
+		private static Thumbnail? CreateUserThumbnail(String imageFileName)
 		{
 			return CreateThumbnail(String.Empty, ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + imageFileName, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX);
 		}
@@ -396,7 +396,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// アニメスタジオ A
 		// --------------------------------------------------------------------
-		private NameAndRuby MakerAnimeA()
+		private static NameAndRuby MakerAnimeA()
 		{
 			return new NameAndRuby("アニメスタジオA", "アニメスタジオエー");
 		}
@@ -404,7 +404,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// アニメスタジオ C
 		// --------------------------------------------------------------------
-		private NameAndRuby MakerAnimeC()
+		private static NameAndRuby MakerAnimeC()
 		{
 			return new NameAndRuby("アニメスタジオC", "アニメスタジオシー");
 		}
@@ -412,7 +412,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// ゲームスタジオ B
 		// --------------------------------------------------------------------
-		private NameAndRuby MakerGameB()
+		private static NameAndRuby MakerGameB()
 		{
 			return new NameAndRuby("ゲームスタジオB", "ゲームスタジオビー");
 		}
@@ -420,7 +420,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// たくさんスタジオ A
 		// --------------------------------------------------------------------
-		private NameAndRuby MakerTakusanA()
+		private static NameAndRuby MakerTakusanA()
 		{
 			return new NameAndRuby("たくさんスタジオA", "タクサンスタジオエー");
 		}
@@ -428,7 +428,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// たくさんゲーム C
 		// --------------------------------------------------------------------
-		private NameAndRuby MakerTakusanC()
+		private static NameAndRuby MakerTakusanC()
 		{
 			return new NameAndRuby("たくさんゲームC", "たくさんゲームシー");
 		}
@@ -436,7 +436,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 花がたくさん
 		// --------------------------------------------------------------------
-		private NameAndRuby TieUpHanagaTakusan()
+		private static NameAndRuby TieUpHanagaTakusan()
 		{
 			return new NameAndRuby("花がたくさん", "ハナガタクサン");
 		}
@@ -444,7 +444,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 花花花花
 		// --------------------------------------------------------------------
-		private NameAndRuby TieUpHanaHana()
+		private static NameAndRuby TieUpHanaHana()
 		{
 			return new NameAndRuby("花花花花", "ハナハナハナハナ");
 		}
@@ -452,7 +452,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 犬がいっぱい
 		// --------------------------------------------------------------------
-		private NameAndRuby TieUpInugaIppai()
+		private static NameAndRuby TieUpInugaIppai()
 		{
 			return new NameAndRuby("犬がいっぱい", "イヌガイッパイ");
 		}
@@ -460,7 +460,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 犬がたくさん
 		// --------------------------------------------------------------------
-		private NameAndRuby TieUpInugaTakusan()
+		private static NameAndRuby TieUpInugaTakusan()
 		{
 			return new NameAndRuby("犬がたくさん", "イヌガタクサン");
 		}
@@ -468,12 +468,16 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// 家電
 		// --------------------------------------------------------------------
-		private NameAndRuby TieUpKaden()
+		private static NameAndRuby TieUpKaden()
 		{
 			return new NameAndRuby("家電", "カデン");
 		}
 
-#if DEBUG
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+#if DEBUGz
 		// ====================================================================
 		// デバッグ専用
 		// ====================================================================
@@ -481,7 +485,7 @@ namespace YukariBlazorDemo.Server
 		// --------------------------------------------------------------------
 		// サムネイル生成テスト
 		// --------------------------------------------------------------------
-		private void TestCreateThumbnail()
+		private static void TestCreateThumbnail()
 		{
 			// 横長・縮小あり
 			using FileStream y1 = new FileStream(ServerConstants.FOLDER_NAME_SAMPLE_DATA_IMAGES + "Test_430x177.png", FileMode.Open);

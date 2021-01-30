@@ -54,10 +54,10 @@ namespace YukariBlazorDemo.Server.Database
 
 		// ソルト
 		[Required]
-		public Byte[] Salt { get; set; } = new Byte[0];
+		public Byte[] Salt { get; set; } = Array.Empty<Byte>();
 
 		// サムネイル画像
-		public Byte[] Bitmap { get; set; } = new Byte[0];
+		public Byte[] Bitmap { get; set; } = Array.Empty<Byte>();
 
 		// サムネイル画像形式
 		public String Mime { get; set; } = String.Empty;

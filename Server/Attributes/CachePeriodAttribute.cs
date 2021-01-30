@@ -48,6 +48,6 @@ namespace YukariBlazorDemo.Server.Attributes
 		// ====================================================================
 
 		// 有効期間 [s]
-		private Int32 _period;
+		private readonly Int32 _period;
 	}
 }

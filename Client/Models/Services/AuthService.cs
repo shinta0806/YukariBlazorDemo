@@ -70,13 +70,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> DeleteUserAsync(String? id)
 		{
 			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS + id);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					return "指定された ID が見つかりません。";
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				HttpStatusCode.NotAcceptable => "指定された ID が見つかりません。",
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -89,11 +87,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND, 0);
 			if (!IsSuccessStatusCode(statusCode))
 			{
-				switch (statusCode)
+				return statusCode switch
 				{
-					default:
-						return DefaultErrorMessage(statusCode);
-				}
+					_ => DefaultErrorMessage(statusCode),
+				};
 			}
 
 			// 成功した場合はログイン状態にする
@@ -155,13 +152,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_LOGIN, loginInfo);
 			if (!response.IsSuccessStatusCode)
 			{
-				switch (response.StatusCode)
+				return response.StatusCode switch
 				{
-					case HttpStatusCode.NotAcceptable:
-						return "お名前またはパスワードが違います。";
-					default:
-						return DefaultErrorMessage(response.StatusCode);
-				}
+					HttpStatusCode.NotAcceptable => "お名前またはパスワードが違います。",
+					_ => DefaultErrorMessage(response.StatusCode),
+				};
 			}
 
 			// 成功した場合はログイン状態にする
@@ -189,15 +184,13 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> SetNameAsync(String name)
 		{
-			(HttpStatusCode statusCode, String content)
+			(HttpStatusCode statusCode, String _)
 					= await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_NAME, name);
-			switch (statusCode)
+			return statusCode switch
 			{
-				case HttpStatusCode.Conflict:
-					return "そのお名前は既に登録されています。";
-				default:
-					return DefaultErrorMessage(statusCode);
-			}
+				HttpStatusCode.Conflict => "そのお名前は既に登録されています。",
+				_ => DefaultErrorMessage(statusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -206,15 +199,13 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> SetPasswordAsync(String currentPassword, String newPassword)
 		{
-			(HttpStatusCode statusCode, String content)
+			(HttpStatusCode statusCode, String _)
 					= await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_PASSWORD, new String[] { currentPassword, newPassword });
-			switch (statusCode)
+			return statusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					return "現在のパスワードが間違っています。";
-				default:
-					return DefaultErrorMessage(statusCode);
-			}
+				HttpStatusCode.NotAcceptable => "現在のパスワードが間違っています。",
+				_ => DefaultErrorMessage(statusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -236,24 +227,41 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> SetThumbnailAsync(TransferFile transferFile)
 		{
-			(HttpStatusCode statusCode, String content)
+			(HttpStatusCode statusCode, String _)
 					= await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_THUMBNAIL, transferFile);
-			switch (statusCode)
+			return statusCode switch
 			{
-				case HttpStatusCode.InternalServerError:
-					// RequestSizeLimit を越えた場合も InternalServerError になる模様
-					return "プロフィール画像を変更できませんでした。データ容量が大きすぎないか確認してください。";
-				default:
-					return DefaultErrorMessage(statusCode);
-			}
+				// RequestSizeLimit を越えた場合も InternalServerError になる模様
+				HttpStatusCode.InternalServerError => "プロフィール画像を変更できませんでした。データ容量が大きすぎないか確認してください。",
+				_ => DefaultErrorMessage(statusCode),
+			};
 		}
 
 		// ====================================================================
-		// private メンバー変数
+		// DI
 		// ====================================================================
 
 		// 認証状態
-		private AuthenticationStateProvider _authenticationStateProvider;
+		private readonly AuthenticationStateProvider _authenticationStateProvider;
+
+		// ====================================================================
+		// private static メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// HTTP 応答の本文
+		// --------------------------------------------------------------------
+		private static async ValueTask<String> GetResponseContent(HttpResponseMessage response)
+		{
+			if (response.IsSuccessStatusCode)
+			{
+				return await response.Content.ReadAsStringAsync();
+			}
+			else
+			{
+				return String.Empty;
+			}
+		}
 
 		// ====================================================================
 		// private メンバー関数
@@ -272,21 +280,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 			else
 			{
 				return false;
-			}
-		}
-
-		// --------------------------------------------------------------------
-		// HTTP 応答の本文
-		// --------------------------------------------------------------------
-		private async ValueTask<String> GetResponseContent(HttpResponseMessage response)
-		{
-			if (response.IsSuccessStatusCode)
-			{
-				return await response.Content.ReadAsStringAsync();
-			}
-			else
-			{
-				return String.Empty;
 			}
 		}
 
@@ -346,11 +339,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 
 			// 状態設定
-			YbdAuthenticationStateProvider? stateProvider = _authenticationStateProvider as YbdAuthenticationStateProvider;
-			if (stateProvider == null)
+			if (_authenticationStateProvider is not YbdAuthenticationStateProvider stateProvider)
 			{
 				return "内部エラー。";
 			}
+
 			await stateProvider.SetStateLoginAsync(token, userInfo);
 			return String.Empty;
 		}

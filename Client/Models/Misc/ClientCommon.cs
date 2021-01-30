@@ -182,7 +182,7 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		{
 			if (page != 0)
 			{
-				if (baseUrl.IndexOf('?') >= 0 || baseUrl.IndexOf('=') >= 0)
+				if (baseUrl.Contains('?') || baseUrl.Contains('='))
 				{
 					baseUrl += '&';
 				}
