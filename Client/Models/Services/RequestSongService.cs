@@ -45,11 +45,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> AddRequestSongAsync(RequestSong requestSong)
 		{
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST, requestSong);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -59,13 +58,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> DeleteRequestSongAsync(Int32 requestSongId)
 		{
 			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					return "予約がありません。";
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				HttpStatusCode.NotAcceptable => "予約がありません。",
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -75,13 +72,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<String> DeleteRequestSongAllAsync()
 		{
 			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_ALL);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					return "予約がありません。";
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				HttpStatusCode.NotAcceptable => "予約がありません。",
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -108,13 +103,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
 					YbdConstants.REQUEST_PARAM_VALUE_DOWN);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					return "下へ移動できません。";
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				HttpStatusCode.NotAcceptable => "下へ移動できません。",
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -125,15 +118,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
 					YbdConstants.REQUEST_PARAM_VALUE_NEXT);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				case HttpStatusCode.Conflict:
-					return "再生中です。";
-				case HttpStatusCode.NotAcceptable:
-					return "移動できません。";
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				HttpStatusCode.Conflict => "再生中です。",
+				HttpStatusCode.NotAcceptable => "移動できません。",
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -144,13 +134,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		{
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId,
 					YbdConstants.REQUEST_PARAM_VALUE_UP);
-			switch (response.StatusCode)
+			return response.StatusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					return "上へ移動できません。";
-				default:
-					return DefaultErrorMessage(response.StatusCode);
-			}
+				HttpStatusCode.NotAcceptable => "上へ移動できません。",
+				_ => DefaultErrorMessage(response.StatusCode),
+			};
 		}
 	}
 }
