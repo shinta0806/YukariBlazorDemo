@@ -81,7 +81,6 @@
 		</div>
 
 	</div>
-
 }
 else
 {
@@ -94,11 +93,11 @@ else
 	// public パラメーター
 	// ====================================================================
 
-	// 新規ユーザー登録（"register"）かログイン（"login"）か
+	// URL パラメーター：新規ユーザー登録（"register"）かログイン（"login"）か
 	[Parameter]
 	public String? Kind { get; set; }
 
-	// URL パラメーター
+	// URL パラメーター：パラメーター
 	[Parameter]
 	public String? Param { get; set; }
 
@@ -113,7 +112,7 @@ else
 	{
 		try
 		{
-			if (!initialized || prevKind == Kind)
+			if (!initialized || prevFocusedKind == Kind)
 			{
 				return;
 			}
@@ -127,7 +126,8 @@ else
 			{
 				await inputName.FocusAsync();
 			}
-			prevKind = Kind;
+
+			prevFocusedKind = Kind;
 		}
 		catch (Exception excep)
 		{
@@ -170,8 +170,8 @@ else
 	// OnInitializedAsync() 完了前にも描画されるのを防止するためのフラグ
 	private Boolean initialized;
 
-	// 多重描画防止用
-	private String? prevKind = ClientConstants.INIT_STRING;
+	// 多重フォーカス当て防止用（URL パラメーターがあるため String）
+	private String? prevFocusedKind = ClientConstants.INIT_STRING;
 
 	// 要素参照用
 	private ElementReference inputName;

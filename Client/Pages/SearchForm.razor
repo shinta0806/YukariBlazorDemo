@@ -26,7 +26,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">キーワード</td>
-								<td class="input-td"><input class="input-general" id="keyword" type="text" @bind="word.AnyWord" @ref="inputAnyWord"/></td>
+								<td class="input-td"><input class="input-general" id="keyword" type="text" @bind="word.AnyWord" @ref="inputAnyWord" /></td>
 							</tr>
 							<tr>
 								<td class="input-td"></td>
@@ -46,7 +46,7 @@
 						<table class="input-table">
 							<tr>
 								<td class="input-td">曲名</td>
-								<td class="input-td"><input class="input-general" id="song-name" type="text" @bind="word.SongName" @ref="inputSongName"/></td>
+								<td class="input-td"><input class="input-general" id="song-name" type="text" @bind="word.SongName" @ref="inputSongName" /></td>
 							</tr>
 							<tr>
 								<td class="input-td">タイアップ名</td>
@@ -91,7 +91,7 @@
 	// public パラメーター
 	// ====================================================================
 
-	// 詳細検索かどうか
+	// URL パラメーター：詳細検索かどうか
 	[Parameter]
 	public String? Detail { get; set; }
 
@@ -106,7 +106,7 @@
 	{
 		try
 		{
-			if (prevDetail == Detail)
+			if (prevFocusedDetail == Detail)
 			{
 				return;
 			}
@@ -121,7 +121,7 @@
 				await inputSongName.FocusAsync();
 			}
 
-			prevDetail = Detail;
+			prevFocusedDetail = Detail;
 		}
 		catch (Exception excep)
 		{
@@ -144,8 +144,8 @@
 	// 検索条件
 	private SearchWord word = new SearchWord();
 
-	// 多重描画防止用
-	private String? prevDetail = "__Init__";
+	// 多重フォーカス当て防止用（URL パラメーターがあるため String）
+	private String? prevFocusedDetail = ClientConstants.INIT_STRING;
 
 	// 要素参照用
 	private ElementReference inputAnyWord;

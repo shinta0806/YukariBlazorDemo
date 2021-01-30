@@ -115,7 +115,7 @@ else
 	[CascadingParameter]
 	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
-	// 予約する曲の ID
+	// URL パラメーター：予約する曲の ID
 	[Parameter]
 	public String? AvailableSongId { get; set; }
 
@@ -130,18 +130,22 @@ else
 	{
 		try
 		{
-			if (initialized && availableSong != null && !focused)
+			if (!initialized || availableSong == null || prevFocusedAvailableSongId == AvailableSongId)
 			{
-				if (loginUserInfo == null)
-				{
-					await inputUser.FocusAsync();
-				}
-				else
-				{
-					await inputComment.FocusAsync();
-				}
-				focused = true;
+				return;
 			}
+
+			// ログインユーザーか否かに応じて適切な要素にフォーカスを当てる
+			if (loginUserInfo == null)
+			{
+				await inputUser.FocusAsync();
+			}
+			else
+			{
+				await inputComment.FocusAsync();
+			}
+
+			prevFocusedAvailableSongId = AvailableSongId;
 		}
 		catch (Exception excep)
 		{
@@ -194,6 +198,9 @@ else
 	// 予約対象の曲の情報（URL パラメーターで指定された元の情報）
 	private AvailableSong? availableSong;
 
+	// 多重フォーカス当て防止用（URL パラメーターがあるため String）
+	private String? prevFocusedAvailableSongId = ClientConstants.INIT_STRING;
+
 	// ログインしているユーザーの情報
 	private PublicUserInfo? loginUserInfo;
 
@@ -209,9 +216,6 @@ else
 	// 要素参照用
 	private ElementReference inputUser;
 	private ElementReference inputComment;
-
-	// 多重フォーカス防止用
-	private Boolean focused;
 
 	// ====================================================================
 	// private 関数

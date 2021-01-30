@@ -52,10 +52,13 @@
 	{
 		try
 		{
-			if (firstRender)
+			if (prevFocused)
 			{
-				await inputNewName.FocusAsync();
+				return;
 			}
+
+			await inputNewName.FocusAsync();
+			prevFocused = true;
 		}
 		catch (Exception excep)
 		{
@@ -81,6 +84,9 @@
 	// ====================================================================
 	// private 変数
 	// ====================================================================
+
+	// 多重フォーカス当て防止用（URL パラメーターが無いため Boolean）
+	private Boolean prevFocused;
 
 	// ログインしているユーザーの情報
 	private PublicUserInfo? userInfo;
