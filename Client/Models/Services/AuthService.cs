@@ -84,6 +84,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> ExtendAsync()
 		{
+			// ローカルストレージの情報に応じて認証ヘッダーを設定する
+			await AddAuthorizationHeaderIfCanAsync();
+
+			// 確認
 			(HttpStatusCode statusCode, String content)
 					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND, 0);
 			if (!IsSuccessStatusCode(statusCode))
@@ -299,7 +303,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		private async Task<(HttpStatusCode, String)> PostAuthorizedAsJsonAsync<T>(String uri, T obj)
 		{
-			await AddAuthorizationHeaderIfCanAsync();
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uri, obj);
 			await SetStateLogoutIfUnauthorizedAsync(response);
 			return (response.StatusCode, await GetResponseContent(response));
@@ -311,7 +314,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		private async Task<(HttpStatusCode, String)> PutAuthorizedAsJsonAsync<T>(String uri, T obj)
 		{
-			await AddAuthorizationHeaderIfCanAsync();
 			using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uri, obj);
 			await SetStateLogoutIfUnauthorizedAsync(response);
 			return (response.StatusCode, await GetResponseContent(response));
