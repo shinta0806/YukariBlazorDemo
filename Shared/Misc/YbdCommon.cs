@@ -135,6 +135,14 @@ namespace YukariBlazorDemo.Shared.Misc
 			return katakana.ToString();
 		}
 
+		// --------------------------------------------------------------------
+		// 現在時刻（UTC）の修正ユリウス日
+		// --------------------------------------------------------------------
+		public static Double UtcNowModifiedJulianDate()
+		{
+			return DateTimeToModifiedJulianDate(DateTime.UtcNow);
+		}
+
 		// ====================================================================
 		// private static メンバー関数
 		// ====================================================================

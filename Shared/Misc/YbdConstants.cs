@@ -78,6 +78,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_CURRENT_USER = "currentuser/";
 		public const String URL_EXTEND = "extend/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
+		public const String URL_HISTORIES = "histories/";
 		public const String URL_ID = "id/";
 		public const String URL_INFO = "info/";
 		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";
@@ -185,5 +186,17 @@ namespace YukariBlazorDemo.Shared.Misc
 		// 1 ページ当たりの結果の数
 		public const Int32 PAGE_SIZE = 20;
 
+		// --------------------------------------------------------------------
+		// 日付が指定されていない場合
+		// --------------------------------------------------------------------
+
+		// 日付が指定されていない場合にこの日付を使う
+		public static readonly DateTime INVALID_DATE = new DateTime(1859, 1, 1);
+
+		// 日付が指定されていない場合の DateTimeOffset
+		public static readonly DateTimeOffset INVALID_DATE_OFFSET = new DateTimeOffset(INVALID_DATE);
+
+		// 日付が指定されていない場合の修正ユリウス日
+		public static readonly Double INVALID_MJD = YbdCommon.DateTimeToModifiedJulianDate(INVALID_DATE);
 	}
 }

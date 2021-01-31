@@ -11,10 +11,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
+using System.Security.Claims;
 
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
@@ -34,7 +39,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		public ApiController()
 		{
-			INVALID_ETAG = GenerateEntityTag(ServerConstants.INVALID_MJD);
+			INVALID_ETAG = GenerateEntityTag(YbdConstants.INVALID_MJD);
 		}
 
 		// ====================================================================
@@ -86,15 +91,23 @@ namespace YukariBlazorDemo.Server.Controllers
 		// データベースコンテキスト生成
 		// ＜例外＞ Exception
 		// --------------------------------------------------------------------
-		protected RegisteredUserContext CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers)
+		protected UserProfileContext CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> historySongs)
 		{
-			RegisteredUserContext registeredUserContext = new();
-			if (registeredUserContext.RegisteredUsers == null)
+			UserProfileContext userProfileContext = new();
+
+			if (userProfileContext.RegisteredUsers == null)
 			{
 				throw new Exception("登録ユーザーデータベースにアクセスできません。");
 			}
-			registeredUsers = registeredUserContext.RegisteredUsers;
-			return registeredUserContext;
+			registeredUsers = userProfileContext.RegisteredUsers;
+
+			if (userProfileContext.HistorySongs == null)
+			{
+				throw new Exception("予約履歴データベースにアクセスできません。");
+			}
+			historySongs = userProfileContext.HistorySongs;
+
+			return userProfileContext;
 		}
 
 		// --------------------------------------------------------------------
@@ -146,23 +159,47 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// クライアント側から送られてきた ETag が有効か
 		// --------------------------------------------------------------------
-		protected Boolean IsValidEntityTag(Double lastModified)
+		protected Boolean IsEntityTagValid(Double lastModified)
 		{
 			HttpContext.Request.Headers.TryGetValue("If-None-Match", out StringValues values);
 			for (Int32 i = 0; i < values.Count; i++)
 			{
 				String str = values[i].Trim('"');
+#if false
 				Int32 pos = str.IndexOf('&');
 				if (pos >= 0)
 				{
 					str = str.Substring(0, pos);
 				}
+#endif
 				if (str == lastModified.ToString())
 				{
 					return true;
 				}
 			}
 			return false;
+		}
+
+		// --------------------------------------------------------------------
+		// ヘッダーに記載されているトークンが有効かどうか
+		// --------------------------------------------------------------------
+		protected Boolean IsTokenValid(DbSet<RegisteredUser> registeredUsers, [NotNullWhen(true)] out RegisteredUser? loginUser)
+		{
+			loginUser = null;
+			String? id = GetUserIdFromHeader();
+			if (String.IsNullOrEmpty(id))
+			{
+				return false;
+			}
+
+			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
+			loginUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+			if (loginUser == null)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		// --------------------------------------------------------------------
@@ -185,6 +222,44 @@ namespace YukariBlazorDemo.Server.Controllers
 		// private メンバー定数
 		// ====================================================================
 
+		// authorization ヘッダー
+		private const String HEADER_NAME_AUTHORIZATION = "authorization";
 
+		// ====================================================================
+		// private メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ヘッダーの認証トークンからユーザー Id を取得
+		// --------------------------------------------------------------------
+		private String? GetUserIdFromHeader()
+		{
+			// Authorization ヘッダーは "Bearer Token" の形式になっている
+			HttpContext.Request.Headers.TryGetValue(HEADER_NAME_AUTHORIZATION, out StringValues values);
+			if (values.Count == 0)
+			{
+				return null;
+			}
+			String[] split = values[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+			if (split.Length <= 1)
+			{
+				return null;
+			}
+			String token = split[1];
+
+			// トークン検証
+			try
+			{
+				TokenValidationParameters parameters = ServerCommon.TokenValidationParameters();
+				JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
+				ClaimsPrincipal claims = jwtSecurityTokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
+				return claims.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+			}
+			catch (Exception)
+			{
+				// トークンの有効期限切れ等の場合は例外となる
+				return null;
+			}
+		}
 	}
 }

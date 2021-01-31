@@ -13,13 +13,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
@@ -32,6 +30,7 @@ using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
 using YukariBlazorDemo.Shared.Authorization;
+using YukariBlazorDemo.Shared.Database;
 using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
@@ -81,7 +80,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception("トークン生成用の秘密鍵の長さが足りません。" + ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN + " 文字以上にしてください。");
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 
 				// FirstOrDefault を使用すると列の不足を検出できる
 				registeredUsers.FirstOrDefault(x => x.Id == String.Empty);
@@ -111,7 +110,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			Boolean? registered = null;
 			try
 			{
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				registered = IsAdminRegistered(registeredUsers);
 			}
 			catch (Exception excep)
@@ -136,11 +135,11 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				RegisteredUser newUser = new();
 				newUser.Name = registerInfo.Name;
 				newUser.Password = registerInfo.Password;
-				newUser.LastModified = newUser.LastLogin = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				newUser.LastModified = newUser.LastLogin = YbdCommon.UtcNowModifiedJulianDate();
 
 				if (!IsAdminRegistered(registeredUsers))
 				{
@@ -161,7 +160,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				// 登録
 				HashPassword(newUser);
 				registeredUsers.Add(newUser);
-				registeredUserContext.SaveChanges();
+				userProfileContext.SaveChanges();
 
 				String idAndToken = GenerateIdAndTokenString(newUser.Id);
 				Debug.WriteLine("AddUser() " + idAndToken);
@@ -196,7 +195,7 @@ namespace YukariBlazorDemo.Server.Controllers
 #endif
 
 				// ユーザーを検索
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name);
 				if (loginUser == null)
 				{
@@ -212,8 +211,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
 				Debug.WriteLine("Login() " + idAndToken);
 
-				loginUser.LastLogin = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
-				registeredUserContext.SaveChanges();
+				loginUser.LastLogin = YbdCommon.UtcNowModifiedJulianDate();
+				userProfileContext.SaveChanges();
 
 				// ID とログイン用トークンを返す
 				return Ok(idAndToken);
@@ -236,8 +235,8 @@ namespace YukariBlazorDemo.Server.Controllers
 			try
 			{
 				// キャッシュチェック
-				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REGISTERED_USERS);
-				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_USER_PROFILES);
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetPublicUserInfo() キャッシュ有効: " + id);
 					return NotModified();
@@ -248,7 +247,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == id);
 				PublicUserInfo userInfo = new PublicUserInfo();
 				registeredUser.CopyPublicInfo(userInfo, false);
@@ -285,12 +284,12 @@ namespace YukariBlazorDemo.Server.Controllers
 					{
 						Bitmap = DefaultGuestUserThumbnail.Bitmap,
 						Mime = DefaultGuestUserThumbnail.Mime,
-						LastModified = ServerConstants.INVALID_MJD,
+						LastModified = YbdConstants.INVALID_MJD,
 					};
 				}
 				else
 				{
-					using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+					using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 					registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 					if (registeredUser == null)
 					{
@@ -317,14 +316,14 @@ namespace YukariBlazorDemo.Server.Controllers
 						{
 							Bitmap = defaultThumbnail.Bitmap,
 							Mime = defaultThumbnail.Mime,
-							LastModified = ServerConstants.INVALID_MJD,
+							LastModified = YbdConstants.INVALID_MJD,
 						};
 					}
 				}
 
 				// キャッシュチェック
 				DateTime lastModified = YbdCommon.ModifiedJulianDateToDateTime(registeredUser.LastModified);
-				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetThumbnail() プロフィール画像キャッシュ有効: " + id);
 					return NotModified();
@@ -358,7 +357,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// ここに到達できているということはトークン自体は正規のものである
 				// しかし有効かどうかはまた別問題のため、有効性を確認する
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -373,6 +372,40 @@ namespace YukariBlazorDemo.Server.Controllers
 			catch (Exception excep)
 			{
 				Debug.WriteLine("延長サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// マイ履歴
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES)]
+		public IActionResult GetHistories()
+		{
+			try
+			{
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> historySongs);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+
+				// キャッシュチェック
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_USER_PROFILES);
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					Debug.WriteLine("GetHistories() キャッシュ有効: ");
+					return NotModified();
+				}
+
+				HistorySong[] results = historySongs.Where(x => x.UserId == loginUser.Id).OrderByDescending(x => x.RequestTime).ToArray();
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified));
+				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("マイ履歴取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
@@ -405,7 +438,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -429,8 +462,8 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				// 設定
 				loginUser.Name = newName;
-				loginUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
-				registeredUserContext.SaveChanges();
+				loginUser.LastModified = YbdCommon.UtcNowModifiedJulianDate();
+				userProfileContext.SaveChanges();
 
 				return Ok();
 			}
@@ -451,7 +484,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -475,9 +508,9 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				// 設定
 				loginUser.Password = newPassword;
-				loginUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
+				loginUser.LastModified = YbdCommon.UtcNowModifiedJulianDate();
 				HashPassword(loginUser);
-				registeredUserContext.SaveChanges();
+				userProfileContext.SaveChanges();
 
 				return Ok();
 			}
@@ -498,7 +531,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -512,8 +545,8 @@ namespace YukariBlazorDemo.Server.Controllers
 				using MemoryStream memoryStream = new MemoryStream(transferFile.Content);
 				loginUser.Bitmap = ServerCommon.CreateThumbnail(memoryStream, transferFile.Mime, YbdConstants.USER_THUMBNAIL_WIDTH_MAX, YbdConstants.USER_THUMBNAIL_HEIGHT_MAX, true);
 				loginUser.Mime = transferFile.Mime;
-				loginUser.LastModified = YbdCommon.DateTimeToModifiedJulianDate(DateTime.UtcNow);
-				registeredUserContext.SaveChanges();
+				loginUser.LastModified = YbdCommon.UtcNowModifiedJulianDate();
+				userProfileContext.SaveChanges();
 
 				return Ok();
 			}
@@ -537,15 +570,15 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
 				}
 
 				// キャッシュチェック
-				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REGISTERED_USERS);
-				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_USER_PROFILES);
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetUsers() キャッシュ有効: ");
 					return NotModified();
@@ -578,7 +611,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
@@ -600,7 +633,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				registeredUsers.Remove(deleteUser);
-				registeredUserContext.SaveChanges();
+				userProfileContext.SaveChanges();
 				return Ok();
 			}
 			catch (Exception excep)
@@ -621,7 +654,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route("test/")]
 		public String Test()
 		{
-			using RegisteredUserContext registeredUserContext = CreateRegisteredUserContext(out DbSet<RegisteredUser> registeredUsers);
+			using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
 			return "Test isTokenValid: " + IsTokenValid(registeredUsers, out RegisteredUser? registeredUser) + " / " + Environment.TickCount.ToString("#,0");
 		}
 
@@ -643,9 +676,6 @@ namespace YukariBlazorDemo.Server.Controllers
 
 		// トークンの有効期間 [h]
 		private const Int32 TOKEN_AVAILABLE_HOURS = 12;
-
-		// authorization ヘッダー
-		private const String HEADER_NAME_AUTHORIZATION = "authorization";
 
 		// ====================================================================
 		// private static メンバー関数
@@ -709,59 +739,5 @@ namespace YukariBlazorDemo.Server.Controllers
 		// private メンバー関数
 		// ====================================================================
 
-		// --------------------------------------------------------------------
-		// ヘッダーの認証トークンから Id を取得
-		// --------------------------------------------------------------------
-		private String? GetIdFromHeader()
-		{
-			// Authorization ヘッダーは "Bearer Token" の形式になっている
-			HttpContext.Request.Headers.TryGetValue(HEADER_NAME_AUTHORIZATION, out StringValues values);
-			if (values.Count == 0)
-			{
-				return null;
-			}
-			String[] split = values[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-			if (split.Length <= 1)
-			{
-				return null;
-			}
-			String token = split[1];
-
-			// トークン検証
-			try
-			{
-				TokenValidationParameters parameters = ServerCommon.TokenValidationParameters();
-				JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
-				ClaimsPrincipal claims = jwtSecurityTokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
-				return claims.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-			}
-			catch (Exception)
-			{
-				// トークンの有効期限切れ等の場合は例外となる
-				return null;
-			}
-		}
-
-		// --------------------------------------------------------------------
-		// ヘッダーに記載されているトークンが有効かどうか
-		// --------------------------------------------------------------------
-		private Boolean IsTokenValid(DbSet<RegisteredUser> registeredUsers, [NotNullWhen(true)] out RegisteredUser? loginUser)
-		{
-			loginUser = null;
-			String? id = GetIdFromHeader();
-			if (String.IsNullOrEmpty(id))
-			{
-				return false;
-			}
-
-			// トークンに埋め込まれている ID が引き続き有効か（該当ユーザーが削除されていないか）確認する
-			loginUser = registeredUsers.SingleOrDefault(x => x.Id == id);
-			if (loginUser == null)
-			{
-				return false;
-			}
-
-			return true;
-		}
 	}
 }

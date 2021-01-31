@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using YukariBlazorDemo.Client.Models.Authorization;
 using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Shared.Authorization;
+using YukariBlazorDemo.Shared.Database;
 using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Client.Models.Services
@@ -108,6 +109,15 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			return null;
 		}
+
+#if false
+		// --------------------------------------------------------------------
+		// ログインしているユーザーの予約履歴を取得
+		// --------------------------------------------------------------------
+		public async Task<HistorySong[]> GetLoginUserHistories()
+		{
+		}
+#endif
 
 		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得

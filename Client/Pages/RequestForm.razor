@@ -90,7 +90,7 @@
 
 				</EditForm>
 
-				<div>@requestResult</div>
+				<div class="error-message">@requestResult</div>
 
 			</div>
 		}
@@ -164,12 +164,14 @@ else
 			loginUserInfo = AuthService.GetLoginUserInfo();
 			if (loginUserInfo == null)
 			{
-				Int32 temp;
-				(userNames, temp) = await RequestSongService.GetUserNamesAsync();
+				(userNames, _) = await RequestSongService.GetUserNamesAsync();
 			}
 			else
 			{
 				requestSong.UserId = loginUserInfo.Id;
+#if DEBUGz
+				requestSong.UserId = "Tekito-na-Id";
+#endif
 				requestSong.UserName = loginUserInfo.Name;
 			}
 			initialized = true;
@@ -228,6 +230,10 @@ else
 	{
 		try
 		{
+			requestSong.RequestTime = YbdCommon.UtcNowModifiedJulianDate();
+#if DEBUGz
+		requestSong.RequestTime = 100.0;
+#endif
 			String message = await RequestSongService.AddRequestSongAsync(requestSong);
 			if (!String.IsNullOrEmpty(message))
 			{

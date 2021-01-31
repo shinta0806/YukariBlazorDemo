@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
+using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
@@ -90,8 +91,19 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
+				// 予約者のユーザー ID が指定されている場合はその正当性を確認（なりすまし予約防止）
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> historySongs);
+				IsTokenValid(registeredUsers, out RegisteredUser? loginUser);
+				if (!String.IsNullOrEmpty(requestSong.UserId))
+				{
+					if (requestSong.UserId != loginUser?.Id)
+					{
+						return Unauthorized();
+					}
+				}
 
+				// 追加する曲の位置は最後
+				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 				Int32 sort;
 				if (requestSongs.Any())
 				{
@@ -101,11 +113,23 @@ namespace YukariBlazorDemo.Server.Controllers
 				{
 					sort = 1;
 				}
-
-				// 追加する曲の位置は最後
 				requestSong.Sort = sort;
+
+				// 予約追加
 				requestSongs.Add(requestSong);
 				requestSongContext.SaveChanges();
+
+				// 予約者のユーザー ID が指定されている場合は履歴追加
+				if (!String.IsNullOrEmpty(requestSong.UserId))
+				{
+					HistorySong historySong = new();
+					ClientCommon.CopySongProperty(requestSong, historySong);
+					historySong.AvailableSongId = requestSong.AvailableSongId;
+					historySong.UserId = requestSong.UserId;
+					historySong.RequestTime = requestSong.RequestTime;
+					historySongs.Add(historySong);
+					userProfileContext.SaveChanges();
+				}
 
 				SendSse(YbdConstants.SSE_DATA_REQUEST_CHANGED);
 				return Ok();
@@ -198,7 +222,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// キャッシュチェック
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
-				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetRequestSongs() キャッシュ有効: " + query);
 					return NotModified();
@@ -234,7 +258,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// キャッシュチェック
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_REQUEST_SONGS);
-				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("GetUserNames() キャッシュ有効: ");
 					return NotModified();

@@ -102,7 +102,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			{
 				// キャッシュチェック
 				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_AVAILABLE_SONGS);
-				if (IsValidEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
 				{
 					Debug.WriteLine("SearchByWord() キャッシュ有効: " + query);
 					return NotModified();

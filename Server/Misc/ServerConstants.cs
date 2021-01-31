@@ -37,8 +37,8 @@ namespace YukariBlazorDemo.Server.Misc
 		// 予約された曲データベース
 		public const String FILE_NAME_REQUEST_SONGS = "RequestSongs" + FILE_EXT_SQLITE3;
 
-		// 登録ユーザーデータベース
-		public const String FILE_NAME_REGISTERED_USERS = "RegisteredUsers" + FILE_EXT_SQLITE3;
+		// ユーザーデータベース
+		public const String FILE_NAME_USER_PROFILES = "UserProfiles" + FILE_EXT_SQLITE3;
 
 		// --------------------------------------------------------------------
 		// ファイル拡張子
@@ -62,19 +62,6 @@ namespace YukariBlazorDemo.Server.Misc
 
 		// PNG
 		public const String MIME_TYPE_PNG = "image/png";
-
-		// --------------------------------------------------------------------
-		// 日付が指定されていない場合
-		// --------------------------------------------------------------------
-
-		// 日付が指定されていない場合にこの日付を使う
-		public static readonly DateTime INVALID_DATE = new DateTime(1900, 1, 1);
-
-		// 日付が指定されていない場合の DateTimeOffset
-		public static readonly DateTimeOffset INVALID_DATE_OFFSET = new DateTimeOffset(INVALID_DATE);
-
-		// 日付が指定されていない場合の修正ユリウス日
-		public static readonly Double INVALID_MJD = YbdCommon.DateTimeToModifiedJulianDate(INVALID_DATE);
 
 		// --------------------------------------------------------------------
 		// 認証

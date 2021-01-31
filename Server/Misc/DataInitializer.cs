@@ -43,7 +43,7 @@ namespace YukariBlazorDemo.Server.Misc
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("スタートアップエラー：\n" + excep.Message);
+				Debug.WriteLine("データ初期化エラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 			}
 		}
@@ -193,6 +193,7 @@ namespace YukariBlazorDemo.Server.Misc
 				Int32 idSuffix = 1;
 
 				// 予約可能な曲のサンプルデータ作成
+				// 実際の運用時は外部アプリケーションがデータを作成することが想定されるが、デモなので本アプリで作成してしまう
 				AvailableSong[] availableSongs =
 				{
 					// メイン
@@ -257,7 +258,7 @@ namespace YukariBlazorDemo.Server.Misc
 			if (!thumbnailContext.Thumbnails.Any())
 			{
 				// サムネイルのサンプルデータ作成
-				// 実際の運用時はオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に作成してしまう
+				// 実際の運用時は外部アプリケーションがオンデマンドでサムネイルデータを作成することが想定されるが、デモなので事前に本アプリで作成してしまう
 				Thumbnail?[] thumbnails =
 				{
 					CreateMovieThumbnail(FILE_NAME_TULIP, "Tulip.png"),
@@ -288,8 +289,8 @@ namespace YukariBlazorDemo.Server.Misc
 			requestSongContext.Database.EnsureCreated();
 
 			// 登録ユーザー
-			using RegisteredUserContext registeredUserContext = new();
-			registeredUserContext.Database.EnsureCreated();
+			using UserProfileContext userProfileContext = new();
+			userProfileContext.Database.EnsureCreated();
 		}
 
 		// --------------------------------------------------------------------

@@ -102,7 +102,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// キャッシュチェック
-				if (IsValidEntityTag(thumbnail.LastModified))
+				if (IsEntityTagValid(thumbnail.LastModified))
 				{
 					Debug.WriteLine("GetThumbnail() キャッシュ有効: " + id);
 					return NotModified();
