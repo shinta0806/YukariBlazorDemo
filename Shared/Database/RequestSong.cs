@@ -11,6 +11,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Shared.Database
@@ -42,6 +43,9 @@ namespace YukariBlazorDemo.Shared.Database
 
 		// 予約コメント
 		public String? Comment { get; set; }
+
+		// 予約日時 UTC（修正ユリウス日）
+		public Double RequestTime { get; set; }
 
 		// 再生状態
 		public PlayStatus PlayStatus { get; set; }
