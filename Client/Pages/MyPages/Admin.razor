@@ -104,7 +104,7 @@
 	private String deleteAllRequestsResult = String.Empty;
 
 	// ユーザー一覧
-	private PublicUserInfo[] userInfos = new PublicUserInfo[0];
+	private PublicUserInfo[] userInfos = Array.Empty<PublicUserInfo>();
 
 	// ユーザーの総数
 	private Int32 numUsers;
@@ -222,7 +222,7 @@
 	// --------------------------------------------------------------------
 	private async Task UpdateUserInfosAsync()
 	{
-		(userInfos, numUsers) = await AuthService.GetUsersAsync();
+		(_, userInfos, numUsers) = await AuthService.GetUsersAsync();
 
 		// チェック初期化
 		userChecks.Clear();

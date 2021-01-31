@@ -41,7 +41,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// ====================================================================
-		// public メンバー関数
+		// public メンバー関数【認証不要】
 		// ====================================================================
 
 		// --------------------------------------------------------------------
@@ -65,65 +65,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// ユーザー削除
-		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
-		// --------------------------------------------------------------------
-		public async Task<String> DeleteUserAsync(String? id)
-		{
-			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS + id);
-			return response.StatusCode switch
-			{
-				HttpStatusCode.NotAcceptable => "指定された ID が見つかりません。",
-				_ => DefaultErrorMessage(response.StatusCode),
-			};
-		}
-
-		// --------------------------------------------------------------------
-		// ログインしているユーザーのトークンの有効性確認と延長
-		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
-		// --------------------------------------------------------------------
-		public async Task<String> ExtendAsync()
-		{
-			// ローカルストレージの情報に応じて認証ヘッダーを設定する
-			await AddAuthorizationHeaderIfCanAsync();
-
-			// 確認
-			(HttpStatusCode statusCode, String content)
-					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND, 0);
-			if (!IsSuccessStatusCode(statusCode))
-			{
-				return statusCode switch
-				{
-					_ => DefaultErrorMessage(statusCode),
-				};
-			}
-
-			// 成功した場合はログイン状態にする
-			return await SetStateLoginAsync(content);
-		}
-
-		// --------------------------------------------------------------------
-		// ログインしているユーザーの情報を取得
-		// --------------------------------------------------------------------
-		public PublicUserInfo? GetLoginUserInfo()
-		{
-			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
-			{
-				return stateProvider.LoginUserInfo;
-			}
-			return null;
-		}
-
-#if false
-		// --------------------------------------------------------------------
-		// ログインしているユーザーの予約履歴を取得
-		// --------------------------------------------------------------------
-		public async Task<HistorySong[]> GetLoginUserHistories()
-		{
-		}
-#endif
-
-		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得
 		// --------------------------------------------------------------------
 		public async Task<PublicUserInfo?> GetPublicUserInfoAsync(String id)
@@ -139,14 +80,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 				// クライアント側には null を返す
 			}
 			return result;
-		}
-
-		// --------------------------------------------------------------------
-		// ユーザー一覧を取得
-		// --------------------------------------------------------------------
-		public async Task<(PublicUserInfo[], Int32)> GetUsersAsync()
-		{
-			return await GetArrayAsync<PublicUserInfo>(YbdConstants.URL_USERS);
 		}
 
 		// --------------------------------------------------------------------
@@ -178,18 +111,79 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// イベントハンドラー設定
+		// --------------------------------------------------------------------
+		public Boolean SetStateChangedHandler(NotifyDelegate notifyDelegate)
+		{
+			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			{
+				stateProvider.StateChanged = notifyDelegate;
+				return true;
+			}
+			return false;
+		}
+
+		// ====================================================================
+		// public メンバー関数【要認証（一般ユーザー）】
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ログインしているユーザーのトークンの有効性確認と延長
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> ExtendAsync()
+		{
+			// ローカルストレージの情報に応じて認証ヘッダーを設定する
+			await AddAuthorizationHeaderIfCanAsync();
+
+			// 確認
+			(HttpStatusCode statusCode, String content)
+					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND, 0);
+			if (!IsSuccessStatusCode(statusCode))
+			{
+				return statusCode switch
+				{
+					_ => DefaultErrorMessage(statusCode),
+				};
+			}
+
+			// 成功した場合はログイン状態にする
+			return await SetStateLoginAsync(content);
+		}
+
+		// --------------------------------------------------------------------
+		// ログインしているユーザーの予約履歴を取得
+		// --------------------------------------------------------------------
+		public async Task<(HttpStatusCode, HistorySong[], Int32)> GetLoginUserHistories()
+		{
+			return await GetAuthorizedArrayAsync<HistorySong>(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES);
+		}
+
+		// --------------------------------------------------------------------
+		// ログインしているユーザーの情報を取得
+		// --------------------------------------------------------------------
+		public PublicUserInfo? GetLoginUserInfo()
+		{
+			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
+			{
+				return stateProvider.LoginUserInfo;
+			}
+			return null;
+		}
+
+		// --------------------------------------------------------------------
 		// ログアウト
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
 		public async Task<String> LogoutAsync()
 		{
-			using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT, 0);
-			Boolean result = await SetStateLogoutAsync();
-			if (!response.IsSuccessStatusCode || !result)
+			(HttpStatusCode statusCode, String _)
+					= await PutAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT, 0);
+			await SetStateLogoutAsync();
+			return statusCode switch
 			{
-				return "ログアウトできませんでした。";
-			}
-			return String.Empty;
+				_ => DefaultErrorMessage(statusCode),
+			};
 		}
 
 		// --------------------------------------------------------------------
@@ -223,19 +217,6 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// イベントハンドラー設定
-		// --------------------------------------------------------------------
-		public Boolean SetStateChangedHandler(NotifyDelegate notifyDelegate)
-		{
-			if (_authenticationStateProvider is YbdAuthenticationStateProvider stateProvider)
-			{
-				stateProvider.StateChanged = notifyDelegate;
-				return true;
-			}
-			return false;
-		}
-
-		// --------------------------------------------------------------------
 		// プロフィール画像設定
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------
@@ -249,6 +230,33 @@ namespace YukariBlazorDemo.Client.Models.Services
 				HttpStatusCode.InternalServerError => "プロフィール画像を変更できませんでした。データ容量が大きすぎないか確認してください。",
 				_ => DefaultErrorMessage(statusCode),
 			};
+		}
+
+		// ====================================================================
+		// public メンバー関数【要認証（管理者用）】
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// ユーザー削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> DeleteUserAsync(String? id)
+		{
+			(HttpStatusCode statusCode, String _)
+					= await DeleteAuthorizedAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_USERS + id);
+			return statusCode switch
+			{
+				HttpStatusCode.NotAcceptable => "指定された ID が見つかりません。",
+				_ => DefaultErrorMessage(statusCode),
+			};
+		}
+
+		// --------------------------------------------------------------------
+		// ユーザー一覧を取得
+		// --------------------------------------------------------------------
+		public async Task<(HttpStatusCode, PublicUserInfo[], Int32)> GetUsersAsync()
+		{
+			return await GetAuthorizedArrayAsync<PublicUserInfo>(YbdConstants.URL_USERS);
 		}
 
 		// ====================================================================
@@ -298,24 +306,46 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// 認証が必要な API で削除
+		// HttpStatusCode.Unauthorized が返ってきたらログアウトする
+		// --------------------------------------------------------------------
+		private async Task<(HttpStatusCode, String)> DeleteAuthorizedAsync(String uri)
+		{
+			using HttpResponseMessage response = await _httpClient.DeleteAsync(uri);
+			await SetStateLogoutIfUnauthorizedAsync(response.StatusCode);
+			return (response.StatusCode, await GetResponseContent(response));
+		}
+
+		// --------------------------------------------------------------------
+		// 認証が必要な API で配列（1 ページ分）と結果の総数を取得
+		// HttpStatusCode.Unauthorized が返ってきたらログアウトする
+		// --------------------------------------------------------------------
+		private async Task<(HttpStatusCode, T[], Int32)> GetAuthorizedArrayAsync<T>(String leafUrl, String? query = null)
+		{
+			(HttpStatusCode statusCode, T[] array, Int32 totalCount) = await GetArrayAsync<T>(leafUrl, query);
+			await SetStateLogoutIfUnauthorizedAsync(statusCode);
+			return (statusCode, array, totalCount);
+		}
+
+		// --------------------------------------------------------------------
 		// 認証が必要な API へデータを送信
-		// 401 が返ってきたらログアウトする
+		// HttpStatusCode.Unauthorized が返ってきたらログアウトする
 		// --------------------------------------------------------------------
 		private async Task<(HttpStatusCode, String)> PostAuthorizedAsJsonAsync<T>(String uri, T obj)
 		{
 			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(uri, obj);
-			await SetStateLogoutIfUnauthorizedAsync(response);
+			await SetStateLogoutIfUnauthorizedAsync(response.StatusCode);
 			return (response.StatusCode, await GetResponseContent(response));
 		}
 
 		// --------------------------------------------------------------------
 		// 認証が必要な API へデータを送信
-		// 401 が返ってきたらログアウトする
+		// HttpStatusCode.Unauthorized が返ってきたらログアウトする
 		// --------------------------------------------------------------------
 		private async Task<(HttpStatusCode, String)> PutAuthorizedAsJsonAsync<T>(String uri, T obj)
 		{
 			using HttpResponseMessage response = await _httpClient.PutAsJsonAsync(uri, obj);
-			await SetStateLogoutIfUnauthorizedAsync(response);
+			await SetStateLogoutIfUnauthorizedAsync(response.StatusCode);
 			return (response.StatusCode, await GetResponseContent(response));
 		}
 
@@ -382,14 +412,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// HTTP 応答が Unauthorized ならログアウト状態にする
 		// ＜返値＞ ログアウト状態にしたら true
 		// --------------------------------------------------------------------
-		private async ValueTask<Boolean> SetStateLogoutIfUnauthorizedAsync(HttpResponseMessage response)
+		private async ValueTask<Boolean> SetStateLogoutIfUnauthorizedAsync(HttpStatusCode statusCode)
 		{
-			if (!response.IsSuccessStatusCode)
+			if (statusCode == HttpStatusCode.Unauthorized)
 			{
-				if (response.StatusCode == HttpStatusCode.Unauthorized)
-				{
-					return await SetStateLogoutAsync();
-				}
+				return await SetStateLogoutAsync();
 			}
 			return false;
 		}

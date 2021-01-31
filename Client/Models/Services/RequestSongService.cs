@@ -82,7 +82,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// 予約一覧を取得
 		// --------------------------------------------------------------------
-		public async Task<(RequestSong[], Int32)> GetRequestSongsAsync(String? query)
+		public async Task<(HttpStatusCode, RequestSong[], Int32)> GetRequestSongsAsync(String? query)
 		{
 			return await GetArrayAsync<RequestSong>(YbdConstants.URL_REQUEST, query);
 		}
@@ -90,7 +90,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// 予約者名一覧を取得
 		// --------------------------------------------------------------------
-		public async Task<(String[], Int32)> GetUserNamesAsync()
+		public async Task<(HttpStatusCode, String[], Int32)> GetUserNamesAsync()
 		{
 			return await GetArrayAsync<String>(YbdConstants.URL_GUEST_USER_NAMES);
 		}

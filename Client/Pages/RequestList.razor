@@ -214,7 +214,7 @@ else
 	private String? prevQuery;
 
 	// 予約曲群
-	private RequestSong[] requestSongs = new RequestSong[0];
+	private RequestSong[] requestSongs = Array.Empty<RequestSong>();
 
 	// 予約の総数
 	private Int32 numRequests;
@@ -236,7 +236,7 @@ else
 	{
 		Dictionary<String, String> parameters = YbdCommon.AnalyzeQuery(Query);
 		currentPage = YbdCommon.GetPageFromQueryParameters(parameters);
-		(requestSongs, numRequests) = await RequestSongService.GetRequestSongsAsync(Query);
+		(_, requestSongs, numRequests) = await RequestSongService.GetRequestSongsAsync(Query);
 	}
 
 	// --------------------------------------------------------------------

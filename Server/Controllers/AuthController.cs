@@ -101,27 +101,6 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// 管理者が登録されているか
-		// --------------------------------------------------------------------
-		[AllowAnonymous]
-		[HttpGet, Route(YbdConstants.URL_IS_ADMIN_REGISTERED)]
-		public Boolean? IsAdminRegistered()
-		{
-			Boolean? registered = null;
-			try
-			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
-				registered = IsAdminRegistered(registeredUsers);
-			}
-			catch (Exception excep)
-			{
-				Debug.WriteLine("認証 API 管理者登録確認サーバーエラー：\n" + excep.Message);
-				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-			}
-			return registered;
-		}
-
-		// --------------------------------------------------------------------
 		// ユーザー登録
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
@@ -177,52 +156,24 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// ログイン
+		// 管理者が登録されているか
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
-		[HttpPost, Route(YbdConstants.URL_LOGIN)]
-		public IActionResult Login([FromBody] LoginInfo loginInfo)
+		[HttpGet, Route(YbdConstants.URL_IS_ADMIN_REGISTERED)]
+		public Boolean? IsAdminRegistered()
 		{
+			Boolean? registered = null;
 			try
 			{
-				if (!loginInfo.IsValid())
-				{
-					return BadRequest();
-				}
-
-#if DEBUG
-				Thread.Sleep(1000);
-#endif
-
-				// ユーザーを検索
 				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
-				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name);
-				if (loginUser == null)
-				{
-					return NotAcceptable();
-				}
-
-				// パスワードハッシュの一致を確認
-				if (loginUser.Password != HashPassword(loginInfo.Password, loginUser.Salt))
-				{
-					return NotAcceptable();
-				}
-
-				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
-				Debug.WriteLine("Login() " + idAndToken);
-
-				loginUser.LastLogin = YbdCommon.UtcNowModifiedJulianDate();
-				userProfileContext.SaveChanges();
-
-				// ID とログイン用トークンを返す
-				return Ok(idAndToken);
+				registered = IsAdminRegistered(registeredUsers);
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("ログインサーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("認証 API 管理者登録確認サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return InternalServerError();
 			}
+			return registered;
 		}
 
 		// --------------------------------------------------------------------
@@ -337,6 +288,55 @@ namespace YukariBlazorDemo.Server.Controllers
 			catch (Exception excep)
 			{
 				Debug.WriteLine("プロフィール画像取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// ログイン
+		// --------------------------------------------------------------------
+		[AllowAnonymous]
+		[HttpPost, Route(YbdConstants.URL_LOGIN)]
+		public IActionResult Login([FromBody] LoginInfo loginInfo)
+		{
+			try
+			{
+				if (!loginInfo.IsValid())
+				{
+					return BadRequest();
+				}
+
+#if DEBUG
+				Thread.Sleep(1000);
+#endif
+
+				// ユーザーを検索
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name);
+				if (loginUser == null)
+				{
+					return NotAcceptable();
+				}
+
+				// パスワードハッシュの一致を確認
+				if (loginUser.Password != HashPassword(loginInfo.Password, loginUser.Salt))
+				{
+					return NotAcceptable();
+				}
+
+				String idAndToken = GenerateIdAndTokenString(loginUser.Id);
+				Debug.WriteLine("Login() " + idAndToken);
+
+				loginUser.LastLogin = YbdCommon.UtcNowModifiedJulianDate();
+				userProfileContext.SaveChanges();
+
+				// ID とログイン用トークンを返す
+				return Ok(idAndToken);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("ログインサーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}

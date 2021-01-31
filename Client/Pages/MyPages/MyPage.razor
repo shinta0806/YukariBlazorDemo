@@ -1,4 +1,5 @@
 ﻿@page "/mypage/{Message?}"
+@using System.IO
 @inject AuthService AuthService
 
 <AuthorizeView>
@@ -36,6 +37,45 @@
 						</tr>
 					</table>
 				</div>
+
+			</div>
+
+			<h1>マイ履歴</h1>
+			<div class="content">
+
+				@if (numHistories > 0)
+				{
+					<table class="req-list-table">
+						<tr class="req-list-tr">
+							<th class="req-list-th">サムネイル</th>
+							<th class="req-list-th">曲名</th>
+							<th class="req-list-th">予約日</th>
+						</tr>
+						@foreach (HistorySong historySong in historySongs)
+						{
+							<tr class="req-list-tr-unplayed" @key="historySong.HistorySongId">
+								<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(historySong.AvailableSongId))" /></div></td>
+								<td class="req-list-td" @onclick="() => OnClickRequest(historySong)">
+									<div class="search-result-song">@historySong.SongName</div>
+									@{
+										String misc = historySong.ArtistName;
+										if (!String.IsNullOrEmpty(historySong.TieUpName))
+										{
+											misc += " / " + historySong.TieUpName;
+										}
+									}
+									<div class="req-list-misc">@misc</div>
+									<div class="req-list-path">@Path.GetFileName(historySong.Path.Replace('\\', '/'))</div>
+								</td>
+								<td class="req-list-td"><div class="req-list-misc">@YbdCommon.ModifiedJulianDateToDateTime(historySong.RequestTime).ToString("yyyy/MM/dd")</div></td>
+							</tr>
+						}
+					</table>
+				}
+				else
+				{
+					<div>マイ履歴がありません。</div>
+				}
 
 			</div>
 		}
@@ -84,6 +124,7 @@
 			await AuthService.ExtendAsync();
 
 			userInfo = AuthService.GetLoginUserInfo();
+			(_, historySongs, numHistories) = await AuthService.GetLoginUserHistories();
 		}
 		catch (Exception excep)
 		{
@@ -97,4 +138,22 @@
 
 	// ログインしているユーザーの情報
 	private PublicUserInfo? userInfo;
+
+	// 予約履歴
+	private HistorySong[] historySongs = Array.Empty<HistorySong>();
+
+	// 予約履歴の総数
+	private Int32 numHistories;
+
+	// ====================================================================
+	// private 関数
+	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// 予約リンククリック
+	// --------------------------------------------------------------------
+	private void OnClickRequest(HistorySong historySong)
+	{
+		//NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
+	}
 }

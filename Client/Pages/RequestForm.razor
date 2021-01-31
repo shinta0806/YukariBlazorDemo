@@ -164,14 +164,11 @@ else
 			loginUserInfo = AuthService.GetLoginUserInfo();
 			if (loginUserInfo == null)
 			{
-				(userNames, _) = await RequestSongService.GetUserNamesAsync();
+				(_, userNames, _) = await RequestSongService.GetUserNamesAsync();
 			}
 			else
 			{
 				requestSong.UserId = loginUserInfo.Id;
-#if DEBUGz
-				requestSong.UserId = "Tekito-na-Id";
-#endif
 				requestSong.UserName = loginUserInfo.Name;
 			}
 			initialized = true;
@@ -210,7 +207,7 @@ else
 	private RequestSong requestSong = new();
 
 	// 予約者名一覧
-	private String[] userNames = new String[0];
+	private String[] userNames = Array.Empty<String>();
 
 	// 予約結果メッセージ
 	private String? requestResult;
@@ -231,9 +228,6 @@ else
 		try
 		{
 			requestSong.RequestTime = YbdCommon.UtcNowModifiedJulianDate();
-#if DEBUGz
-		requestSong.RequestTime = 100.0;
-#endif
 			String message = await RequestSongService.AddRequestSongAsync(requestSong);
 			if (!String.IsNullOrEmpty(message))
 			{
@@ -249,5 +243,4 @@ else
 			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
 	}
-
 }

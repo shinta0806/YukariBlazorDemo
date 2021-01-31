@@ -169,7 +169,7 @@ else
 	private SearchWord searchWord = new();
 
 	// 検索結果
-	private AvailableSong[] availableSongs = new AvailableSong[0];
+	private AvailableSong[] availableSongs = Array.Empty<AvailableSong>();
 
 	// 検索結果の総数
 	private Int32 numResults;
@@ -209,8 +209,6 @@ else
 	private async Task SearchAsync()
 	{
 		searchWord = new SearchWord(Query);
-		(availableSongs, numResults) = await SearchService.SearchByWordAsync(Query);
+		(_, availableSongs, numResults) = await SearchService.SearchByWordAsync(Query);
 	}
-
-
 }

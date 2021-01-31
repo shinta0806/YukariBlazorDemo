@@ -106,7 +106,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
 		// --------------------------------------------------------------------
-		protected async Task<(T[], Int32)> GetArrayAsync<T>(String leafUrl, String? query = null)
+		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayAsync<T>(String leafUrl, String? query = null)
 		{
 			T[]? results = null;
 			Int32 totalCount = 0;
@@ -126,9 +126,9 @@ namespace YukariBlazorDemo.Client.Models.Services
 			}
 			if (results == null)
 			{
-				return (Array.Empty<T>(), 0);
+				return (response.StatusCode, Array.Empty<T>(), 0);
 			}
-			return (results, totalCount);
+			return (response.StatusCode, results, totalCount);
 		}
 
 		// ====================================================================

@@ -9,6 +9,7 @@
 // ----------------------------------------------------------------------------
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -56,7 +57,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// キーワードで曲を検索
 		// --------------------------------------------------------------------
-		public async Task<(AvailableSong[], Int32)> SearchByWordAsync(String? query)
+		public async Task<(HttpStatusCode, AvailableSong[], Int32)> SearchByWordAsync(String? query)
 		{
 			return await GetArrayAsync<AvailableSong>(YbdConstants.URL_WORD, query);
 		}
