@@ -71,28 +71,32 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> DeleteRequestSongAllAsync()
 		{
-			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + YbdConstants.URL_ALL);
-			return response.StatusCode switch
+			(HttpStatusCode statusCode, _) = await DeleteAsync<String>(YbdConstants.URL_REQUEST + YbdConstants.URL_ALL);
+			return statusCode switch
 			{
 				HttpStatusCode.NotAcceptable => "予約がありません。",
-				_ => DefaultErrorMessage(response.StatusCode),
+				_ => DefaultErrorMessage(statusCode),
 			};
 		}
 
 		// --------------------------------------------------------------------
 		// 予約一覧を取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 予約一ページ分, 総数)
 		// --------------------------------------------------------------------
-		public async Task<(HttpStatusCode, RequestSong[], Int32)> GetRequestSongsAsync(String? query)
+		public async Task<(String, RequestSong[], Int32)> GetRequestSongsAsync(String? query)
 		{
-			return await GetArrayAsync<RequestSong>(YbdConstants.URL_REQUEST, query);
+			(HttpStatusCode statusCode, RequestSong[] reqestSongs, Int32 totalCount) = await GetArrayAsync<RequestSong>(YbdConstants.URL_REQUEST, query);
+			return (DefaultErrorMessage(statusCode), reqestSongs, totalCount);
 		}
 
 		// --------------------------------------------------------------------
 		// 予約者名一覧を取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 予約者一ページ分, 総数)
 		// --------------------------------------------------------------------
-		public async Task<(HttpStatusCode, String[], Int32)> GetUserNamesAsync()
+		public async Task<(String, String[], Int32)> GetUserNamesAsync()
 		{
-			return await GetArrayAsync<String>(YbdConstants.URL_GUEST_USER_NAMES);
+			(HttpStatusCode statusCode, String[] names, Int32 totalCount) = await GetArrayAsync<String>(YbdConstants.URL_GUEST_USER_NAMES);
+			return (DefaultErrorMessage(statusCode), names, totalCount);
 		}
 
 		// --------------------------------------------------------------------
