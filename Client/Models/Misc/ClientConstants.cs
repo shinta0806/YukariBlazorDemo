@@ -39,6 +39,7 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		public const String ERROR_MESSAGE_BAD_REQUEST = "サーバーに対する指定方法が不正です。";
 		public const String ERROR_MESSAGE_CANNOT_CONNECT = "サーバーに接続できませんでした。";
 		public const String ERROR_MESSAGE_INTERNAL_SERVER_ERROR = "サーバー内部でエラーが発生しました。";
+		public const String ERROR_MESSAGE_NOT_ACCEPTABLE = "条件に合うコンテンツがありません。";
 		public const String ERROR_MESSAGE_UNAUTHORIZED = "ログインしていないか、または、権限がありません。";
 		public const String ERROR_MESSAGE_UNEXPECTED = "予期しないエラーが発生しました。";
 

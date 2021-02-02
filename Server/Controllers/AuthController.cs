@@ -199,7 +199,11 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
-				RegisteredUser registeredUser = registeredUsers.Single(x => x.Id == id);
+				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
+				if (registeredUser == null)
+				{
+					return NotAcceptable();
+				}
 				PublicUserInfo userInfo = new PublicUserInfo();
 				registeredUser.CopyPublicInfo(userInfo, false);
 

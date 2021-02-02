@@ -67,19 +67,9 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得
 		// --------------------------------------------------------------------
-		public async Task<PublicUserInfo?> GetPublicUserInfoAsync(String id)
+		public async Task<(HttpStatusCode, PublicUserInfo?)> GetPublicUserInfoAsync(String id)
 		{
-			PublicUserInfo? result = null;
-			try
-			{
-				result = await _httpClient.GetFromJsonAsync<PublicUserInfo>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO + id);
-			}
-			catch (JsonException)
-			{
-				// 存在しない ID が指定された場合（ユーザーが URL を書き換えた場合など）はサーバー側で null を返し、JSON 化できないため JsonException 例外となる
-				// クライアント側には null を返す
-			}
-			return result;
+			return await GetAsync<PublicUserInfo>(YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO, id);
 		}
 
 		// --------------------------------------------------------------------
@@ -374,10 +364,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 			String token = split[1];
 
 			// ユーザー情報を取得
-			PublicUserInfo? userInfo = await GetPublicUserInfoAsync(id);
+			(HttpStatusCode statusCode, PublicUserInfo? userInfo) = await GetPublicUserInfoAsync(id);
 			if (userInfo == null)
 			{
-				return "サーバーからユーザー情報を取得できませんでした。";
+				return "サーバーからユーザー情報を取得できませんでした。" + DefaultErrorMessage(statusCode);
 			}
 
 			// 状態設定
