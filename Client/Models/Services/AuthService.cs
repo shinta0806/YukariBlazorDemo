@@ -66,10 +66,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// 公開ユーザー情報を取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 公開ユーザー情報)
 		// --------------------------------------------------------------------
-		public async Task<(HttpStatusCode, PublicUserInfo?)> GetPublicUserInfoAsync(String id)
+		public async Task<(String, PublicUserInfo?)> GetPublicUserInfoAsync(String id)
 		{
-			return await GetAsync<PublicUserInfo>(YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO, id);
+			(HttpStatusCode statusCode, PublicUserInfo? publicUserInfo) = await GetAsync<PublicUserInfo>(YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO, id);
+			return (DefaultErrorMessage(statusCode), publicUserInfo);
 		}
 
 		// --------------------------------------------------------------------
@@ -364,10 +366,10 @@ namespace YukariBlazorDemo.Client.Models.Services
 			String token = split[1];
 
 			// ユーザー情報を取得
-			(HttpStatusCode statusCode, PublicUserInfo? userInfo) = await GetPublicUserInfoAsync(id);
+			(String errorMessage, PublicUserInfo? userInfo) = await GetPublicUserInfoAsync(id);
 			if (userInfo == null)
 			{
-				return "サーバーからユーザー情報を取得できませんでした。" + DefaultErrorMessage(statusCode);
+				return "サーバーからユーザー情報を取得できませんでした。" + errorMessage;
 			}
 
 			// 状態設定

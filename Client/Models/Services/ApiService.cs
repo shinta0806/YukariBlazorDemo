@@ -105,7 +105,32 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
+		// DELETE API を呼びだした結果を取得
+		// ＜例外＞ Exception（HTTP ステータスが成功したのに JSON を読み込めなかった場合）
+		// --------------------------------------------------------------------
+		protected async Task<(HttpStatusCode, T?)> DeleteAsync<T>(String leafUrl, String? query = null)
+		{
+			return await DeleteAsync<T>(_baseUrl, leafUrl, query);
+		}
+
+		// --------------------------------------------------------------------
+		// DELETE API を呼びだした結果を取得
+		// ＜例外＞ Exception（HTTP ステータスが成功したのに JSON を読み込めなかった場合）
+		// --------------------------------------------------------------------
+		protected async Task<(HttpStatusCode, T?)> DeleteAsync<T>(String baseUrl, String leafUrl, String? query)
+		{
+			T? result = default(T);
+			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + baseUrl + leafUrl + query);
+			if (response.IsSuccessStatusCode)
+			{
+				result = await response.Content.ReadFromJsonAsync<T>();
+			}
+			return (response.StatusCode, result);
+		}
+
+		// --------------------------------------------------------------------
+		// GET API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
+		// ＜例外＞ Exception（HTTP ステータスが成功したのに JSON を読み込めなかった場合）
 		// --------------------------------------------------------------------
 		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayAsync<T>(String leafUrl, String? query = null)
 		{
@@ -113,7 +138,8 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
+		// GET API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
+		// ＜例外＞ Exception（HTTP ステータスが成功したのに JSON を読み込めなかった場合）
 		// --------------------------------------------------------------------
 		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayAsync<T>(String baseUrl, String leafUrl, String? query)
 		{
@@ -141,7 +167,8 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// API を呼びだした結果を取得
+		// GET API を呼びだした結果を取得
+		// ＜例外＞ Exception（HTTP ステータスが成功したのに JSON を読み込めなかった場合）
 		// --------------------------------------------------------------------
 		protected async Task<(HttpStatusCode, T?)> GetAsync<T>(String leafUrl, String? query = null)
 		{
@@ -149,7 +176,8 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
-		// API を呼びだした結果を取得
+		// GET API を呼びだした結果を取得
+		// ＜例外＞ Exception（HTTP ステータスが成功したのに JSON を読み込めなかった場合）
 		// --------------------------------------------------------------------
 		protected async Task<(HttpStatusCode, T?)> GetAsync<T>(String baseUrl, String leafUrl, String? query)
 		{

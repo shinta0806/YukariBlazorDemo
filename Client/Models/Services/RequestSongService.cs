@@ -57,11 +57,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<String> DeleteRequestSongAsync(Int32 requestSongId)
 		{
-			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + YbdConstants.URL_REQUEST_SONGS + YbdConstants.URL_REQUEST + requestSongId);
-			return response.StatusCode switch
+			(HttpStatusCode statusCode, _) = await DeleteAsync<String>(YbdConstants.URL_REQUEST, requestSongId.ToString());
+			return statusCode switch
 			{
 				HttpStatusCode.NotAcceptable => "予約がありません。",
-				_ => DefaultErrorMessage(response.StatusCode),
+				_ => DefaultErrorMessage(statusCode),
 			};
 		}
 
