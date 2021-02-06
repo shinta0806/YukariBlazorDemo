@@ -40,26 +40,32 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// AvailableSong.Id で曲を検索
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 曲)
 		// --------------------------------------------------------------------
-		public async Task<AvailableSong?> SearchByIdAsync(String? id)
+		public async Task<(String, AvailableSong?)> SearchByIdAsync(String? id)
 		{
-			AvailableSong? result = await _httpClient.GetFromJsonAsync<AvailableSong>(YbdConstants.URL_API + YbdConstants.URL_SEARCH + YbdConstants.URL_ID + id);
-
-			if (String.IsNullOrEmpty(result?.Id))
+			(HttpStatusCode statusCode, AvailableSong? availableSong) = await GetFromJsonAsync<AvailableSong>(YbdConstants.URL_ID, id);
+			String errorMessage;
+			switch (statusCode)
 			{
-				// 存在しない ID が指定された場合（ユーザーが URL を書き換えた場合など）はサーバー側で空の AvailableSong を返す
-				// クライアント側には null を返す
-				result = null;
+				case HttpStatusCode.NotAcceptable:
+					errorMessage = "指定された曲が見つかりません。";
+					break;
+				default:
+					errorMessage = DefaultErrorMessage(statusCode);
+					break;
 			}
-			return result;
+			return (errorMessage, availableSong);
 		}
 
 		// --------------------------------------------------------------------
 		// キーワードで曲を検索
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 検索結果 1 ページ分, 総数)
 		// --------------------------------------------------------------------
-		public async Task<(HttpStatusCode, AvailableSong[], Int32)> SearchByWordAsync(String? query)
+		public async Task<(String, AvailableSong[], Int32)> SearchByWordAsync(String? query)
 		{
-			return await GetArrayAsync<AvailableSong>(YbdConstants.URL_WORD, query);
+			(HttpStatusCode statusCode, AvailableSong[] availableSongs, Int32 totalCount) = await GetArrayFromJsonAsync<AvailableSong>(YbdConstants.URL_WORD, query);
+			return (DefaultErrorMessage(statusCode), availableSongs, totalCount);
 		}
 	}
 }

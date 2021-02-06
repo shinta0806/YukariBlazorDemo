@@ -117,7 +117,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		protected async Task<(HttpStatusCode, T?)> DeleteAsync<T>(String baseUrl, String leafUrl, String? query)
 		{
-			T? result = default(T);
+			T? result = default;
 			using HttpResponseMessage response = await _httpClient.DeleteAsync(YbdConstants.URL_API + baseUrl + leafUrl + query);
 			if (response.IsSuccessStatusCode)
 			{
@@ -135,15 +135,15 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// GET API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
 		// --------------------------------------------------------------------
-		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayAsync<T>(String leafUrl, String? query = null)
+		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayFromJsonAsync<T>(String leafUrl, String? query = null)
 		{
-			return await GetArrayAsync<T>(_baseUrl, leafUrl, query);
+			return await GetArrayFromJsonAsync<T>(_baseUrl, leafUrl, query);
 		}
 
 		// --------------------------------------------------------------------
 		// GET API を呼びだした結果の配列（1 ページ分）と結果の総数を取得
 		// --------------------------------------------------------------------
-		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayAsync<T>(String baseUrl, String leafUrl, String? query)
+		protected async Task<(HttpStatusCode, T[], Int32)> GetArrayFromJsonAsync<T>(String baseUrl, String leafUrl, String? query)
 		{
 			T[]? results = null;
 			Int32 totalCount = 0;
@@ -165,7 +165,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 				{
 					totalCount = results?.Length ?? 0;
 				}
-				ClientCommon.DebugWriteLine("GetArrayAsync() numResults: " + totalCount);
+				ClientCommon.DebugWriteLine("GetArrayFromJsonAsync() numResults: " + totalCount);
 			}
 			if (results == null)
 			{
@@ -177,17 +177,17 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		// GET API を呼びだした結果を取得
 		// --------------------------------------------------------------------
-		protected async Task<(HttpStatusCode, T?)> GetAsync<T>(String leafUrl, String? query = null)
+		protected async Task<(HttpStatusCode, T?)> GetFromJsonAsync<T>(String leafUrl, String? query = null)
 		{
-			return await GetAsync<T>(_baseUrl, leafUrl, query);
+			return await GetFromJsonAsync<T>(_baseUrl, leafUrl, query);
 		}
 
 		// --------------------------------------------------------------------
 		// GET API を呼びだした結果を取得
 		// --------------------------------------------------------------------
-		protected async Task<(HttpStatusCode, T?)> GetAsync<T>(String baseUrl, String leafUrl, String? query)
+		protected async Task<(HttpStatusCode, T?)> GetFromJsonAsync<T>(String baseUrl, String leafUrl, String? query)
 		{
-			T? result = default(T);
+			T? result = default;
 			using HttpResponseMessage response = await _httpClient.GetAsync(YbdConstants.URL_API + baseUrl + leafUrl + query);
 			if (response.IsSuccessStatusCode)
 			{

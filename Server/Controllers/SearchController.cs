@@ -78,7 +78,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// AvailableSong.Id で曲を検索
 		// --------------------------------------------------------------------
 		[HttpGet, Route(YbdConstants.URL_ID + "{id}")]
-		public AvailableSong? SearchById(String? id)
+		public IActionResult SearchById(String? id)
 		{
 			try
 			{
@@ -86,17 +86,15 @@ namespace YukariBlazorDemo.Server.Controllers
 				AvailableSong? result = availableSongs.FirstOrDefault(x => x.Id == id);
 				if (result == null)
 				{
-					// 再生中の曲が無い
-					// null を返すとクライアント側が HttpClient.GetFromJsonAsync<AvailableSong?>() で受け取った際に例外が発生するため、空のインスタンスを返す
-					result = new();
+					return NotAcceptable();
 				}
-				return result;
+				return File(JsonSerializer.SerializeToUtf8Bytes(result), ServerConstants.MIME_TYPE_JSON);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("曲取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return null;
+				return InternalServerError();
 			}
 		}
 

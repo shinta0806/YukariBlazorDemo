@@ -70,7 +70,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		public async Task<(String, PublicUserInfo?)> GetPublicUserInfoAsync(String id)
 		{
-			(HttpStatusCode statusCode, PublicUserInfo? publicUserInfo) = await GetAsync<PublicUserInfo>(YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO, id);
+			(HttpStatusCode statusCode, PublicUserInfo? publicUserInfo) = await GetFromJsonAsync<PublicUserInfo>(YbdConstants.URL_PUBLIC + YbdConstants.URL_INFO, id);
 			return (DefaultErrorMessage(statusCode), publicUserInfo);
 		}
 
@@ -314,7 +314,7 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// --------------------------------------------------------------------
 		private async Task<(HttpStatusCode, T[], Int32)> GetAuthorizedArrayAsync<T>(String leafUrl, String? query = null)
 		{
-			(HttpStatusCode statusCode, T[] array, Int32 totalCount) = await GetArrayAsync<T>(leafUrl, query);
+			(HttpStatusCode statusCode, T[] array, Int32 totalCount) = await GetArrayFromJsonAsync<T>(leafUrl, query);
 			await SetStateLogoutIfUnauthorizedAsync(statusCode);
 			return (statusCode, array, totalCount);
 		}

@@ -10,9 +10,10 @@
 {
 	<div class="content">
 
-		@if (availableSong != null)
-		{
-			<div class="requestform">
+		<div class="requestform">
+
+			@if (availableSong != null)
+			{
 				<EditForm Model="requestSong" OnValidSubmit="OnOK">
 
 					<DataAnnotationsValidator />
@@ -89,15 +90,11 @@
 					</div>
 
 				</EditForm>
+			}
 
-				<div class="error-message">@requestResult</div>
+			<div class="error-message">@requestResult</div>
 
-			</div>
-		}
-		else
-		{
-			<div>予約対象の曲がありません。予約をやり直してください。</div>
-		}
+		</div>
 	</div>
 }
 else
@@ -160,7 +157,8 @@ else
 	{
 		try
 		{
-			availableSong = await SearchService.SearchByIdAsync(AvailableSongId);
+			String errorMessage;
+			(errorMessage, availableSong) = await SearchService.SearchByIdAsync(AvailableSongId);
 			loginUserInfo = AuthService.GetLoginUserInfo();
 			if (loginUserInfo == null)
 			{
@@ -175,6 +173,7 @@ else
 
 			if (availableSong == null)
 			{
+				requestResult = errorMessage + "予約をやり直してください。";
 				return;
 			}
 			ClientCommon.CopySongProperty(availableSong, requestSong);
