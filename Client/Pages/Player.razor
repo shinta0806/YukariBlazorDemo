@@ -129,7 +129,7 @@
 	// --------------------------------------------------------------------
 	private async Task UpdateStatusAsync()
 	{
-		playingSong = await PlayerService.GetPlayingSongAsync();
+		(playResult, playingSong) = await PlayerService.GetPlayingSongAsync();
 		if (playingSong == null)
 		{
 			return;
@@ -149,7 +149,4 @@
 				break;
 		}
 	}
-
-
-
 }

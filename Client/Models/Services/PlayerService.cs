@@ -40,10 +40,18 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// 再生中（または一時停止中）の曲を取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 曲)
 		// --------------------------------------------------------------------
-		public async Task<RequestSong?> GetPlayingSongAsync()
+		public async Task<(String, RequestSong?)> GetPlayingSongAsync()
 		{
-			return await _httpClient.GetFromJsonAsync<RequestSong?>(YbdConstants.URL_API + YbdConstants.URL_PLAYER + YbdConstants.URL_PLAYING);
+			(HttpStatusCode statusCode, RequestSong? requestSong) = await GetFromJsonAsync<RequestSong>(YbdConstants.URL_PLAYING);
+			if (statusCode == HttpStatusCode.NotAcceptable)
+			{
+				// 再生中の曲が無い場合は空の曲を返す
+				statusCode = HttpStatusCode.OK;
+				requestSong = new();
+			}
+			return (DefaultErrorMessage(statusCode), requestSong);
 		}
 
 		// --------------------------------------------------------------------

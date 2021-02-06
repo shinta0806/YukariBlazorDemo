@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
 
 using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
@@ -24,7 +25,6 @@ using YukariBlazorDemo.Shared.Misc;
 namespace YukariBlazorDemo.Server.Controllers
 {
 	[ShortCache]
-	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_PLAYER)]
 	public class PlayerController : ApiController
 	{
@@ -48,7 +48,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// 再生中（または一時停止中）の曲を返す
 		// --------------------------------------------------------------------
 		[HttpGet, Route(YbdConstants.URL_PLAYING)]
-		public RequestSong? GetPlayingSong()
+		public IActionResult GetPlayingSong()
 		{
 			try
 			{
@@ -56,17 +56,15 @@ namespace YukariBlazorDemo.Server.Controllers
 				RequestSong? result = requestSongs.FirstOrDefault(x => x.PlayStatus == PlayStatus.Playing || x.PlayStatus == PlayStatus.Pause);
 				if (result == null)
 				{
-					// 再生中の曲が無い
-					// null を返すとクライアント側が HttpClient.GetFromJsonAsync<RequestSong?>() で受け取った際に例外が発生するため、空のインスタンスを返す
-					result = new();
+					return NotAcceptable();
 				}
-				return result;
+				return File(JsonSerializer.SerializeToUtf8Bytes(result), ServerConstants.MIME_TYPE_JSON);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("再生曲取得サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
-				return null;
+				return InternalServerError();
 			}
 		}
 
@@ -232,12 +230,5 @@ namespace YukariBlazorDemo.Server.Controllers
 				return InternalServerError();
 			}
 		}
-
-		// ====================================================================
-		// private メンバー関数
-		// ====================================================================
-
-
-
 	}
 }
