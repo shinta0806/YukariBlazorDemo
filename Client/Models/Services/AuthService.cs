@@ -14,7 +14,6 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 using YukariBlazorDemo.Client.Models.Authorization;
@@ -76,10 +75,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// 管理者が登録されているか
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 管理者が登録されているか)
 		// --------------------------------------------------------------------
-		public async Task<Boolean> IsAdminRegisteredAsync()
+		public async Task<(String, Boolean)> IsAdminRegisteredAsync()
 		{
-			return await _httpClient.GetFromJsonAsync<Boolean>(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_IS_ADMIN_REGISTERED);
+			(HttpStatusCode statusCode, Boolean isAdminregistered) = await GetFromJsonAsync<Boolean>(YbdConstants.URL_IS_ADMIN_REGISTERED);
+			return (DefaultErrorMessage(statusCode), isAdminregistered);
 		}
 
 		// --------------------------------------------------------------------
@@ -145,10 +146,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// ログインしているユーザーの予約履歴を取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 予約履歴, 総数)
 		// --------------------------------------------------------------------
-		public async Task<(HttpStatusCode, HistorySong[], Int32)> GetLoginUserHistories()
+		public async Task<(String, HistorySong[], Int32)> GetLoginUserHistories()
 		{
-			return await GetAuthorizedArrayAsync<HistorySong>(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES);
+			(HttpStatusCode statusCode, HistorySong[] historySongs, Int32 totalCount) = await GetAuthorizedArrayAsync<HistorySong>(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES);
+			return (DefaultErrorMessage(statusCode), historySongs, totalCount);
 		}
 
 		// --------------------------------------------------------------------
@@ -245,10 +248,12 @@ namespace YukariBlazorDemo.Client.Models.Services
 
 		// --------------------------------------------------------------------
 		// ユーザー一覧を取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 予約履歴, 総数)
 		// --------------------------------------------------------------------
-		public async Task<(HttpStatusCode, PublicUserInfo[], Int32)> GetUsersAsync()
+		public async Task<(String, PublicUserInfo[], Int32)> GetUsersAsync()
 		{
-			return await GetAuthorizedArrayAsync<PublicUserInfo>(YbdConstants.URL_USERS);
+			(HttpStatusCode statusCode, PublicUserInfo[] publicUserInfos, Int32 totalCount) = await GetAuthorizedArrayAsync<PublicUserInfo>(YbdConstants.URL_USERS);
+			return (DefaultErrorMessage(statusCode), publicUserInfos, totalCount);
 		}
 
 		// ====================================================================

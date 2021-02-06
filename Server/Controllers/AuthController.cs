@@ -37,7 +37,6 @@ namespace YukariBlazorDemo.Server.Controllers
 {
 	[ShortCache]
 	[Authorize]
-	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_AUTH)]
 	public class AuthController : ApiController
 	{
@@ -160,20 +159,20 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		[AllowAnonymous]
 		[HttpGet, Route(YbdConstants.URL_IS_ADMIN_REGISTERED)]
-		public Boolean? IsAdminRegistered()
+		public IActionResult IsAdminRegistered()
 		{
-			Boolean? registered = null;
 			try
 			{
 				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
-				registered = IsAdminRegistered(registeredUsers);
+				Boolean registered = IsAdminRegistered(registeredUsers);
+				return File(JsonSerializer.SerializeToUtf8Bytes(registered), ServerConstants.MIME_TYPE_JSON);
 			}
 			catch (Exception excep)
 			{
 				Debug.WriteLine("認証 API 管理者登録確認サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
 			}
-			return registered;
 		}
 
 		// --------------------------------------------------------------------

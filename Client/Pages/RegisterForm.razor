@@ -142,7 +142,7 @@ else
 	{
 		try
 		{
-			isAdminRegistered = await AuthService.IsAdminRegisteredAsync();
+			(_, isAdminRegistered) = await AuthService.IsAdminRegisteredAsync();
 			SetDefaultName();
 			initialized = true;
 		}

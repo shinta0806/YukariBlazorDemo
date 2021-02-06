@@ -45,17 +45,11 @@ namespace YukariBlazorDemo.Client.Models.Services
 		public async Task<(String, AvailableSong?)> SearchByIdAsync(String? id)
 		{
 			(HttpStatusCode statusCode, AvailableSong? availableSong) = await GetFromJsonAsync<AvailableSong>(YbdConstants.URL_ID, id);
-			String errorMessage;
-			switch (statusCode)
+			return statusCode switch
 			{
-				case HttpStatusCode.NotAcceptable:
-					errorMessage = "指定された曲が見つかりません。";
-					break;
-				default:
-					errorMessage = DefaultErrorMessage(statusCode);
-					break;
-			}
-			return (errorMessage, availableSong);
+				HttpStatusCode.NotAcceptable => ("指定された曲が見つかりません。", availableSong),
+				_ => (DefaultErrorMessage(statusCode), availableSong),
+			};
 		}
 
 		// --------------------------------------------------------------------

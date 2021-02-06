@@ -27,7 +27,6 @@ using YukariBlazorDemo.Shared.Misc;
 namespace YukariBlazorDemo.Server.Controllers
 {
 	[ShortCache]
-	[Produces(ServerConstants.MIME_TYPE_JSON)]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_SEARCH)]
 	public class SearchController : ApiController
 	{
