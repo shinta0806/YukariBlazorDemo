@@ -1,6 +1,7 @@
 ﻿@page "/mypage/{Message?}"
 @using System.IO
 @inject AuthService AuthService
+@inject SearchService SearchService
 
 <AuthorizeView>
 	<Authorized>
@@ -45,6 +46,7 @@
 
 				@if (numHistories > 0)
 				{
+					<div>曲名をクリックして予約できます。</div>
 					<table class="req-list-table">
 						<tr class="req-list-tr">
 							<th class="req-list-th">サムネイル</th>
@@ -55,7 +57,7 @@
 						{
 							<tr class="req-list-tr-unplayed" @key="historySong.HistorySongId">
 								<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(historySong.AvailableSongId))" /></div></td>
-								<td class="req-list-td" @onclick="() => OnClickRequest(historySong)">
+								<td class="req-list-td" @onclick="() => OnClickRequestAsync(historySong)">
 									<div class="search-result-song">@historySong.SongName</div>
 									@{
 										String misc = historySong.ArtistName;
@@ -71,6 +73,7 @@
 							</tr>
 						}
 					</table>
+					<div class="error-message">@historyResult</div>
 				}
 				else
 				{
@@ -145,6 +148,9 @@
 	// 予約履歴の総数
 	private Int32 numHistories;
 
+	// 予約履歴の結果
+	private String? historyResult;
+
 	// ====================================================================
 	// private 関数
 	// ====================================================================
@@ -152,8 +158,23 @@
 	// --------------------------------------------------------------------
 	// 予約リンククリック
 	// --------------------------------------------------------------------
-	private void OnClickRequest(HistorySong historySong)
+	private async Task OnClickRequestAsync(HistorySong historySong)
 	{
-		//NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
+		try
+		{
+			AvailableSong? availableSong;
+			(historyResult, availableSong) = await SearchService.SearchByHistoryAsync(historySong);
+			if(availableSong == null)
+			{
+				StateHasChanged();
+				return;
+			}
+
+			NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
+		}
 	}
 }

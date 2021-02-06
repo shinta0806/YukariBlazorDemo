@@ -39,6 +39,20 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// 履歴で曲を検索
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 曲)
+		// --------------------------------------------------------------------
+		public async Task<(String, AvailableSong?)> SearchByHistoryAsync(HistorySong historySong)
+		{
+			(HttpStatusCode statusCode, AvailableSong? availableSong) = await PostAndGetFromJsonAsync<AvailableSong, HistorySong>(YbdConstants.URL_HISTORY, historySong);
+			return statusCode switch
+			{
+				HttpStatusCode.NotAcceptable => ("指定された曲が見つかりません。", availableSong),
+				_ => (DefaultErrorMessage(statusCode), availableSong),
+			};
+		}
+
+		// --------------------------------------------------------------------
 		// AvailableSong.Id で曲を検索
 		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 曲)
 		// --------------------------------------------------------------------

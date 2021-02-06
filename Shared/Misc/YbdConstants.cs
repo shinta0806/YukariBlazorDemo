@@ -79,6 +79,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_EXTEND = "extend/";
 		public const String URL_GUEST_USER_NAMES = "guestusernames/";
 		public const String URL_HISTORIES = "histories/";
+		public const String URL_HISTORY = "history/";
 		public const String URL_ID = "id/";
 		public const String URL_INFO = "info/";
 		public const String URL_IS_ADMIN_REGISTERED = "isadminregistered/";

@@ -202,6 +202,34 @@ namespace YukariBlazorDemo.Client.Models.Services
 			return (response.StatusCode, result);
 		}
 
+		// --------------------------------------------------------------------
+		// POST API を呼びだした結果を取得
+		// --------------------------------------------------------------------
+		protected async Task<(HttpStatusCode, T?)> PostAndGetFromJsonAsync<T, U>(String leafUrl, U obj)
+		{
+			return await PostAndGetFromJsonAsync<T, U>(_baseUrl, leafUrl, obj);
+		}
+
+		// --------------------------------------------------------------------
+		// POST API を呼びだした結果を取得
+		// --------------------------------------------------------------------
+		protected async Task<(HttpStatusCode, T?)> PostAndGetFromJsonAsync<T, U>(String baseUrl, String leafUrl, U obj)
+		{
+			T? result = default;
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(YbdConstants.URL_API + baseUrl + leafUrl, obj);
+			if (response.IsSuccessStatusCode)
+			{
+				try
+				{
+					result = await response.Content.ReadFromJsonAsync<T>();
+				}
+				catch (Exception)
+				{
+				}
+			}
+			return (response.StatusCode, result);
+		}
+
 		// ====================================================================
 		// private メンバー定数
 		// ====================================================================

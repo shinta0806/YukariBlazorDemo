@@ -14,6 +14,7 @@ using Microsoft.Net.Http.Headers;
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -68,9 +69,39 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// HistorySong で曲を検索
 		// --------------------------------------------------------------------
-		public IActionResult SearchByHistory()
+		[HttpPost, Route(YbdConstants.URL_HISTORY)]
+		public IActionResult SearchByHistory([FromBody] HistorySong historySong)
 		{
-			return BadRequest();
+			try
+			{
+				using AvailableSongContext availableSongContext = CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs);
+
+				// ID で検索
+				AvailableSong? result = availableSongs.SingleOrDefault(x => x.Id == historySong.AvailableSongId);
+				if (result == null)
+				{
+					// フルパスで検索
+					// 実際の運用時は外部アプリケーションが予約可能曲データベースを作成することが想定され、AvailableSongId が変更されている場合も想定されるため、パスでも検索する
+					result = availableSongs.FirstOrDefault(x => x.Path == historySong.Path);
+				}
+				if (result == null)
+				{
+					// ファイル名で検索
+					result = availableSongs.FirstOrDefault(x => EF.Functions.Like(x.Path, $"%\\{Path.GetFileName(historySong.Path)}%"));
+				}
+
+				if (result == null)
+				{
+					return NotAcceptable();
+				}
+				return File(JsonSerializer.SerializeToUtf8Bytes(result), ServerConstants.MIME_TYPE_JSON);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("曲履歴検索サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
 		}
 
 		// --------------------------------------------------------------------
@@ -82,7 +113,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			try
 			{
 				using AvailableSongContext availableSongContext = CreateAvailableSongContext(out DbSet<AvailableSong> availableSongs);
-				AvailableSong? result = availableSongs.FirstOrDefault(x => x.Id == id);
+				AvailableSong? result = availableSongs.SingleOrDefault(x => x.Id == id);
 				if (result == null)
 				{
 					return NotAcceptable();
@@ -91,7 +122,7 @@ namespace YukariBlazorDemo.Server.Controllers
 			}
 			catch (Exception excep)
 			{
-				Debug.WriteLine("曲取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("曲 ID 検索サーバーエラー：\n" + excep.Message);
 				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
 				return InternalServerError();
 			}
