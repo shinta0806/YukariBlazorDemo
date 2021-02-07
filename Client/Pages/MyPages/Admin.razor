@@ -50,13 +50,13 @@
 					<div class="actions">
 						<button class="general-button" type="button" disabled="@isDeleteUserButtonDisabled" @onclick="OnClickDeleteUsersAsync">選択したユーザーを削除</button>
 					</div>
-					<div>@((MarkupString)deleteUsersResult)</div>
 				</form>
 			}
 			else
 			{
 				<div>管理者以外のユーザーが登録されていません。</div>
 			}
+			<div>@((MarkupString)deleteUsersResult)</div>
 
 		</div>
 
@@ -89,6 +89,8 @@
 	{
 		try
 		{
+			// AuthService の状態を更新（更新しないとリロード時にユーザー一覧を取得できない）
+			await AuthService.ExtendAsync();
 			await UpdateUserInfosAsync();
 		}
 		catch (Exception excep)
@@ -243,7 +245,9 @@
 	// --------------------------------------------------------------------
 	private async Task UpdateUserInfosAsync()
 	{
-		(_, userInfos, numUsers) = await AuthService.GetUsersAsync();
+		String errorMessage;
+		(errorMessage, userInfos, numUsers) = await AuthService.GetUsersAsync();
+		deleteUsersResult = ResultHtml(String.Empty, errorMessage);
 
 		// チェック初期化
 		userChecks.Clear();
