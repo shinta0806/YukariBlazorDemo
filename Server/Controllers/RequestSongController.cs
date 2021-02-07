@@ -187,6 +187,13 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
+				// 管理者権限が必要
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
+				{
+					return Unauthorized();
+				}
+
 				using RequestSongContext requestSongContext = CreateRequestSongContext(out DbSet<RequestSong> requestSongs);
 				if (!requestSongs.Any())
 				{
