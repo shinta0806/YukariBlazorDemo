@@ -34,7 +34,7 @@ function CloseLoginDropdown() {
 // --------------------------------------------------------------------
 function CreateEventSource(helper) {
     if (eventSource != null) {
-        return;
+        eventSource.close();
     }
     eventSource = new EventSource("/sse");
     eventSource.onopen = function () {
