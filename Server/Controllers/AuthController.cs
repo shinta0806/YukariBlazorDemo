@@ -713,6 +713,9 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				registeredUsers.Remove(deleteUser);
 				userProfileContext.SaveChanges();
+#if DEBUG
+				Thread.Sleep(1000);
+#endif
 				return Ok();
 			}
 			catch (Exception excep)

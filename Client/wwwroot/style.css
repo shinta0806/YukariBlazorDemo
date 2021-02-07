@@ -331,6 +331,14 @@ label > input {
         opacity: 0.75;
     }
 
+    .default-button:disabled, .default-mini-button:disabled, .general-button:disabled, .general-mini-button:disabled, .page-navi-item:disabled {
+        background-color: var(--invalid-bg-color);
+    }
+
+        .default-button:disabled:hover, .default-mini-button:disabled:hover, .general-button:disabled:hover, .general-mini-button:disabled:hover, .page-navi-item:disabled:hover {
+            opacity: 1;
+        }
+
 .ok-message {
     color: green;
     margin: 10px 0 0 0;

@@ -7,6 +7,7 @@
 	<Authorized>
 		<ul>
 			<li><span class="link" onclick="ScrollToElement('request')">予約管理</span></li>
+			<li><span class="link" onclick="ScrollToElement('user')">ユーザー管理</span></li>
 		</ul>
 
 		<h1 id="request">予約管理</h1>
@@ -27,27 +28,27 @@
 				<form>
 					<table class="req-list-table">
 						<tr class="req-list-tr">
-							<th class="req-list-th">削除</th>
 							<th class="req-list-th">名前</th>
 							<th class="req-list-th">最終ログイン日時</th>
 							<th class="req-list-th">登録更新日時</th>
+							<th class="req-list-th"><input type="checkbox" name="user" @onchange="OnChangeSelectAllUsers"></th>
 						</tr>
 						@foreach (PublicUserInfo userInfo in userInfos)
 						{
 							<tr class="req-list-tr-unplayed" @key="@userInfo.Id">
-								<td class="req-list-td"><input type="checkbox" name="user" @bind="userChecks[userInfo.Id]"></td>
 								<td class="req-list-td">
 									<span class="v-center"><img class="user-thumbnail" src="/@(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_PUBLIC + YbdConstants.URL_THUMBNAIL + userInfo.Id)" /></span>
 									<span class="v-center">@userInfo.Name</span>
 								</td>
 								<td class="req-list-td">@YbdCommon.ModifiedJulianDateToDateTime(userInfo.LastLogin).ToLocalTime().ToString(ClientConstants.DATE_TIME_FORMAT)</td>
 								<td class="req-list-td">@YbdCommon.ModifiedJulianDateToDateTime(userInfo.LastModified).ToLocalTime().ToString(ClientConstants.DATE_TIME_FORMAT)</td>
+								<td class="req-list-td"><input type="checkbox" name="user" @bind="userChecks[userInfo.Id]"></td>
 							</tr>
 						}
 					</table>
 
 					<div class="actions">
-						<button class="general-button" type="button" @onclick="OnClickDeleteUsersAsync">選択したユーザーを削除</button>
+						<button class="general-button" type="button" disabled="@isDeleteUserButtonDisabled" @onclick="OnClickDeleteUsersAsync">選択したユーザーを削除</button>
 					</div>
 					<div>@((MarkupString)deleteUsersResult)</div>
 				</form>
@@ -112,12 +113,27 @@
 	// ユーザーチェック
 	private Dictionary<String, Boolean> userChecks = new();
 
+	// ユーザーを削除ボタン無効化
+	private Boolean isDeleteUserButtonDisabled;
+
 	// ユーザーを削除の結果
 	private String deleteUsersResult = String.Empty;
 
 	// ====================================================================
 	// private 関数
 	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// すべてのユーザーを選択チェックボックス変更
+	// --------------------------------------------------------------------
+	private void OnChangeSelectAllUsers(ChangeEventArgs e)
+	{
+		Boolean check = (Boolean?)e.Value ?? false;
+		foreach (String key in userChecks.Keys)
+		{
+			userChecks[key] = check;
+		}
+	}
 
 	// --------------------------------------------------------------------
 	// 予約をすべて削除ボタンクリック
@@ -183,6 +199,9 @@
 				return;
 			}
 
+			// ユーザー削除
+			isDeleteUserButtonDisabled = true;
+			StateHasChanged();
 			String errorMessage = String.Empty;
 			foreach (KeyValuePair<String, Boolean> userCheck in userChecks.Where(x => x.Value))
 			{
@@ -192,6 +211,8 @@
 
 			// ユーザー一覧更新
 			await UpdateUserInfosAsync();
+
+			isDeleteUserButtonDisabled = false;
 			StateHasChanged();
 		}
 		catch (Exception excep)
