@@ -297,11 +297,11 @@ label > input {
     margin: 20px 0 0 0;
 }
 
-.default-button {
+.default-button, .default-mini-button {
     background-color: var(--primary-bg-color);
 }
 
-.general-button {
+.general-button, .general-mini-button {
     background-color: var(--light-bg-color);
 }
 
@@ -309,17 +309,25 @@ label > input {
     min-width: 120px;
 }
 
+.default-mini-button, .general-mini-button {
+    font-size: 0.9rem;
+    padding: 2px 5px 2px 5px;
+}
+
 .default-button, .general-button, .page-navi-item, .page-navi-current-item {
+    font-size: 1rem;
+    padding: 5px 20px 5px 20px;
+}
+
+.default-button, .default-mini-button, .general-button, .general-mini-button, .page-navi-item, .page-navi-current-item {
     border-radius: 4px;
     border-width: 0;
     outline: none;
-    font-size: 1rem;
-    padding: 5px 20px 5px 20px;
     box-shadow: 0 0 10px var(--shadow-color);
     transition: all 0.2s ease;
 }
 
-    .default-button:hover, .general-button:hover, .page-navi-item:hover {
+    .default-button:hover, .default-mini-button:hover, .general-button:hover, .general-mini-button:hover, .page-navi-item:hover {
         opacity: 0.75;
     }
 

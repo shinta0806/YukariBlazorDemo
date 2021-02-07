@@ -5,7 +5,8 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// StockSong と HistorySong は本来同じクラスで構わない
+// 同じクラスにした時にテーブル名や制約条件を分ける方法が分からないためクラスを分けている
 // ----------------------------------------------------------------------------
 
 using Microsoft.Data.Sqlite;
@@ -24,6 +25,9 @@ namespace YukariBlazorDemo.Server.Database
 
 		// 登録ユーザーテーブル
 		public DbSet<RegisteredUser>? RegisteredUsers { get; set; }
+
+		// 登録ユーザーの後で歌う予定テーブル
+		public DbSet<StockSong>? StockSongs { get; set; }
 
 		// 登録ユーザーのマイ履歴テーブル
 		public DbSet<HistorySong>? HistorySongs { get; set; }
@@ -49,7 +53,13 @@ namespace YukariBlazorDemo.Server.Database
 		// --------------------------------------------------------------------
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			// 同じ名前のユーザーは許容しない
 			modelBuilder.Entity<RegisteredUser>().HasIndex(x => x.Name).IsUnique();
+
+			// 同一ユーザーが複数回同じ曲を後で歌う予定に登録することは許容しない
+			modelBuilder.Entity<StockSong>().HasIndex(x => new { x.UserId, x.AvailableSongId }).IsUnique();
+
+			// 同一ユーザーが同時に予約することは無いはず
 			modelBuilder.Entity<HistorySong>().HasIndex(x => new { x.UserId, x.RequestTime }).IsUnique();
 		}
 	}

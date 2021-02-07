@@ -100,6 +100,7 @@ namespace YukariBlazorDemo.Shared.Misc
 		public const String URL_SEARCH = "search/";
 		public const String URL_SSE = "sse/";
 		public const String URL_STATUS = "status/";
+		public const String URL_STOCKS = "stocks/";
 		public const String URL_THUMBNAIL = "thumbnail/";
 		public const String URL_USERS = "users/";
 		public const String URL_WORD = "word/";

@@ -111,6 +111,5 @@ namespace YukariBlazorDemo.Shared.Database
 		// 動画ファイル名
 		[Required]
 		public String Path { get; set; } = String.Empty;
-
 	}
 }

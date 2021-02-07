@@ -79,7 +79,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					throw new Exception("トークン生成用の秘密鍵の長さが足りません。" + ServerConstants.TOKEN_SECRET_KEY_LENGTH_MIN + " 文字以上にしてください。");
 				}
 
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 
 				// FirstOrDefault を使用すると列の不足を検出できる
 				registeredUsers.FirstOrDefault(x => x.Id == String.Empty);
@@ -113,7 +113,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				RegisteredUser newUser = new();
 				newUser.Name = registerInfo.Name;
 				newUser.Password = registerInfo.Password;
@@ -163,7 +163,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				Boolean registered = IsAdminRegistered(registeredUsers);
 				return File(JsonSerializer.SerializeToUtf8Bytes(registered), ServerConstants.MIME_TYPE_JSON);
 			}
@@ -197,7 +197,7 @@ namespace YukariBlazorDemo.Server.Controllers
 					return BadRequest();
 				}
 
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				RegisteredUser? registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 				if (registeredUser == null)
 				{
@@ -243,7 +243,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 				else
 				{
-					using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+					using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 					registeredUser = registeredUsers.SingleOrDefault(x => x.Id == id);
 					if (registeredUser == null)
 					{
@@ -315,7 +315,7 @@ namespace YukariBlazorDemo.Server.Controllers
 #endif
 
 				// ユーザーを検索
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				RegisteredUser? loginUser = registeredUsers.SingleOrDefault(x => x.Name == loginInfo.Name);
 				if (loginUser == null)
 				{
@@ -350,17 +350,59 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// 後で歌う予定リストに追加
+		// --------------------------------------------------------------------
+		[HttpPost, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_STOCKS)]
+		public IActionResult AddStock([FromBody] AvailableSong availableSong)
+		{
+			try
+			{
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<StockSong> stockSongs, out _);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+
+				StockSong? stockSong = stockSongs.SingleOrDefault(x => x.UserId == loginUser.Id && x.AvailableSongId == availableSong.Id);
+				if (stockSong == null)
+				{
+					// 新規追加
+					stockSong = new();
+					YbdCommon.CopySongProperty(availableSong, stockSong);
+					stockSong.AvailableSongId = availableSong.Id;
+					stockSong.UserId = loginUser.Id;
+					stockSong.RequestTime = YbdCommon.UtcNowModifiedJulianDate();
+					stockSongs.Add(stockSong);
+				}
+				else
+				{
+					// 登録日時更新
+					stockSong.RequestTime = YbdCommon.UtcNowModifiedJulianDate();
+				}
+				userProfileContext.SaveChanges();
+
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("後で歌う予定追加サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// トークンの有効期限を延長
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認でき、有効な場合は有効期限を延長できる
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_EXTEND)]
-		public IActionResult Extend([FromBody] Int32 _)
+		public IActionResult Extend([FromBody] Int32 _1)
 		{
 			try
 			{
 				// ここに到達できているということはトークン自体は正規のものである
 				// しかし有効かどうかはまた別問題のため、有効性を確認する
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -381,14 +423,14 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
-		// マイ履歴
+		// マイ履歴を取得
 		// --------------------------------------------------------------------
 		[HttpGet, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES)]
 		public IActionResult GetHistories()
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> historySongs);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out DbSet<HistorySong> historySongs);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -441,7 +483,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -487,7 +529,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -534,7 +576,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
 				{
 					return Unauthorized();
@@ -573,7 +615,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
@@ -614,7 +656,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
@@ -657,7 +699,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		[HttpGet, Route("test/")]
 		public String Test()
 		{
-			using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> _);
+			using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
 			return "Test isTokenValid: " + IsTokenValid(registeredUsers, out RegisteredUser? registeredUser) + " / " + Environment.TickCount.ToString("#,0");
 		}
 

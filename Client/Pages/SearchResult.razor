@@ -3,6 +3,8 @@
 @using System.Web
 @using System.Threading
 @using System.Text
+@inject AuthService AuthService
+@inject IJSRuntime JSRuntime
 @inject SearchService SearchService
 
 @if (initialized)
@@ -74,6 +76,10 @@
 							@((MarkupString)ClientCommon.GenerateSongInfo(availableSong))
 						</td>
 						<td class="req-list-td"><div class="req-list-misc">@(availableSong.FileSize/1024/1024) MB</div></td>
+						<td class="req-list-td">
+							<button class="default-mini-button" type="button" @onclick="() => OnClickRequest(availableSong)">予約</button><br />
+							<button class="general-mini-button" type="button" @onclick="() => OnClickBookmarkAsync(availableSong)">後で</button>
+						</td>
 					</tr>
 				}
 			</table>
@@ -187,7 +193,20 @@ else
 	}
 
 	// --------------------------------------------------------------------
-	// 予約リンククリック
+	// 後でボタンクリック
+	// --------------------------------------------------------------------
+	private async Task OnClickBookmarkAsync(AvailableSong availableSong)
+	{
+		String message = await AuthService.AddStockAsync(availableSong);
+		if (String.IsNullOrEmpty(message))
+		{
+			message = "「" + availableSong.SongName + "」を後で歌う予定リストに追加しました。";
+		}
+		await ClientCommon.AlertAsync(JSRuntime, message);
+	}
+
+	// --------------------------------------------------------------------
+	// 予約ボタンクリック
 	// --------------------------------------------------------------------
 	private void OnClickRequest(AvailableSong availableSong)
 	{

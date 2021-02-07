@@ -20,7 +20,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
-using YukariBlazorDemo.Client.Models.Misc;
 using YukariBlazorDemo.Server.Attributes;
 using YukariBlazorDemo.Server.Database;
 using YukariBlazorDemo.Server.Misc;
@@ -91,11 +90,10 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// 予約者のユーザー ID が指定されている場合はその正当性を確認（なりすまし予約防止）
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> historySongs);
-				IsTokenValid(registeredUsers, out RegisteredUser? loginUser);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out DbSet<HistorySong> historySongs);
 				if (!String.IsNullOrEmpty(requestSong.UserId))
 				{
-					if (requestSong.UserId != loginUser?.Id)
+					if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || requestSong.UserId != loginUser.Id)
 					{
 						return Unauthorized();
 					}
@@ -122,10 +120,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				if (!String.IsNullOrEmpty(requestSong.UserId))
 				{
 					HistorySong historySong = new();
-					ClientCommon.CopySongProperty(requestSong, historySong);
-					historySong.AvailableSongId = requestSong.AvailableSongId;
-					historySong.UserId = requestSong.UserId;
-					historySong.RequestTime = requestSong.RequestTime;
+					YbdCommon.CopyHistorySongProperty(requestSong, historySong);
 					historySongs.Add(historySong);
 					userProfileContext.SaveChanges();
 				}

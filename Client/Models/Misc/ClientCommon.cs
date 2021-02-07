@@ -30,24 +30,19 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// アラートダイアログを表示
+		// --------------------------------------------------------------------
+		public static async Task AlertAsync(IJSRuntime jsRuntime, String message)
+		{
+			await jsRuntime.InvokeVoidAsync("alert", message);
+		}
+
+		// --------------------------------------------------------------------
 		// 確認用ダイアログを表示
 		// --------------------------------------------------------------------
 		public static async Task<Boolean> ConfirmAsync(IJSRuntime jsRuntime, String message)
 		{
 			return await jsRuntime.InvokeAsync<Boolean>("confirm", message);
-		}
-
-		// --------------------------------------------------------------------
-		// ISongProperty コピー
-		// --------------------------------------------------------------------
-		public static void CopySongProperty(ISongProperty source, ISongProperty dest)
-		{
-			dest.SongName = source.SongName;
-			dest.TieUpName = source.TieUpName;
-			dest.ArtistName = source.ArtistName;
-			dest.MakerName = source.MakerName;
-			dest.Worker = source.Worker;
-			dest.Path = source.Path;
 		}
 
 		// --------------------------------------------------------------------

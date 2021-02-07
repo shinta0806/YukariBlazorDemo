@@ -14,7 +14,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace YukariBlazorDemo.Shared.Database
 {
 	[Table("t_history_song")]
-	public class HistorySong : ISongProperty
+	public class HistorySong : IHistorySongProperty
 	{
 		// ====================================================================
 		// public プロパティー
@@ -23,6 +23,10 @@ namespace YukariBlazorDemo.Shared.Database
 		// HistorySong ID
 		// 有効な曲の ID は 1 から始まる（0 は未初期化）
 		public Int32 HistorySongId { get; set; }
+
+		// ====================================================================
+		// public プロパティー（IHistorySongProperty）
+		// ====================================================================
 
 		// AvailableSong ID
 		public String AvailableSongId { get; set; } = String.Empty;
@@ -54,6 +58,5 @@ namespace YukariBlazorDemo.Shared.Database
 
 		// 動画ファイル名
 		public String Path { get; set; } = String.Empty;
-
 	}
 }

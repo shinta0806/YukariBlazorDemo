@@ -92,7 +92,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// データベースコンテキスト生成
 		// ＜例外＞ Exception
 		// --------------------------------------------------------------------
-		protected UserProfileContext CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<HistorySong> historySongs)
+		protected UserProfileContext CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<StockSong> stockSongs, out DbSet<HistorySong> historySongs)
 		{
 			UserProfileContext userProfileContext = new();
 
@@ -101,6 +101,12 @@ namespace YukariBlazorDemo.Server.Controllers
 				throw new Exception("登録ユーザーデータベースにアクセスできません。");
 			}
 			registeredUsers = userProfileContext.RegisteredUsers;
+
+			if (userProfileContext.StockSongs == null)
+			{
+				throw new Exception("後で歌う予定データベースにアクセスできません。");
+			}
+			stockSongs = userProfileContext.StockSongs;
 
 			if (userProfileContext.HistorySongs == null)
 			{

@@ -176,7 +176,7 @@ else
 				requestResult = errorMessage + "予約をやり直してください。";
 				return;
 			}
-			ClientCommon.CopySongProperty(availableSong, requestSong);
+			YbdCommon.CopySongProperty(availableSong, requestSong);
 			requestSong.AvailableSongId = availableSong.Id;
 		}
 		catch (Exception excep)

@@ -117,7 +117,9 @@
 			// トークンを更新することにより AuthenticationStateTask に反映させる
 			await AuthService.ExtendAsync();
 
+			ClientCommon.DebugWriteLine("OnInitializedAsync() getting userInfo...");
 			userInfo = AuthService.GetLoginUserInfo();
+			ClientCommon.DebugWriteLine("OnInitializedAsync() user name: " + userInfo?.Name);
 			(_, historySongs, numHistories) = await AuthService.GetLoginUserHistories();
 		}
 		catch (Exception excep)
@@ -155,7 +157,7 @@
 		{
 			AvailableSong? availableSong;
 			(historyResult, availableSong) = await SearchService.SearchByHistoryAsync(historySong);
-			if(availableSong == null)
+			if (availableSong == null)
 			{
 				StateHasChanged();
 				return;

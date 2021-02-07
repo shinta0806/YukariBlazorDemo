@@ -121,6 +121,17 @@ namespace YukariBlazorDemo.Client.Models.Services
 		// ====================================================================
 
 		// --------------------------------------------------------------------
+		// 後で歌う予定リストに追加
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> AddStockAsync(AvailableSong availableSong)
+		{
+			(HttpStatusCode statusCode, _)
+					= await PostAuthorizedAsJsonAsync(YbdConstants.URL_API + YbdConstants.URL_AUTH + YbdConstants.URL_CURRENT_USER + YbdConstants.URL_STOCKS, availableSong);
+			return DefaultErrorMessage(statusCode);
+		}
+
+		// --------------------------------------------------------------------
 		// ログインしているユーザーのトークンの有効性確認と延長
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------

@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+using YukariBlazorDemo.Shared.Database;
+
 namespace YukariBlazorDemo.Shared.Misc
 {
 	public class YbdCommon
@@ -43,6 +45,30 @@ namespace YukariBlazorDemo.Shared.Misc
 				}
 			}
 			return result;
+		}
+
+		// --------------------------------------------------------------------
+		// ISongProperty コピー
+		// --------------------------------------------------------------------
+		public static void CopyHistorySongProperty(IHistorySongProperty source, IHistorySongProperty dest)
+		{
+			dest.AvailableSongId = source.AvailableSongId;
+			dest.UserId = source.UserId;
+			dest.RequestTime = source.RequestTime;
+			CopySongProperty(source, dest);
+		}
+
+		// --------------------------------------------------------------------
+		// ISongProperty コピー
+		// --------------------------------------------------------------------
+		public static void CopySongProperty(ISongProperty source, ISongProperty dest)
+		{
+			dest.SongName = source.SongName;
+			dest.TieUpName = source.TieUpName;
+			dest.ArtistName = source.ArtistName;
+			dest.MakerName = source.MakerName;
+			dest.Worker = source.Worker;
+			dest.Path = source.Path;
 		}
 
 		// --------------------------------------------------------------------
