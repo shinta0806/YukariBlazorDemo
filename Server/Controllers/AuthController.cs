@@ -690,7 +690,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		{
 			try
 			{
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out _);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<StockSong> stockSongs, out DbSet<HistorySong> historySongs);
 				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || !loginUser.IsAdmin)
 				{
 					return Unauthorized();
@@ -711,11 +711,19 @@ namespace YukariBlazorDemo.Server.Controllers
 					return NotAcceptable();
 				}
 
+				// 後で歌う予定リストを削除
+				stockSongs.RemoveRange(stockSongs.Where(x => x.UserId == deleteUser.Id));
+
+				// マイ履歴を削除
+				historySongs.RemoveRange(historySongs.Where(x => x.UserId == deleteUser.Id));
+
+				// 本体を削除
 				registeredUsers.Remove(deleteUser);
-				userProfileContext.SaveChanges();
+
 #if DEBUG
 				Thread.Sleep(1000);
 #endif
+				userProfileContext.SaveChanges();
 				return Ok();
 			}
 			catch (Exception excep)
