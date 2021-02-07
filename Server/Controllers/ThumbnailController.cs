@@ -5,7 +5,7 @@
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 
+// サムネイルは原則として更新されないため OneYearCache 属性を付与
 // ----------------------------------------------------------------------------
 
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +25,7 @@ using YukariBlazorDemo.Shared.Misc;
 
 namespace YukariBlazorDemo.Server.Controllers
 {
+	[OneYearCache]
 	[Route(YbdConstants.URL_API + YbdConstants.URL_MOVIE)]
 	public class ThumbnailController : ApiController
 	{
@@ -42,6 +43,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		// 状態を返す
 		// --------------------------------------------------------------------
+		[ShortCache]
 		public override String ControllerStatus()
 		{
 			String status;
@@ -110,15 +112,7 @@ namespace YukariBlazorDemo.Server.Controllers
 
 				// 実際の運用時はサムネイルの返却に時間がかかることを想定
 				Random random = new();
-				if (random.Next(5) == 0)
-				{
-					// 数回に 1 回はキャッシュがヒットする想定で時間がかからない
-				}
-				else
-				{
-					// すこし時間をかける
-					Thread.Sleep(random.Next(500, 1000));
-				}
+				Thread.Sleep(random.Next(500, 1000));
 
 				Debug.WriteLine("GetThumbnail() キャッシュ無し: " + id);
 				DateTimeOffset lastModified = new DateTimeOffset(YbdCommon.ModifiedJulianDateToDateTime(thumbnail.LastModified));

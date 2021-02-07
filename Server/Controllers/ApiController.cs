@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -161,17 +162,16 @@ namespace YukariBlazorDemo.Server.Controllers
 		// --------------------------------------------------------------------
 		protected Boolean IsEntityTagValid(Double lastModified)
 		{
-			HttpContext.Request.Headers.TryGetValue("If-None-Match", out StringValues values);
+			if (!HttpContext.Request.Headers.TryGetValue("If-None-Match", out StringValues values))
+			{
+				//Debug.WriteLine("IsEntityTagValid() If-None-Match ヘッダー無し");
+				return false;
+			}
+
+			//Debug.WriteLine("IsEntityTagValid() If-None-Match ヘッダーあり");
 			for (Int32 i = 0; i < values.Count; i++)
 			{
 				String str = values[i].Trim('"');
-#if false
-				Int32 pos = str.IndexOf('&');
-				if (pos >= 0)
-				{
-					str = str.Substring(0, pos);
-				}
-#endif
 				if (str == lastModified.ToString())
 				{
 					return true;

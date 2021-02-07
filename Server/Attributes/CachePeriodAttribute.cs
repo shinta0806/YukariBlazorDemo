@@ -39,7 +39,10 @@ namespace YukariBlazorDemo.Server.Attributes
 		// --------------------------------------------------------------------
 		public override void OnResultExecuting(ResultExecutingContext context)
 		{
-			context.HttpContext.Response.Headers["Cache-Control"] = "public, max-age=" + _period.ToString();
+			// public: レスポンスをどのキャッシュにも格納することができる（shared キャッシュ（プロキシ等）も格納可能）
+			// must-revalidate: リソースが古くなったら検証が必要（クライアントから If-None-Match ヘッダー付きでリクエストが送られてくる想定）
+			// max-age: リソースが古くなるまでの時間 [秒]
+			context.HttpContext.Response.Headers["Cache-Control"] = "public, must-revalidate, max-age=" + _period.ToString();
 			base.OnResultExecuting(context);
 		}
 
