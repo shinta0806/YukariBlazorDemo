@@ -71,16 +71,7 @@
 					<tr class="req-list-tr-unplayed" @key="@availableSong.Id">
 						<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(availableSong.Id))" /></div></td>
 						<td class="req-list-td" @onclick="() => OnClickRequest(availableSong)">
-							<div class="search-result-song">@availableSong.SongName</div>
-							@{
-								String misc = availableSong.ArtistName;
-								if (!String.IsNullOrEmpty(availableSong.TieUpName))
-								{
-									misc += " / " + availableSong.TieUpName;
-								}
-							}
-							<div class="req-list-misc">@misc</div>
-							<div class="req-list-path">@Path.GetFileName(availableSong.Path.Replace('\\', '/'))</div>
+							@((MarkupString)ClientCommon.GenerateSongInfo(availableSong))
 						</td>
 						<td class="req-list-td"><div class="req-list-misc">@(availableSong.FileSize/1024/1024) MB</div></td>
 					</tr>

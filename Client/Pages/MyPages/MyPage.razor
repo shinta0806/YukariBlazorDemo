@@ -58,16 +58,7 @@
 							<tr class="req-list-tr-unplayed" @key="historySong.HistorySongId">
 								<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(historySong.AvailableSongId))" /></div></td>
 								<td class="req-list-td" @onclick="() => OnClickRequestAsync(historySong)">
-									<div class="search-result-song">@historySong.SongName</div>
-									@{
-										String misc = historySong.ArtistName;
-										if (!String.IsNullOrEmpty(historySong.TieUpName))
-										{
-											misc += " / " + historySong.TieUpName;
-										}
-									}
-									<div class="req-list-misc">@misc</div>
-									<div class="req-list-path">@Path.GetFileName(historySong.Path.Replace('\\', '/'))</div>
+									@((MarkupString)ClientCommon.GenerateSongInfo(historySong))
 								</td>
 								<td class="req-list-td"><div class="req-list-misc">@YbdCommon.ModifiedJulianDateToDateTime(historySong.RequestTime).ToString("yyyy/MM/dd")</div></td>
 							</tr>

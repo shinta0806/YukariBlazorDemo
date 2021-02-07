@@ -14,6 +14,7 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
@@ -50,28 +51,6 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		}
 
 		// --------------------------------------------------------------------
-		// 疑似タブ HTML 生成
-		// --------------------------------------------------------------------
-		public static String GenerateTabHeader(IEnumerable<TabItem> items, String activeItemLabel)
-		{
-			String header = "<div class='tab-header'>";
-			foreach (TabItem item in items)
-			{
-				if (item.Label == activeItemLabel)
-				{
-					header += "<div class='tab-item-active'>" + activeItemLabel + "</div>";
-				}
-				else
-				{
-					header += "<div class='tab-item'><a class='tab-item-link' href='" + item.Address + "'>" + item.Label + "</a></div>";
-				}
-			}
-			header += "</div>";
-
-			return header;
-		}
-
-		// --------------------------------------------------------------------
 		// ページ切替 HTML 生成
 		// currentPage は 0 ベース
 		// --------------------------------------------------------------------
@@ -100,6 +79,44 @@ namespace YukariBlazorDemo.Client.Models.Misc
 
 			navi += "</div>";
 			return navi;
+		}
+
+		// --------------------------------------------------------------------
+		// 曲名セルに表示する曲情報の HTML 生成
+		// --------------------------------------------------------------------
+		public static String GenerateSongInfo(ISongProperty songProperty)
+		{
+			String cell = "<div class='search-result-song'>" + songProperty.SongName + "</div>";
+			String misc = songProperty.ArtistName;
+			if (!String.IsNullOrEmpty(songProperty.TieUpName))
+			{
+				misc += " / " + songProperty.TieUpName;
+			}
+			cell += "<div class='req-list-misc'>" + misc + "</div>";
+			cell += "<div class='req-list-path'>" + Path.GetFileName(songProperty.Path.Replace('\\', '/')) + "</div>";
+			return cell;
+		}
+
+		// --------------------------------------------------------------------
+		// 疑似タブ HTML 生成
+		// --------------------------------------------------------------------
+		public static String GenerateTabHeader(IEnumerable<TabItem> items, String activeItemLabel)
+		{
+			String header = "<div class='tab-header'>";
+			foreach (TabItem item in items)
+			{
+				if (item.Label == activeItemLabel)
+				{
+					header += "<div class='tab-item-active'>" + activeItemLabel + "</div>";
+				}
+				else
+				{
+					header += "<div class='tab-item'><a class='tab-item-link' href='" + item.Address + "'>" + item.Label + "</a></div>";
+				}
+			}
+			header += "</div>";
+
+			return header;
 		}
 
 		// --------------------------------------------------------------------
