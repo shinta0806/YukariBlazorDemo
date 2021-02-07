@@ -41,6 +41,38 @@
 
 			</div>
 
+			<h1>後で歌う予定リスト</h1>
+			<div class="content">
+
+				@if (numStocks > 0)
+				{
+					<div>曲名をクリックして予約できます。</div>
+					<table class="req-list-table">
+						<tr class="req-list-tr">
+							<th class="req-list-th">サムネイル</th>
+							<th class="req-list-th">曲名</th>
+							<th class="req-list-th">登録日</th>
+						</tr>
+						@foreach (StockSong stockSong in stockSongs)
+						{
+							<tr class="req-list-tr-unplayed" @key="stockSong.StockSongId">
+								<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(stockSong.AvailableSongId))" /></div></td>
+								<td class="req-list-td" @onclick="() => OnClickRequestAsync(stockSong)">
+									@((MarkupString)ClientCommon.GenerateSongInfo(stockSong))
+								</td>
+								<td class="req-list-td"><div class="req-list-misc">@YbdCommon.ModifiedJulianDateToDateTime(stockSong.RequestTime).ToString("yyyy/MM/dd")</div></td>
+							</tr>
+						}
+					</table>
+					<div class="error-message">@historyResult</div>
+				}
+				else
+				{
+					<div>後で歌う予定リストがありません。</div>
+				}
+
+			</div>
+
 			<h1>マイ履歴</h1>
 			<div class="content">
 
@@ -114,12 +146,14 @@
 	{
 		try
 		{
-			// トークンを更新することにより AuthenticationStateTask に反映させる
+			// AuthService の状態を更新（更新しないとリロード時に userInfo を取得できない）
 			await AuthService.ExtendAsync();
-
-			ClientCommon.DebugWriteLine("OnInitializedAsync() getting userInfo...");
 			userInfo = AuthService.GetLoginUserInfo();
-			ClientCommon.DebugWriteLine("OnInitializedAsync() user name: " + userInfo?.Name);
+
+			// 後で歌う予定リスト
+			(_, stockSongs, numStocks) = await AuthService.GetLoginUserStocks();
+
+			// 予約履歴
 			(_, historySongs, numHistories) = await AuthService.GetLoginUserHistories();
 		}
 		catch (Exception excep)
@@ -134,6 +168,12 @@
 
 	// ログインしているユーザーの情報
 	private PublicUserInfo? userInfo;
+
+	// 後で歌う予定リスト
+	private StockSong[] stockSongs = Array.Empty<StockSong>();
+
+	// 後で歌う予定リストの総数
+	private Int32 numStocks;
 
 	// 予約履歴
 	private HistorySong[] historySongs = Array.Empty<HistorySong>();
@@ -151,10 +191,21 @@
 	// --------------------------------------------------------------------
 	// 予約リンククリック
 	// --------------------------------------------------------------------
-	private async Task OnClickRequestAsync(HistorySong historySong)
+	private async Task OnClickRequestAsync(IHistorySongProperty historySongProperty)
 	{
 		try
 		{
+			HistorySong historySong;
+			if(historySongProperty is HistorySong temp)
+			{
+				historySong = temp;
+			}
+			else
+			{
+				historySong = new();
+				YbdCommon.CopyHistorySongProperty(historySongProperty, historySong);
+			}
+
 			AvailableSong? availableSong;
 			(historyResult, availableSong) = await SearchService.SearchByHistoryAsync(historySong);
 			if (availableSong == null)

@@ -125,7 +125,7 @@
 				throw new Exception(setResult);
 			}
 
-			// トークンを更新することにより AuthenticationStateTask に反映させる
+			// AuthService の状態を更新
 			await AuthService.ExtendAsync();
 			NavigationManager.NavigateTo("/mypage/" + Uri.EscapeDataString("お名前を変更しました。次回ログイン時は、新しいお名前でログインしてください。"));
 		}

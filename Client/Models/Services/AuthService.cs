@@ -178,6 +178,16 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// ログインしているユーザーの後で歌う予定リストを取得
+		// ＜返値＞ (成功した場合は空文字列、エラーの場合はエラーメッセージ, 後で歌う予定リスト, 総数)
+		// --------------------------------------------------------------------
+		public async Task<(String, StockSong[], Int32)> GetLoginUserStocks()
+		{
+			(HttpStatusCode statusCode, StockSong[] stockSongs, Int32 totalCount) = await GetAuthorizedArrayAsync<StockSong>(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_STOCKS);
+			return (DefaultErrorMessage(statusCode), stockSongs, totalCount);
+		}
+
+		// --------------------------------------------------------------------
 		// ログアウト
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------

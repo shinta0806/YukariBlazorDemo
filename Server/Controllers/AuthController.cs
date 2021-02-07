@@ -457,6 +457,40 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 後で歌う予定リストを取得
+		// --------------------------------------------------------------------
+		[HttpGet, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_STOCKS)]
+		public IActionResult GetStocks()
+		{
+			try
+			{
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<StockSong> stockSongs, out _);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+
+				// キャッシュチェック
+				DateTime lastModified = ServerCommon.LastModified(ServerConstants.FILE_NAME_USER_PROFILES);
+				if (IsEntityTagValid(YbdCommon.DateTimeToModifiedJulianDate(lastModified)))
+				{
+					Debug.WriteLine("GetStocks() キャッシュ有効: ");
+					return NotModified();
+				}
+
+				StockSong[] results = stockSongs.Where(x => x.UserId == loginUser.Id).OrderByDescending(x => x.RequestTime).ToArray();
+				EntityTagHeaderValue eTag = GenerateEntityTag(YbdCommon.DateTimeToModifiedJulianDate(lastModified));
+				return File(JsonSerializer.SerializeToUtf8Bytes(results), ServerConstants.MIME_TYPE_JSON, lastModified, eTag);
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("後で歌う予定リスト取得サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// ログアウト時のサーバー側の処理
 		// --------------------------------------------------------------------
 		[HttpPut, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_LOGOUT)]

@@ -78,7 +78,11 @@
 						<td class="req-list-td"><div class="req-list-misc">@(availableSong.FileSize/1024/1024) MB</div></td>
 						<td class="req-list-td">
 							<button class="default-mini-button" type="button" @onclick="() => OnClickRequest(availableSong)">予約</button><br />
-							<button class="general-mini-button" type="button" @onclick="() => OnClickBookmarkAsync(availableSong)">後で</button>
+							<AuthorizeView>
+								<Authorized>
+									<button class="general-mini-button" type="button" @onclick="() => OnClickBookmarkAsync(availableSong)">後で</button>
+								</Authorized>
+							</AuthorizeView>
 						</td>
 					</tr>
 				}
@@ -102,6 +106,10 @@ else
 	// ====================================================================
 	// public パラメーター
 	// ====================================================================
+
+	// 認証状態
+	[CascadingParameter]
+	public Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
 	// 検索条件
 	[Parameter]
