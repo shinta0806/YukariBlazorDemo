@@ -23,10 +23,15 @@
 
 				@{
 					// 疑似タブ
+					String? escapeParam = null;
+					if (!String.IsNullOrEmpty(Param))
+					{
+						escapeParam = Uri.EscapeDataString(Param);
+					}
 					TabItem[] tabItems =
 					{
-						new TabItem(TAB_LABEL_REGISTER, "/registerform/register/" + Param),
-						new TabItem(TAB_LABEL_LOGIN, "/registerform/login/" + Param),
+						new TabItem(TAB_LABEL_REGISTER, "/registerform/register/" + escapeParam),
+						new TabItem(TAB_LABEL_LOGIN, "/registerform/login/" + escapeParam),
 					};
 					@((MarkupString)ClientCommon.GenerateTabHeader(tabItems, activeTabLabel))
 				}
