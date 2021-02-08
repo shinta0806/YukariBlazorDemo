@@ -392,6 +392,39 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// マイ履歴をすべて削除
+		// --------------------------------------------------------------------
+		[HttpDelete, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES + YbdConstants.URL_ALL)]
+		public IActionResult DeleteHistoriesAll()
+		{
+			try
+			{
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out DbSet<HistorySong> historySongs);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+
+				IQueryable<HistorySong> histories = historySongs.Where(x => x.UserId == loginUser.Id);
+				if (!histories.Any())
+				{
+					return NotAcceptable();
+				}
+
+				// マイ履歴を削除
+				historySongs.RemoveRange(histories);
+				userProfileContext.SaveChanges();
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("マイ履歴すべて削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// トークンの有効期限を延長
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認でき、有効な場合は有効期限を延長できる
 		// --------------------------------------------------------------------

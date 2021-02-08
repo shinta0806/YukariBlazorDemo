@@ -1,13 +1,20 @@
 ﻿@page "/mypage/{Message?}"
 @using System.IO
 @inject AuthService AuthService
+@inject IJSRuntime JSRuntime
 @inject SearchService SearchService
 
 <AuthorizeView>
 	<Authorized>
 		@if (userInfo != null)
 		{
-			<h1>プロフィール</h1>
+			<ul>
+				<li><span class="link" onclick="ScrollToElement('profile')">プロフィール</span></li>
+				<li><span class="link" onclick="ScrollToElement('stock')">後で歌う予定リスト</span></li>
+				<li><span class="link" onclick="ScrollToElement('history')">マイ履歴</span></li>
+			</ul>
+
+			<h1 id="profile">プロフィール</h1>
 			<div class="content">
 
 				<div class="ok-message">@Message</div>
@@ -41,7 +48,7 @@
 
 			</div>
 
-			<h1>後で歌う予定リスト</h1>
+			<h1 id="stock">後で歌う予定リスト</h1>
 			<div class="content">
 
 				@if (numStocks > 0)
@@ -57,14 +64,14 @@
 						{
 							<tr class="req-list-tr-unplayed" @key="stockSong.StockSongId">
 								<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(stockSong.AvailableSongId))" /></div></td>
-								<td class="req-list-td" @onclick="() => OnClickRequestAsync(stockSong)">
+								<td class="req-list-td" @onclick="() => OnClickStockAsync(stockSong)">
 									@((MarkupString)ClientCommon.GenerateSongInfo(stockSong))
 								</td>
 								<td class="req-list-td"><div class="req-list-misc">@YbdCommon.ModifiedJulianDateToDateTime(stockSong.RequestTime).ToString("yyyy/MM/dd")</div></td>
 							</tr>
 						}
 					</table>
-					<div class="error-message">@historyResult</div>
+					<div>@((MarkupString)stockResult)</div>
 				}
 				else
 				{
@@ -73,7 +80,7 @@
 
 			</div>
 
-			<h1>マイ履歴</h1>
+			<h1 id="history">マイ履歴</h1>
 			<div class="content">
 
 				@if (numHistories > 0)
@@ -89,19 +96,23 @@
 						{
 							<tr class="req-list-tr-unplayed" @key="historySong.HistorySongId">
 								<td class="req-list-td"><div class="req-list-thumb"><img src="/@(YbdConstants.URL_API + YbdConstants.URL_MOVIE + YbdConstants.URL_THUMBNAIL + Uri.EscapeDataString(historySong.AvailableSongId))" /></div></td>
-								<td class="req-list-td" @onclick="() => OnClickRequestAsync(historySong)">
+								<td class="req-list-td" @onclick="() => OnClickHistoryAsync(historySong)">
 									@((MarkupString)ClientCommon.GenerateSongInfo(historySong))
 								</td>
 								<td class="req-list-td"><div class="req-list-misc">@YbdCommon.ModifiedJulianDateToDateTime(historySong.RequestTime).ToString("yyyy/MM/dd")</div></td>
 							</tr>
 						}
 					</table>
-					<div class="error-message">@historyResult</div>
+
+					<div class="actions">
+						<button class="general-button" type="button" @onclick="OnClickDeleteAllHistoriesAsync">マイ履歴をすべて削除</button>
+					</div>
 				}
 				else
 				{
 					<div>マイ履歴がありません。</div>
 				}
+				<div>@((MarkupString)historyResult)</div>
 
 			</div>
 		}
@@ -153,8 +164,8 @@
 			// 後で歌う予定リスト
 			(_, stockSongs, numStocks) = await AuthService.GetLoginUserStocks();
 
-			// 予約履歴
-			(_, historySongs, numHistories) = await AuthService.GetLoginUserHistories();
+			// マイ履歴
+			await UpdateHistoriesAsync();
 		}
 		catch (Exception excep)
 		{
@@ -175,6 +186,9 @@
 	// 後で歌う予定リストの総数
 	private Int32 numStocks;
 
+	// 後で歌う予定リストの結果
+	private String stockResult = String.Empty;
+
 	// 予約履歴
 	private HistorySong[] historySongs = Array.Empty<HistorySong>();
 
@@ -182,34 +196,56 @@
 	private Int32 numHistories;
 
 	// 予約履歴の結果
-	private String? historyResult;
+	private String historyResult = String.Empty;
 
 	// ====================================================================
 	// private 関数
 	// ====================================================================
 
 	// --------------------------------------------------------------------
-	// 予約リンククリック
+	// マイ履歴をすべて削除ボタンクリック
 	// --------------------------------------------------------------------
-	private async Task OnClickRequestAsync(IHistorySongProperty historySongProperty)
+	private async Task OnClickDeleteAllHistoriesAsync()
 	{
 		try
 		{
-			HistorySong historySong;
-			if(historySongProperty is HistorySong temp)
+			// 前回のエラーをクリア
+			historyResult = String.Empty;
+			StateHasChanged();
+
+			// 確認
+			Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "マイ履歴をすべて削除してもよろしいですか？");
+			if (!confirm)
 			{
-				historySong = temp;
-			}
-			else
-			{
-				historySong = new();
-				YbdCommon.CopyHistorySongProperty(historySongProperty, historySong);
+				return;
 			}
 
-			AvailableSong? availableSong;
-			(historyResult, availableSong) = await SearchService.SearchByHistoryAsync(historySong);
+			// 削除
+			String errorMessage = await AuthService.DeleteHistoriesAllAsync();
+			historyResult = ClientCommon.ResultHtml("削除しました。", errorMessage);
+
+			// マイ履歴更新
+			await UpdateHistoriesAsync();
+
+			StateHasChanged();
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 予約リンククリック
+	// --------------------------------------------------------------------
+	private async Task OnClickHistoryAsync(HistorySong historySong)
+	{
+		try
+		{
+			(String errorMessage, AvailableSong? availableSong) = await SearchService.SearchByHistoryAsync(historySong);
 			if (availableSong == null)
 			{
+				historyResult = ClientCommon.ResultHtml(String.Empty, errorMessage);
 				StateHasChanged();
 				return;
 			}
@@ -220,5 +256,38 @@
 		{
 			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
 		}
+	}
+
+	// --------------------------------------------------------------------
+	// 予約リンククリック
+	// --------------------------------------------------------------------
+	private async Task OnClickStockAsync(StockSong stockSong)
+	{
+		try
+		{
+			HistorySong historySong = new();
+			YbdCommon.CopyHistorySongProperty(stockSong, historySong);
+			(String errorMessage, AvailableSong? availableSong) = await SearchService.SearchByHistoryAsync(historySong);
+			if (availableSong == null)
+			{
+				stockResult = ClientCommon.ResultHtml(String.Empty, errorMessage);
+				StateHasChanged();
+				return;
+			}
+
+			NavigationManager.NavigateTo($"/requestform/{availableSong.Id}");
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// マイ履歴を更新
+	// --------------------------------------------------------------------
+	private async Task UpdateHistoriesAsync()
+	{
+		(_, historySongs, numHistories) = await AuthService.GetLoginUserHistories();
 	}
 }

@@ -157,7 +157,7 @@
 
 			// 削除
 			String errorMessage = await RequestSongService.DeleteRequestSongAllAsync();
-			deleteAllRequestsResult = ResultHtml("削除しました。", errorMessage);
+			deleteAllRequestsResult = ClientCommon.ResultHtml("削除しました。", errorMessage);
 			StateHasChanged();
 		}
 		catch (Exception excep)
@@ -181,7 +181,7 @@
 			Int32 numChecks = userChecks.Where(x => x.Value).Count();
 			if (numChecks == 0)
 			{
-				deleteUsersResult = ResultHtml(String.Empty, "削除したいユーザーを選択してください。");
+				deleteUsersResult = ClientCommon.ResultHtml(String.Empty, "削除したいユーザーを選択してください。");
 				StateHasChanged();
 				return;
 			}
@@ -209,7 +209,7 @@
 			{
 				errorMessage += await AuthService.DeleteUserAsync(userCheck.Key);
 			}
-			deleteUsersResult = ResultHtml("削除しました。", errorMessage);
+			deleteUsersResult = ClientCommon.ResultHtml("削除しました。", errorMessage);
 
 			// ユーザー一覧更新
 			await UpdateUserInfosAsync();
@@ -224,30 +224,13 @@
 	}
 
 	// --------------------------------------------------------------------
-	// 結果表示用 HTML
-	// --------------------------------------------------------------------
-	private String ResultHtml(String okMessage, String errorMessage)
-	{
-		if (String.IsNullOrEmpty(errorMessage))
-		{
-			// OK
-			return "<div class='ok-message'>" + okMessage + "</div>";
-		}
-		else
-		{
-			// エラー
-			return "<div class='error-message'>" + errorMessage + "</div>";
-		}
-	}
-
-	// --------------------------------------------------------------------
 	// ユーザー一覧を更新
 	// --------------------------------------------------------------------
 	private async Task UpdateUserInfosAsync()
 	{
 		String errorMessage;
 		(errorMessage, userInfos, numUsers) = await AuthService.GetUsersAsync();
-		deleteUsersResult = ResultHtml(String.Empty, errorMessage);
+		deleteUsersResult = ClientCommon.ResultHtml(String.Empty, errorMessage);
 
 		// チェック初期化
 		userChecks.Clear();

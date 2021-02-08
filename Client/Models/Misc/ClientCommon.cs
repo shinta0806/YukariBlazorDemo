@@ -127,6 +127,23 @@ namespace YukariBlazorDemo.Client.Models.Misc
 		}
 
 		// --------------------------------------------------------------------
+		// 結果表示用 HTML
+		// --------------------------------------------------------------------
+		public static String ResultHtml(String okMessage, String errorMessage)
+		{
+			if (String.IsNullOrEmpty(errorMessage))
+			{
+				// OK
+				return "<div class='ok-message'>" + okMessage + "</div>";
+			}
+			else
+			{
+				// エラー
+				return "<div class='error-message'>" + errorMessage + "</div>";
+			}
+		}
+
+		// --------------------------------------------------------------------
 		// メッセージが空でなければ例外にする
 		// --------------------------------------------------------------------
 		public static void ThrowIfError(String message)

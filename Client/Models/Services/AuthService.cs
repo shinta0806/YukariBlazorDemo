@@ -132,6 +132,20 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// マイ履歴をすべて削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> DeleteHistoriesAllAsync()
+		{
+			(HttpStatusCode statusCode, _) = await DeleteAsync<String>(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_HISTORIES + YbdConstants.URL_ALL);
+			return statusCode switch
+			{
+				HttpStatusCode.NotAcceptable => "マイ履歴がありません。",
+				_ => DefaultErrorMessage(statusCode),
+			};
+		}
+
+		// --------------------------------------------------------------------
 		// ログインしているユーザーのトークンの有効性確認と延長
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------

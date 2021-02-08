@@ -183,7 +183,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// 予約をすべて削除
 		// --------------------------------------------------------------------
 		[HttpDelete, Route(YbdConstants.URL_REQUEST + YbdConstants.URL_ALL)]
-		public IActionResult DeleteRequestAtOnce()
+		public IActionResult DeleteRequestAll()
 		{
 			try
 			{
