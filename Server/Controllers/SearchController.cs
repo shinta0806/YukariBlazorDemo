@@ -67,7 +67,7 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		// --------------------------------------------------------------------
-		// HistorySong で曲を検索
+		// HistorySong の情報に合致する AvailableSong を検索
 		// --------------------------------------------------------------------
 		[HttpPost, Route(YbdConstants.URL_HISTORY)]
 		public IActionResult SearchByHistory([FromBody] HistorySong historySong)

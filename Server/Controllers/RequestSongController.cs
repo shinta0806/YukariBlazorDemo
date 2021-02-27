@@ -17,6 +17,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 
@@ -90,7 +91,7 @@ namespace YukariBlazorDemo.Server.Controllers
 				}
 
 				// 予約者のユーザー ID が指定されている場合はその正当性を確認（なりすまし予約防止）
-				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out _, out DbSet<HistorySong> historySongs);
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<StockSong> stockSongs, out DbSet<HistorySong> historySongs);
 				if (!String.IsNullOrEmpty(requestSong.UserId))
 				{
 					if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser) || requestSong.UserId != loginUser.Id)
@@ -116,12 +117,20 @@ namespace YukariBlazorDemo.Server.Controllers
 				requestSongs.Add(requestSong);
 				requestSongContext.SaveChanges();
 
-				// 予約者のユーザー ID が指定されている場合は履歴追加
 				if (!String.IsNullOrEmpty(requestSong.UserId))
 				{
+					// 予約者のユーザー ID が指定されている場合は履歴追加
 					HistorySong historySong = new();
 					YbdCommon.CopyHistorySongProperty(requestSong, historySong);
 					historySongs.Add(historySong);
+
+					// 後で歌う予定リストに追加されている場合はリストから削除
+					StockSong? stockSong = SearchStockSongByRequestSong(stockSongs, requestSong);
+					if (stockSong != null)
+					{
+						stockSongs.Remove(stockSong);
+					}
+
 					userProfileContext.SaveChanges();
 				}
 
@@ -341,6 +350,33 @@ namespace YukariBlazorDemo.Server.Controllers
 		// ====================================================================
 
 		private readonly IServerSentEventsService _serverSentEventsService;
+
+		// ====================================================================
+		// private static メンバー関数
+		// ====================================================================
+
+		// --------------------------------------------------------------------
+		// RequestSong の情報に合致する StockSong を検索
+		// ＜例外＞ Exception
+		// --------------------------------------------------------------------
+		private static StockSong? SearchStockSongByRequestSong(DbSet<StockSong> stockSongs, RequestSong requestSong)
+		{
+			// ID で検索
+			StockSong? result = stockSongs.SingleOrDefault(x => x.AvailableSongId == requestSong.AvailableSongId);
+			if (result == null)
+			{
+				// フルパスで検索
+				// 実際の運用時は外部アプリケーションが予約可能曲データベースを作成することが想定され、AvailableSongId が変更されている場合も想定されるため、パスでも検索する
+				result = stockSongs.FirstOrDefault(x => x.Path == requestSong.Path);
+			}
+			if (result == null)
+			{
+				// ファイル名で検索
+				result = stockSongs.FirstOrDefault(x => EF.Functions.Like(x.Path, $"%\\{Path.GetFileName(requestSong.Path)}%"));
+			}
+
+			return result;
+		}
 
 		// ====================================================================
 		// private メンバー関数
