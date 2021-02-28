@@ -85,7 +85,7 @@ Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッ�
 Player ページでは、予約した曲を再生します。
 
 <br clear="right">
-<img src="Server/Documents/Images/Player_Play.png" width="256" align="right">
+<img src="Shared/Documents/Images/Player_Play.png" width="256" align="right">
 最初は曲が再生されておらず、「停止中」と表示されていますが、「再生／一時停止」ボタンをクリックすると、予約した曲を再生できます。
 
 「前の曲」「次の曲」ボタンで、再生する曲を変更できます。
@@ -102,7 +102,8 @@ Player ページでは、予約した曲を再生します。
 
 ## 予約操作
 
-<img src="Shared/Documents/Images/RequestList_Action.png" width="256" align="right"予約一覧ページの操作列にある「予約操作」ドロップダウンリストにより、対象曲の順番を入れ替えるなどすることができます。
+<img src="Shared/Documents/Images/RequestList_Action.png" width="256" align="right">
+予約一覧ページの操作列にある「予約操作」ドロップダウンリストにより、対象曲の順番を入れ替えるなどすることができます。
 
 「上へ」「下へ」で対象曲の順番を 1 つずつ移動できる他、「次に再生」で現在再生中の曲の 1 つ上に移動できます。
 
@@ -110,14 +111,12 @@ Player ページでは、予約した曲を再生します。
 
 「削除」で予約を取り消せます。
 
-## 管理
+## 情報
 
-<img src="Server/Documents/Images/Admin.png" width="256" align="right">
-管理ページでは、デモの状態が表示されます。
+<img src="Shared/Documents/Images/Info.png" width="256" align="right">
+情報ページでは、デモの状態が表示されます。
 
 ここにエラーと表示されている場合は、何らかの障害が発生しています。バージョン更新時にエラーが発生した場合は、Server フォルダー（発行した場合は publish フォルダー）直下に生成されている各種 .sqlite3 ファイルを削除して再起動すると解消されるのではないかと思います。
-
-「予約をすべて削除」ボタンをクリックすると、予約をすべて削除できます。
 <br clear="right">
 
 # 技術的キーワード
