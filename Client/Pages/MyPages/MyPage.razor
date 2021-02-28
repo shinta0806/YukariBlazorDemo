@@ -59,6 +59,7 @@
 							<th class="req-list-th">サムネイル</th>
 							<th class="req-list-th">曲名</th>
 							<th class="req-list-th">登録日</th>
+							<th class="req-list-th"><input type="checkbox" name="user" @onchange="OnChangeSelectAllStocks"></th>
 						</tr>
 						@foreach (StockSong stockSong in stockSongs)
 						{
@@ -68,15 +69,20 @@
 									@((MarkupString)ClientCommon.GenerateSongInfo(stockSong))
 								</td>
 								<td class="req-list-td"><div class="req-list-misc">@YbdCommon.ModifiedJulianDateToDateTime(stockSong.RequestTime).ToString("yyyy/MM/dd")</div></td>
+								<td class="req-list-td"><input type="checkbox" name="stock" @bind="stockChecks[stockSong.StockSongId]"></td>
 							</tr>
 						}
 					</table>
-					<div>@((MarkupString)stockResult)</div>
+
+					<div class="actions">
+						<button class="general-button" type="button" disabled="@isDeleteStockButtonDisabled" @onclick="OnClickDeleteStocksAsync">選択した曲を削除</button>
+					</div>
 				}
 				else
 				{
 					<div>後で歌う予定リストがありません。</div>
 				}
+				<div>@((MarkupString)stockResult)</div>
 
 			</div>
 
@@ -162,7 +168,7 @@
 			userInfo = AuthService.GetLoginUserInfo();
 
 			// 後で歌う予定リスト
-			(_, stockSongs, numStocks) = await AuthService.GetLoginUserStocks();
+			await UpdateStocksAsync();
 
 			// マイ履歴
 			await UpdateHistoriesAsync();
@@ -186,6 +192,12 @@
 	// 後で歌う予定リストの総数
 	private Int32 numStocks;
 
+	// 後で歌う予定リストチェック <StockSong.StockSongId, チェックされているか>
+	private Dictionary<Int32, Boolean> stockChecks = new();
+
+	// 後で歌う予定リスト削除ボタン無効化
+	private Boolean isDeleteStockButtonDisabled;
+
 	// 後で歌う予定リストの結果
 	private String stockResult = String.Empty;
 
@@ -201,6 +213,18 @@
 	// ====================================================================
 	// private 関数
 	// ====================================================================
+
+	// --------------------------------------------------------------------
+	// すべての後で歌う予定リストを選択チェックボックス変更
+	// --------------------------------------------------------------------
+	private void OnChangeSelectAllStocks(ChangeEventArgs e)
+	{
+		Boolean check = (Boolean?)e.Value ?? false;
+		foreach (Int32 key in stockChecks.Keys)
+		{
+			stockChecks[key] = check;
+		}
+	}
 
 	// --------------------------------------------------------------------
 	// マイ履歴をすべて削除ボタンクリック
@@ -227,6 +251,53 @@
 			// マイ履歴更新
 			await UpdateHistoriesAsync();
 
+			StateHasChanged();
+		}
+		catch (Exception excep)
+		{
+			ClientCommon.NavigateToClientFatalError(NavigationManager, excep);
+		}
+	}
+
+	// --------------------------------------------------------------------
+	// 選択した後で歌う予定リストを削除ボタンクリック
+	// --------------------------------------------------------------------
+	private async Task OnClickDeleteStocksAsync()
+	{
+		try
+		{
+			// 前回のエラーをクリア
+			stockResult = String.Empty;
+			StateHasChanged();
+
+			// 確認
+			Int32 numChecks = stockChecks.Where(x => x.Value).Count();
+			if (numChecks == 0)
+			{
+				stockResult = ClientCommon.ResultHtml(String.Empty, "削除したい曲を選択してください。");
+				StateHasChanged();
+				return;
+			}
+			Boolean confirm = await ClientCommon.ConfirmAsync(JSRuntime, "選択した曲を後で歌う予定リストから削除してもよろしいですか？");
+			if (!confirm)
+			{
+				return;
+			}
+
+			// 曲削除
+			isDeleteStockButtonDisabled = true;
+			StateHasChanged();
+			String errorMessage = String.Empty;
+			foreach (KeyValuePair<Int32, Boolean> stockCheck in stockChecks.Where(x => x.Value))
+			{
+				errorMessage += await AuthService.DeleteStockAsync(stockCheck.Key);
+			}
+			stockResult = ClientCommon.ResultHtml("削除しました。", errorMessage);
+
+			// ユーザー一覧更新
+			await UpdateStocksAsync();
+
+			isDeleteStockButtonDisabled = false;
 			StateHasChanged();
 		}
 		catch (Exception excep)
@@ -289,5 +360,22 @@
 	private async Task UpdateHistoriesAsync()
 	{
 		(_, historySongs, numHistories) = await AuthService.GetLoginUserHistories();
+	}
+
+	// --------------------------------------------------------------------
+	// 後で歌う予定リストを更新
+	// --------------------------------------------------------------------
+	private async Task UpdateStocksAsync()
+	{
+		String errorMessage;
+		(errorMessage, stockSongs, numStocks) = await AuthService.GetLoginUserStocks();
+		stockResult = ClientCommon.ResultHtml(String.Empty, errorMessage);
+
+		// チェック初期化
+		stockChecks.Clear();
+		foreach (StockSong stockSong in stockSongs)
+		{
+			stockChecks[stockSong.StockSongId] = false;
+		}
 	}
 }

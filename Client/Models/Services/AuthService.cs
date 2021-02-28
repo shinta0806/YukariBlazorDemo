@@ -146,6 +146,17 @@ namespace YukariBlazorDemo.Client.Models.Services
 		}
 
 		// --------------------------------------------------------------------
+		// 後で歌う予定リストから削除
+		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
+		// --------------------------------------------------------------------
+		public async Task<String> DeleteStockAsync(Int32 stockSongId)
+		{
+			(HttpStatusCode statusCode, _)
+					= await DeleteAsync<String>(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_STOCKS + stockSongId);
+			return DefaultErrorMessage(statusCode);
+		}
+
+		// --------------------------------------------------------------------
 		// ログインしているユーザーのトークンの有効性確認と延長
 		// ＜返値＞ 成功した場合は空文字列、エラーの場合はエラーメッセージ
 		// --------------------------------------------------------------------

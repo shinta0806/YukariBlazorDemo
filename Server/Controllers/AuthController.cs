@@ -425,6 +425,51 @@ namespace YukariBlazorDemo.Server.Controllers
 		}
 
 		// --------------------------------------------------------------------
+		// 後で歌う予定リストから削除
+		// --------------------------------------------------------------------
+		[HttpDelete, Route(YbdConstants.URL_CURRENT_USER + YbdConstants.URL_STOCKS + "{stockSongId?}")]
+		public IActionResult DeleteStock(String? stockSongId)
+		{
+			try
+			{
+				using UserProfileContext userProfileContext = CreateUserProfileContext(out DbSet<RegisteredUser> registeredUsers, out DbSet<StockSong> stockSongs, out _);
+				if (!IsTokenValid(registeredUsers, out RegisteredUser? loginUser))
+				{
+					return Unauthorized();
+				}
+				if (String.IsNullOrEmpty(stockSongId))
+				{
+					return BadRequest();
+				}
+				if (!Int32.TryParse(stockSongId, out Int32 stockSongIdNum))
+				{
+					return BadRequest();
+				}
+				StockSong? stockSong = stockSongs.SingleOrDefault(x => x.StockSongId == stockSongIdNum);
+				if (stockSong == null)
+				{
+					return NotAcceptable();
+				}
+				if (stockSong.UserId != loginUser.Id)
+				{
+					return Unauthorized();
+				}
+
+				// 後で歌う予定リストから削除
+				stockSongs.Remove(stockSong);
+				userProfileContext.SaveChanges();
+				return Ok();
+			}
+			catch (Exception excep)
+			{
+				Debug.WriteLine("後で歌う予定リスト削除サーバーエラー：\n" + excep.Message);
+				Debug.WriteLine("　スタックトレース：\n" + excep.StackTrace);
+				return InternalServerError();
+			}
+
+		}
+
+		// --------------------------------------------------------------------
 		// トークンの有効期限を延長
 		// クライアントは再起動後もトークンを保持しているが、この API を呼ぶことでそのトークンが引き続き有効かを確認でき、有効な場合は有効期限を延長できる
 		// --------------------------------------------------------------------
