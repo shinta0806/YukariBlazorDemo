@@ -2,7 +2,7 @@
 
 カラオケ動画をブラウザ上でリクエストをするためツール「[ゆかり](https://github.com/bee7813993/KaraokeRequestorWeb)」が Blazor WebAssembly 化したらこんな感じになるのではないか、なったらいいな、という妄想デモです。
 
-<img src="Server/Documents/Images/SearchForm_AnyWord.png" width="256" align="right">
+<img src="Shared/Documents/Images/SearchForm_AnyWord.png" width="256" align="right">
 なるべく多くの処理をブラウザ側で行うことにより、サーバーとの通信を低減させ、キビキビと動作します。例えば、検索ページの表示時は一切サーバーと通信しません。検索ボタンをクリックして結果を取得する際に初めて通信します。ただし、初回アクセス時は時間がかかります。
 
 UI は以前から検討事項となっている「シンプルモード」を採用しているため、現行のゆかりの UI とは異なります。言い方を変えれば、シンプルモードの妄想デモにもなっています。
@@ -25,7 +25,7 @@ Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッ�
 
 ## 予約ゼロ
 
-<img src="Server/Documents/Images/RequestList_Init.png" width="256" align="right">
+<img src="Shared/Documents/Images/RequestList_Init.png" width="256" align="right">
 起動直後は予約一覧ページが表示されますが、まだ曲を予約していないので、内容がありません。
 <br clear="right">
 
@@ -33,42 +33,48 @@ Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッ�
 
 上部メニューから「検索」をクリックして、検索ページを表示します。
 
-<img src="Server/Documents/Images/SearchForm_AnyWord.png" width="256" align="right">
+<img src="Shared/Documents/Images/SearchForm_AnyWord.png" width="256" align="right">
 「なんでも検索」タブが表示されており、ここにキーワードを入力して「検索」ボタンをクリックすることで、動画を検索できます。
 
 > このデモでは実際の動画は検索できず、サンプルデータとして登録されているダミーの動画を検索することになります。
 
 <br clear="right">
-<img src="Server/Documents/Images/SearchResult_Hana.png" width="256" align="right">
+<img src="Shared/Documents/Images/SearchResult_Hana.png" width="256" align="right">
 例えば「花」でなんでも検索すると、曲名・タイアップ名・歌手名など、何らかの名前に「花」が含まれる動画が検索できます。
+
+> タイアップ名とは、曲を使用しているアニメやゲーム等の名前です。
 
 キーワードをスペースで区切って複数入力すると、AND 検索できます。例えば「花 チ」でなんでも検索すると、「花」と「チ」の両方が含まれる動画が検索できます。
 
 検索結果ページはタブが 2 段並んでいますが、上段のタブでキーワードの対象を切り替えることができます。
 
-「曲名」タブをクリックすると、曲名に「花」を含む動画だけを検索することができます。タイアップ名・歌手名も同様です。
+「曲名」タブをクリックすると、曲名に「花」を含む動画だけを検索することができます。「タイアップ名」タブ・「歌手名」タブも同様に、タイアップ名や歌手名に「花」を含む動画だけを検索できます。
 
 下段のタブで検索結果をソートできます。
 
 デフォルトでは「新着順」（動画の更新日が新しい順）に並んでいますが、曲名順・歌手名順・サイズ順（動画のファイルサイズが大きい順）にソートすることができます。
 
 <br clear="right">
-<img src="Server/Documents/Images/SearchForm_Detail.png" width="256" align="right">
+<img src="Shared/Documents/Images/SearchForm_Detail.png" width="256" align="right">
 検索ページの「詳細検索」タブでは、複合検索ができます。
 
 <br clear="right">
-<img src="Server/Documents/Images/SearchResult_Detail.png" width="256" align="right">
+<img src="Shared/Documents/Images/SearchResult_Detail.png" width="256" align="right">
 例えば、「タイアップ名」に「花」、「歌手名」に「海」を指定して検索することで、「タイアップ名」に「花」を含み、かつ、「歌手名」に「海」を含む動画だけを絞り込んで検索できます。
 <br clear="right">
 
 ## 予約
 
-<img src="Server/Documents/Images/Request.png" width="256" align="right">
+<img src="Shared/Documents/Images/Request.png" width="256" align="right">
 検索結果ページで歌いたい曲の曲名をクリックすると、予約ページが表示されます。
-
 <br clear="right">
-<img src="Server/Documents/Images/RequestList_1.png" width="256" align="right">
-予約者として自分の名前を入力し、必要に応じてコメントも入力してから「予約」ボタンをクリックすると、その曲を予約することができます。
+
+<img src="Shared/Documents/Images/RequestList_1.png" width="256" align="right">
+予約者を「新規（入力→）」と表示されているドロップダウンリストの右側の欄に入力し、必要に応じてコメントも入力してから「予約」ボタンをクリックすると、その曲を予約することができます。
+<br clear="right">
+
+<img src="Shared/Documents/Images/Request_Dropdown.png" width="256" align="right">
+2 回目以降の予約では、自分の名前をドロップダウンリストから選ぶこともできます。
 <br clear="right">
 
 ## 再生
