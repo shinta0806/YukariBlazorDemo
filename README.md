@@ -7,7 +7,9 @@
 
 UI は以前から検討事項となっている「シンプルモード」を採用しているため、現行のゆかりの UI とは異なります。言い方を変えれば、シンプルモードの妄想デモにもなっています。
 
-# 動かし方
+- [起動方法](#起動方法)
+
+# 起動方法
 
 「ASP.NET と Web 開発」ワークロードをインストールしてある Visual Studio 2019 でソリューションを開き、F5 キーでデバッグ実行すると、ブラウザでデモが動きます。
 
@@ -79,7 +81,7 @@ Visual Studio 16.8.3 現在、Blazor WebAssembly アプリを何度かデバッ�
 
 ## 再生
 
-<img src="Server/Documents/Images/Player_Stop.png" width="256" align="right">
+<img src="Shared/Documents/Images/Player_Stop.png" width="256" align="right">
 Player ページでは、予約した曲を再生します。
 
 <br clear="right">
@@ -89,12 +91,24 @@ Player ページでは、予約した曲を再生します。
 「前の曲」「次の曲」ボタンで、再生する曲を変更できます。
 
 <br clear="right">
-<img src="Server/Documents/Images/RequestList_Play.png" width="256" align="right">
+<img src="Shared/Documents/Images/RequestList_Play.png" width="256" align="right">
 予約一覧ページを表示すると、再生中の曲が橙色で表示されます。
+
+未再生の曲は白または薄緑で表示され、再生済の曲は灰色で表示されます。
 
 > このデモでは実際の動画は再生されず、予約一覧ページでの表示のみとなります。
 
 <br clear="right">
+
+## 予約操作
+
+<img src="Shared/Documents/Images/RequestList_Action.png" width="256" align="right"予約一覧ページの操作列にある「予約操作」ドロップダウンリストにより、対象曲の順番を入れ替えるなどすることができます。
+
+「上へ」「下へ」で対象曲の順番を 1 つずつ移動できる他、「次に再生」で現在再生中の曲の 1 つ上に移動できます。
+
+「未再生にする」「再生済にする」で再生状態を変更できます。
+
+「削除」で予約を取り消せます。
 
 ## 管理
 
